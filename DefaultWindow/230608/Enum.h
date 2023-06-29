@@ -1,0 +1,65 @@
+#pragma once
+
+typedef enum Direction
+{
+	DIR_NONE,
+	LEFT = 1,
+	RIGHT = 2,
+	TOP = 3,
+	BOTTOM = 4,
+
+	DIR_END
+}DIR;
+
+//Obj 타입
+typedef enum OBJID
+{
+	OBJ_NONE,
+	PLAYER,
+	SKILL,
+	EFFECT,
+	MONSTER,
+	SHIELD,
+	GROUND,
+	PORTAL,
+	OBJ_TYPE_END
+}OBJ_TYPE;
+
+//Obj 상태
+typedef enum OBJSTATE
+{
+	IDLE,
+	IDLE_TO_RUN,
+	RUN,
+	RUN_TO_IDLE,
+	ATTACK,
+	JUMP,
+	ROLL,
+	FLIP,
+	FALL,
+	GRAB_WALL,
+	HURTFLY,
+	HURTGROUND,
+	DOORBREAK,
+	DEAD,
+
+	OBJ_STATE_END
+
+}OBJ_STATE;
+
+//충돌체 타입
+typedef enum COLLIDERTYPE
+{
+	RECTANGLE,
+	ELLIPSE,
+
+	COLLIDER_TYPE_END
+}COLLIDER_TYPE;
+
+typedef enum PORTALTYPE
+{
+	PREV,
+	NEXT,
+
+	PORTAL_TYPE_END
+}PORTAL_TYPE;

@@ -15,6 +15,7 @@ public:
 	virtual void	LateUpdate(void)	override;
 	virtual void	Render(HDC hDC)		override;
 	virtual void	Release(void)		override;
+	virtual void	InitImage()			override;
 
 	virtual	int		OnCollision(CObj* _target, DIR _dir)		override ;
 	 
@@ -29,15 +30,5 @@ private:
 private:
 	bool				EDITMODE;
 
-public:
-	void		FindFrontMonster(vector<CObj*>& _targetVec);
-	void		BasicAttack();
-	void		InstallAttack();
-	void		LaserAttack();
-	void		SharkAttack();
-	void		FollowBullet();
-
-
-	CObj* Pet;
 };
 

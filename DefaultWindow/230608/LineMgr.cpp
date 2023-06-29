@@ -108,8 +108,8 @@ bool CLineMgr::CollisionLine(INFO& _rInfo, float* _pY)
 
 
 	//추가) 타겟 라인이 캐릭터 높이와 차이가 크면 false
-	if (abs(pTarget->Get_Info().tLpoint.fY - _rInfo.fY) > _rInfo.fCY)
-		return false;
+	//if (abs(pTarget->Get_Info().tLpoint.fY - _rInfo.fY) > _rInfo.fCY)
+	//	return false;
 
 
 	float	x1 = pTarget->Get_Info().tLpoint.fX;

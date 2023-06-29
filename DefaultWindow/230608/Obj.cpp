@@ -7,14 +7,11 @@
 CObj::CObj() : 
 	m_fSpeed(0.f), m_State(IDLE), m_Type(OBJ_NONE),
 	m_Collider_type(RECTANGLE),m_fAccel(0.f),m_Owner(nullptr),
-	m_AnimKey(nullptr),m_AnimFrame(0),m_AnimFrameIndex(0),
-	m_fFrontAngle(0.f), m_FrontCWidth(50.f)
+	m_fFrontAngle(0.f), m_FrontCWidth(50.f),m_PrevState(OBJ_STATE_END)
 {
 	ZeroMemory(&m_tInfo, sizeof(m_tInfo));
 	ZeroMemory(&m_tRect, sizeof(m_tRect));
 	ZeroMemory(&m_tRect, sizeof(m_Collide));
-
-	m_AnimTime = GetTickCount64();
 }
 
 CObj::~CObj()
@@ -23,91 +20,90 @@ CObj::~CObj()
 
 void CObj::Render(HDC hDC)
 {
-	// 사용할 CBitmap
-	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_AnimKey);
-	Gdiplus::Bitmap* pImage = pBitMap->Get_Image();
+	//// 사용할 CBitmap
+	//CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_AnimKey);
+	//Gdiplus::Bitmap* pImage = pBitMap->Get_Image();
 
-	//카메라 위치(디폴트 -> 플레이어)
-	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
+	////카메라 위치(디폴트 -> 플레이어)
+	//fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
 
-	// 캔버스
-	Gdiplus::Graphics g(hDC);
+	//// 캔버스
+	//Gdiplus::Graphics g(hDC);
 
 
-	//이미지 특정 위치 컬러 가져오는 코드
-	//Gdiplus::Color ColourOfTopLeftPixel;
-	//Gdiplus::Status eStatus = Image->GetPixel(0, 0, &ColourOfTopLeftPixel);
-	//_ASSERTE(eStatus == Gdiplus::Ok);
+	////이미지 특정 위치 컬러 가져오는 코드
+	////Gdiplus::Color ColourOfTopLeftPixel;
+	////Gdiplus::Status eStatus = Image->GetPixel(0, 0, &ColourOfTopLeftPixel);
+	////_ASSERTE(eStatus == Gdiplus::Ok);
 
-	//알파 블랜딩
-	Gdiplus::ImageAttributes attr;
-	attr.SetColorKey(Gdiplus::Color(255, 255, 255), Gdiplus::Color(255, 255, 255),
-		Gdiplus::ColorAdjustTypeBitmap);
+	////알파 블랜딩
+	//Gdiplus::ImageAttributes attr;
+	//attr.SetColorKey(Gdiplus::Color(255, 255, 255), Gdiplus::Color(255, 255, 255),
+	//	Gdiplus::ColorAdjustTypeBitmap);
 
-	//GIF 활성화
-	UINT count = pImage->GetFrameDimensionsCount();
-	GUID* pDimensionIDs = new GUID[count];
-	pImage->GetFrameDimensionsList(pDimensionIDs, count);
-	UINT frameCount = pImage->GetFrameCount(&pDimensionIDs[0]);
-	UINT uIndex = m_AnimFrameIndex; //프레임 전환 (Update에서 m_Count 조절해주기)
-	pImage->SelectActiveFrame(&pDimensionIDs[0], uIndex);
+	////GIF 활성화
+	//UINT count = pImage->GetFrameDimensionsCount();
+	//GUID* pDimensionIDs = new GUID[count];
+	//pImage->GetFrameDimensionsList(pDimensionIDs, count);
+	//UINT frameCount = pImage->GetFrameCount(&pDimensionIDs[0]);
+	//UINT uIndex = m_AnimFrameIndex; //프레임 전환 (Update에서 m_Count 조절해주기)
+	//pImage->SelectActiveFrame(&pDimensionIDs[0], uIndex);
 
-	g.TranslateTransform((int)m_tInfo.fX - ((int)cameraPos.x - WINCX / 2)
-		, (int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
-	if (m_fFrontAngle == 0.f)
-		g.ScaleTransform(-1.f, 1.f);
+	//g.TranslateTransform((int)m_tInfo.fX - ((int)cameraPos.x - WINCX / 2)
+	//	, (int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
+	//if (m_fFrontAngle == 0.f)
+	//	g.ScaleTransform(-1.f, 1.f);
 
-	// 캔버스 크기 설정
-	Gdiplus::Rect tRect = Gdiplus::Rect(
-		(pImage->GetWidth() * m_tInfo.fRatioY / 2) * (-1),
-		(pImage->GetHeight() * m_tInfo.fRatioY / 2) * (-1),
-		pImage->GetWidth() * m_tInfo.fRatioY, //복사 사이즈 (SMALL : 2/5)
-		pImage->GetHeight() * m_tInfo.fRatioY //복사 사이즈
-	);
+	//// 캔버스 크기 설정
+	//Gdiplus::Rect tRect = Gdiplus::Rect(
+	//	(pImage->GetWidth() * m_tInfo.fRatioY / 2) * (-1),
+	//	(pImage->GetHeight() * m_tInfo.fRatioY / 2) * (-1),
+	//	pImage->GetWidth() * m_tInfo.fRatioY, //복사 사이즈 (SMALL : 2/5)
+	//	pImage->GetHeight() * m_tInfo.fRatioY //복사 사이즈
+	//);
 
-	//Gdiplus::Matrix mat;
-	//g.GetTransform(&mat);
-	//이미지 출력 (느림, 알파블랜딩 O)
-	g.DrawImage(pImage,
-		tRect, 0, 0,
-		pImage->GetWidth(), pImage->GetHeight(), //이미지 원본 사이즈
-		Gdiplus::UnitPixel, &attr);
-
+	////Gdiplus::Matrix mat;
+	////g.GetTransform(&mat);
+	
+	////이미지 출력 (느림, 알파블랜딩 O)
 	//g.DrawImage(pImage,
-	//	Gdiplus::Rect(
-	//		((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
-	//		((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
-	//		pImage->GetWidth()* SMALL, //복사 사이즈 (SMALL : 2/5)
-	//		pImage->GetHeight() * SMALL //복사 사이즈
-	//	), 0, 0,
+	//	tRect, 0, 0,
 	//	pImage->GetWidth(), pImage->GetHeight(), //이미지 원본 사이즈
 	//	Gdiplus::UnitPixel, &attr);
 
-
-	//이미지 출력 (빠름, 알파블랜딩 X)
-	/*Gdiplus::CachedBitmap cBitMap(Image, &g);
-	g.DrawCachedBitmap(&cBitMap,
-		(int)m_tRect.left - ((int)cameraPos.x - WINCX / 2),
-		(int)m_tRect.top - ((int)cameraPos.y - WINCY / 2),
-	);*/
-
-	/*WCHAR text[100];
-	_stprintf_s(text, L"[Player] x : %f \t y : %f", m_tInfo.fX, m_tInfo.fY);
-	TextOutW(hDC, m_tInfo.fX - ((int)cameraPos.x - WINCX / 2), m_tInfo.fY - ((int)cameraPos.y - WINCY / 2), text, lstrlen(text));*/
-
-	//GIF 프레임 업데이트
-	//프레임 꼭 사용할 GIF 프레임 수 맞게 초기화 해줘야 함
-	if (m_AnimTime + 80 < GetTickCount64())
-	{
-		{
-			++m_AnimFrameIndex;
-			if (m_AnimFrameIndex > m_AnimFrame)
-				m_AnimFrameIndex = 0;
-		}
-		m_AnimTime = GetTickCount64();
-	}
+	////g.DrawImage(pImage,
+	////	Gdiplus::Rect(
+	////		((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
+	////		((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
+	////		pImage->GetWidth()* SMALL, //복사 사이즈 (SMALL : 2/5)
+	////		pImage->GetHeight() * SMALL //복사 사이즈
+	////	), 0, 0,
+	////	pImage->GetWidth(), pImage->GetHeight(), //이미지 원본 사이즈
+	////	Gdiplus::UnitPixel, &attr);
 
 
+	////이미지 출력 (빠름, 알파블랜딩 X)
+	///*Gdiplus::CachedBitmap cBitMap(Image, &g);
+	//g.DrawCachedBitmap(&cBitMap,
+	//	(int)m_tRect.left - ((int)cameraPos.x - WINCX / 2),
+	//	(int)m_tRect.top - ((int)cameraPos.y - WINCY / 2),
+	//);*/
+
+	///*WCHAR text[100];
+	//_stprintf_s(text, L"[Player] x : %f \t y : %f", m_tInfo.fX, m_tInfo.fY);
+	//TextOutW(hDC, m_tInfo.fX - ((int)cameraPos.x - WINCX / 2), m_tInfo.fY - ((int)cameraPos.y - WINCY / 2), text, lstrlen(text));*/
+
+	////GIF 프레임 업데이트
+	////프레임 꼭 사용할 GIF 프레임 수 맞게 초기화 해줘야 함
+	//if (m_AnimTime + 80 < GetTickCount64())
+	//{
+	//	{
+	//		++m_AnimFrameIndex;
+	//		if (m_AnimFrameIndex > m_AnimFrame)
+	//			m_AnimFrameIndex = 0;
+	//	}
+	//	m_AnimTime = GetTickCount64();
+	//}
 }
 
 void CObj::Update_Rect()
@@ -135,17 +131,66 @@ void CObj::Update_Rect()
 	m_FrontCollide.bottom = m_Collide.bottom;
 }
 
-void CObj::AnimChange(const TCHAR* _tcAnimKey)
-{
-	m_AnimKey = _tcAnimKey;
-	m_AnimFrame = m_AnimMap[m_AnimKey];
-}
+
+
 
 void CObj::RatioFixByImage(const TCHAR* _tcAnimKey)
 {
-	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_AnimKey);
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_FrameMap[m_State].AnimKey);
 	m_tInfo.fRatioX = m_tInfo.fCX / (float)pBitMap->Get_Image()->GetWidth();
 	m_tInfo.fRatioY = m_tInfo.fCY / (float)pBitMap->Get_Image()->GetHeight();
+}
+
+void CObj::BasicRender(HDC hDC)
+{
+
+}
+
+void CObj::FrameRender(HDC hDC)
+{
+	// 사용할 CBitmap
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_FrameMap[m_State].AnimKey);
+	Gdiplus::Bitmap* pImage = pBitMap->Get_Image();
+
+	//카메라 위치(디폴트 -> 플레이어)
+	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
+
+	// 캔버스
+	Gdiplus::Graphics g(hDC);
+
+	Gdiplus::ImageAttributes attr;
+	attr.SetColorKey(Gdiplus::Color(255, 0, 255), Gdiplus::Color(255, 0, 255),
+		Gdiplus::ColorAdjustTypeBitmap);
+
+	g.DrawImage(pImage,
+		Gdiplus::Rect(
+			((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
+			((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
+			(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
+			(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
+		),
+		m_FrameMap[m_State].iFrameStart * (int)m_FrameMap[m_State].iFrameSizeX,
+		m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
+		(int)m_FrameMap[m_State].iFrameSizeX,
+		(int)m_FrameMap[m_State].iFrameSizeY, //이미지 원본 사이즈
+		Gdiplus::UnitPixel, &attr);
+}
+
+void CObj::TempRender(HDC hDC)
+{
+}
+
+void CObj::Move_Frame()
+{
+	if (m_FrameMap[m_State].dwTime + m_FrameMap[m_State].dwSpeed < GetTickCount())
+	{
+		++m_FrameMap[m_State].iFrameStart;
+
+		if (m_FrameMap[m_State].iFrameStart > m_FrameMap[m_State].iFrameEnd)
+			m_FrameMap[m_State].iFrameStart = 0;
+
+		m_FrameMap[m_State].dwTime = GetTickCount();
+	}
 }
 
 

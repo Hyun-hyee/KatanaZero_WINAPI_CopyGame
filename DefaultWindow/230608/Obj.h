@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Define.h"
+#include "Enum.h"
+#include "Struct.h"
+#include "Functor.h"
 
 class CObj abstract
 {
@@ -12,8 +15,9 @@ public:
 	virtual void		Initialize(void)		PURE;
 	virtual void			Update(void)		PURE;
 	virtual void		LateUpdate(void)		PURE;
-	virtual void		Render(HDC hDC)			;
+	virtual void		Render(HDC hDC)			PURE;
 	virtual void		Release(void)			PURE;
+	virtual void		InitImage()				PURE;
 
 public:
 	virtual	int			OnCollision(CObj* _target, DIR _dir)		PURE;
@@ -32,8 +36,10 @@ protected:
 	float			m_fSpeed;
 	float			m_fAccel;
 	float			m_fSpeed_Vertical;
+	float			m_fAccelTime;
 	
 	OBJ_STATE		m_State;
+	OBJ_STATE		m_PrevState;
 	
 	CObj*			m_Owner;
 
@@ -62,18 +68,28 @@ public:
 	COLLIDER_TYPE Get_Collider_type() { return m_Collider_type; }
 	RECT*		Get_Collide() { return &m_Collide; }
 
+
+
+
+
 	//Anim KEY,Frame 
 protected:
-	map<const TCHAR*, int>  m_AnimMap;
-	const TCHAR*			m_AnimKey;
-	int						m_AnimFrame;
-	int						m_AnimFrameIndex;
-
-	ULONGLONG				m_AnimTime;
+	map<OBJ_STATE,FRAME>	m_FrameMap;
 
 protected:
-	void AnimChange(const TCHAR* _tcAnimKey);
 	void RatioFixByImage(const TCHAR* _tcAnimKey);
+
+	void BasicRender(HDC hDC);
+	void FrameRender(HDC hDC);
+	void TempRender(HDC hDC);
+
+	void Move_Frame();
+
+
+
+
+
+
 
 	//FrontAngle,FrontCollide
 protected:

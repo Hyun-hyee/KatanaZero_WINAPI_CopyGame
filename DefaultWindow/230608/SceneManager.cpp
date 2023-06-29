@@ -1,20 +1,11 @@
 #include "stdafx.h"
 #include "SceneManager.h"
-#include "FirstScene.h"
-#include "SecondScene.h"
 #include "ObjMgr.h"
 #include "Player.h"
 #include "ObjFactory.h"
 #include "LineMgr.h"
 #include "KeyMgr.h"
-#include "WTS1.h"
-#include "WTS2.h"
-#include "FourScene.h"
-#include "FiveScene.h"
 #include "HJS1.h"
-#include "HJS2.h"
-#include "HKScene.h"
-#include "HKScene2.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -54,56 +45,6 @@ void CSceneManager::Initialize()
 	SceneList.back()->Initialize();
 	SceneList.back()->Set_SceneOn(true);
 	m_PlayScene = SceneList.back();
-
-	SceneList.push_back(new CHJS2);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CFirstScene);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CSecondScene);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CWTS1);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CWTS2);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CFourScene);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CFiveScene);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CHKScene);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList.push_back(new CHKScene2);
-	SceneList.back()->Set_SceneOn(false);
-
-	SceneList[0]->Set_NextScene(SceneList[1]);
-	SceneList[1]->Set_NextScene(SceneList[2]);
-	SceneList[2]->Set_NextScene(SceneList[3]);
-	SceneList[3]->Set_NextScene(SceneList[4]);
-	SceneList[4]->Set_NextScene(SceneList[5]);
-	SceneList[5]->Set_NextScene(SceneList[6]);
-	SceneList[6]->Set_NextScene(SceneList[7]);
-	SceneList[7]->Set_NextScene(SceneList[8]);
-	SceneList[8]->Set_NextScene(SceneList[9]);
-	SceneList[9]->Set_NextScene(SceneList[0]);
-	//SceneList[7]->Set_NextScene(SceneList[0]);
-
-	SceneList[9]->Set_PrevScene(SceneList[8]);
-	SceneList[8]->Set_PrevScene(SceneList[7]);
-	SceneList[7]->Set_PrevScene(SceneList[6]);
-	SceneList[6]->Set_PrevScene(SceneList[5]);
-	SceneList[5]->Set_PrevScene(SceneList[4]);
-	SceneList[4]->Set_PrevScene(SceneList[3]);
-	SceneList[3]->Set_PrevScene(SceneList[2]);
-	SceneList[2]->Set_PrevScene(SceneList[1]);
-	SceneList[1]->Set_PrevScene(SceneList[0]);
-	SceneList[0]->Set_PrevScene(SceneList[9]);
 }
 
 void CSceneManager::Update()
@@ -179,3 +120,6 @@ void CSceneManager::ToPrevScene()
 		CObjMgr::Get_Instance()->Get_Player()->SetfX(1820.f);
 	}
 }
+
+
+

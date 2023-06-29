@@ -47,6 +47,10 @@ void CPortal::Release(void)
 {
 }
 
+void CPortal::InitImage()
+{
+}
+
 int CPortal::OnCollision(CObj* _target, DIR _dir)
 {
 	if (_target->Get_Type() == PLAYER)

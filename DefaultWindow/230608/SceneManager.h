@@ -1,6 +1,10 @@
 #pragma once
 
 #include "Define.h"
+#include "Enum.h"
+#include "Struct.h"
+#include "Functor.h"
+
 
 class CScene;
 
@@ -66,5 +70,13 @@ public:
 
 private:
 	CScene*		m_PlayScene;
+
+
+private:
+	fPOINT BackSize;
+
+public:
+	void Set_BackSize(fPOINT point) { BackSize.x = point.x; BackSize.y = point.y; }
+	fPOINT Get_BackSize() { return BackSize; }
 
 };

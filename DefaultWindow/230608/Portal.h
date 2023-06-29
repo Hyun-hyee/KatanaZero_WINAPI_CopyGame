@@ -16,6 +16,7 @@ public:
 	virtual void	LateUpdate(void)	override;
 	virtual void	Render(HDC hDC)		override;
 	virtual void	Release(void)		override;
+	virtual void InitImage()			override;
 
 	virtual	int		OnCollision(CObj* _target, DIR _dir)		override;
 

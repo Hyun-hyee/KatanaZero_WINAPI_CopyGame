@@ -29,6 +29,10 @@ void CSkill::Release(void)
 {
 }
 
+void CSkill::InitImage()
+{
+}
+
 int CSkill::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;

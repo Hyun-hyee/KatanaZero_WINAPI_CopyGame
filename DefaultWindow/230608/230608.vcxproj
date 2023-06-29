@@ -147,107 +147,52 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="230608.h" />
-    <ClInclude Include="BanBan.h" />
-    <ClInclude Include="BanBanAttack.h" />
-    <ClInclude Include="BasicAttack.h" />
-    <ClInclude Include="BasicMonster.h" />
-    <ClInclude Include="Bee.h" />
     <ClInclude Include="BehaviorTree.h" />
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BmpMgr.h" />
     <ClInclude Include="CameraComponent.h" />
-    <ClInclude Include="CFireWorks.h" />
     <ClInclude Include="Character.h" />
-    <ClInclude Include="ChMonster.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="FirstScene.h" />
-    <ClInclude Include="FiveScene.h" />
-    <ClInclude Include="FollowBoss.h" />
-    <ClInclude Include="FollowBullet.h" />
-    <ClInclude Include="FollowMonster.h" />
-    <ClInclude Include="FourScene.h" />
+    <ClInclude Include="Enum.h" />
+    <ClInclude Include="Functor.h" />
     <ClInclude Include="HJS1.h" />
-    <ClInclude Include="HJS2.h" />
-    <ClInclude Include="HKScene.h" />
-    <ClInclude Include="HKScene2.h" />
-    <ClInclude Include="Honeycomb.h" />
-    <ClInclude Include="Imp.h" />
-    <ClInclude Include="InstallAttack.h" />
     <ClInclude Include="KeyMgr.h" />
-    <ClInclude Include="LaserAttack.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="LineMgr.h" />
-    <ClInclude Include="Monster_Vellum.h" />
-    <ClInclude Include="Monster_ZombieMushroom.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="ObjFactory.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Obj.h" />
     <ClInclude Include="ObjMgr.h" />
-    <ClInclude Include="Portal.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="SecondScene.h" />
-    <ClInclude Include="SharkAttack.h" />
-    <ClInclude Include="ShootingStar.h" />
     <ClInclude Include="Skill.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Thorn.h" />
-    <ClInclude Include="Vellum_TailAttack.h" />
-    <ClInclude Include="WatcherLight.h" />
-    <ClInclude Include="WTB.h" />
-    <ClInclude Include="WTS1.h" />
-    <ClInclude Include="WTS2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="230608.cpp" />
-    <ClCompile Include="BanBan.cpp" />
-    <ClCompile Include="BanBanAttack.cpp" />
-    <ClCompile Include="BasicAttack.cpp" />
-    <ClCompile Include="BasicMonster.cpp" />
-    <ClCompile Include="Bee.cpp" />
     <ClCompile Include="BehaviorTree.cpp" />
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BmpMgr.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
-    <ClCompile Include="CFireWorks.cpp" />
     <ClCompile Include="Character.cpp" />
-    <ClCompile Include="ChMonster.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="FirstScene.cpp" />
-    <ClCompile Include="FiveScene.cpp" />
-    <ClCompile Include="FollowBoss.cpp" />
-    <ClCompile Include="FollowMonster.cpp" />
-    <ClCompile Include="FourScene.cpp" />
     <ClCompile Include="HJS1.cpp" />
-    <ClCompile Include="HJS2.cpp" />
-    <ClCompile Include="HKScene.cpp" />
-    <ClCompile Include="HKScene2.cpp" />
-    <ClCompile Include="Honeycomb.cpp" />
-    <ClCompile Include="Imp.cpp" />
-    <ClCompile Include="InstallAttack.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
-    <ClCompile Include="LaserAttack.cpp" />
-    <ClCompile Include="Monster_Vellum.cpp" />
-    <ClCompile Include="Monster_ZombieMushroom.cpp" />
-    <ClCompile Include="Portal.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="FollowBullet.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="LineMgr.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="Obj.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
-    <ClCompile Include="SecondScene.cpp" />
-    <ClCompile Include="SharkAttack.cpp" />
-    <ClCompile Include="ShootingStar.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -255,12 +200,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Thorn.cpp" />
-    <ClCompile Include="Vellum_TailAttack.cpp" />
-    <ClCompile Include="WatcherLight.cpp" />
-    <ClCompile Include="WTB.cpp" />
-    <ClCompile Include="WTS1.cpp" />
-    <ClCompile Include="WTS2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="230608.rc" />

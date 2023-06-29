@@ -33,5 +33,6 @@ protected:
 	// 이단 점프 관련
 	int					m_iAdditionJump_MaxCount;
 	int					m_iAdditionJump_Count;
+
 };
 

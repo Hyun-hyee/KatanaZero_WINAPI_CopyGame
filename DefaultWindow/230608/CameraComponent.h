@@ -11,5 +11,9 @@ public:
 	virtual void Update() override;
 	virtual void Render(HDC hdc) override;
 
+private:
+	fPOINT BackSize;
+public:
+	void Set_BackSize(float x, float y) { BackSize.x = x; BackSize.y = y; }
 };
 

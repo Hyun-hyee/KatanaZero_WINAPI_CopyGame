@@ -42,6 +42,10 @@ void CMonster::Release(void)
 {
 }
 
+void CMonster::InitImage()
+{
+}
+
 void CMonster::Attack()
 {
 }

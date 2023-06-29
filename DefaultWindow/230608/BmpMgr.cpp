@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "BmpMgr.h"
+#include "Define.h"
+#include "Enum.h"
+#include "Struct.h"
+#include "Functor.h"
+
 
 CBmpMgr* CBmpMgr::m_pInstance = nullptr;
 
