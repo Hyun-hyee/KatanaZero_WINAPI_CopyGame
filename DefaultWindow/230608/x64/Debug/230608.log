@@ -1,14 +1,1 @@
-﻿  Player.cpp
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(106,25): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(107,24): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(108,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(109,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(128,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(139,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(150,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(162,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(180,57): warning C4244: '-=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(186,57): warning C4244: '+=': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(299,46): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  230608.vcxproj -> C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\x64\Debug\230608.exe
+﻿  230608.vcxproj -> D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\x64\Debug\230608.exe

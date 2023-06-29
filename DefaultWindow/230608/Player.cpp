@@ -38,7 +38,7 @@ void CPlayer::Initialize(void)
 	m_fJump_Angle = PI / 3;
 	m_iAdditionJump_MaxCount = 3;
 	m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
-	m_fAccel = 0.f;
+	m_fAccel = 0.1f;
 	m_fAccelTime = 0.f;
 
 	if (EDITMODE)
@@ -124,7 +124,7 @@ void CPlayer::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 10;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 200;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 70;
 	TempFrame.iFrameSizeY = 70;
@@ -135,7 +135,7 @@ void CPlayer::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 9;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 200;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 88;
 	TempFrame.iFrameSizeY = 64;
@@ -146,7 +146,7 @@ void CPlayer::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 200;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 84;
 	TempFrame.iFrameSizeY = 64;
@@ -158,12 +158,116 @@ void CPlayer::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 4;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 200;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 80;
 	TempFrame.iFrameSizeY = 70;
 
 	m_FrameMap.insert({ RUN_TO_IDLE, TempFrame });
+
+	TempFrame.AnimKey = L"Player_ATTACK";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 6;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 120;
+	TempFrame.iFrameSizeY = 82;
+
+	m_FrameMap.insert({ ATTACK, TempFrame });
+
+	TempFrame.AnimKey = L"Player_JUMP";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 3;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 60;
+	TempFrame.iFrameSizeY = 84;
+
+	m_FrameMap.insert({ JUMP, TempFrame });
+
+	TempFrame.AnimKey = L"Player_FALL";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 3;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 82;
+	TempFrame.iFrameSizeY = 91;
+
+	m_FrameMap.insert({ FALL, TempFrame });
+
+	//
+	TempFrame.AnimKey = L"Player_FLIP";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 10;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 96;
+	TempFrame.iFrameSizeY = 88;
+
+	m_FrameMap.insert({ FLIP, TempFrame });
+
+	TempFrame.AnimKey = L"Player_ROLL";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 6;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 94;
+	TempFrame.iFrameSizeY = 64;
+
+	m_FrameMap.insert({ ROLL, TempFrame });
+
+
+	TempFrame.AnimKey = L"Player_GRAB_WALL";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 3;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 78;
+	TempFrame.iFrameSizeY = 100;
+
+	m_FrameMap.insert({ GRAB_WALL, TempFrame });
+
+
+	TempFrame.AnimKey = L"Player_HURTFLY";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 3;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 100;
+	TempFrame.iFrameSizeY = 66;
+
+	m_FrameMap.insert({ HURTFLY, TempFrame });
+
+
+	TempFrame.AnimKey = L"Player_HURTGROUND";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 5;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 114;
+	TempFrame.iFrameSizeY = 46;
+
+	m_FrameMap.insert({ HURTGROUND, TempFrame });
+
+
+	TempFrame.AnimKey = L"Player_DOORBREAK";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 9;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 100;
+	TempFrame.iFrameSizeY = 88;
+
+	m_FrameMap.insert({ DOORBREAK, TempFrame });
 }
 
 
@@ -177,13 +281,19 @@ void CPlayer::Key_Input(void)
 	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_LEFT) || CKeyMgr::Get_Instance()->Key_Down(VK_LEFT))
 	{
 		Set_FrontAngle(PI);
-		m_tInfo.fX -= m_fSpeed + 0.5 * m_fAccel * m_fAccelTime;
+		m_tInfo.fX -= m_fSpeed;
+		m_fSpeed += m_fAccel;
+		if (m_fSpeed >= 8.f)
+			m_fSpeed = 8.f;
 	}
 
 	 if (CKeyMgr::Get_Instance()->Key_Pressing(VK_RIGHT) || CKeyMgr::Get_Instance()->Key_Down(VK_RIGHT))
 	{
 		Set_FrontAngle(0);
-		m_tInfo.fX += m_fSpeed + 0.5 * m_fAccel * m_fAccelTime;
+		m_tInfo.fX += m_fSpeed;
+		m_fSpeed += m_fAccel;
+		if (m_fSpeed >= 8.f)
+			m_fSpeed = 8.f;
 	}
 
 
@@ -191,21 +301,24 @@ void CPlayer::Key_Input(void)
 	 {
 		 if (m_State == IDLE || m_State == IDLE_TO_RUN)
 			 m_State = IDLE_TO_RUN;
-		 else
+		 else if (m_State != JUMP)
 			 m_State = RUN;
 	 }
-	 if (!CKeyMgr::Get_Instance()->Key_Pressing(VK_LEFT) && !CKeyMgr::Get_Instance()->Key_Pressing(VK_RIGHT))
+	 if (!CKeyMgr::Get_Instance()->Key_Pressing(VK_LEFT) && !CKeyMgr::Get_Instance()->Key_Pressing(VK_RIGHT) && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
 	 {
 		 if (m_State == RUN || m_State == RUN_TO_IDLE)
 			 m_State = RUN_TO_IDLE;
-		 else
+		 else if (m_State != JUMP && m_State != ATTACK)
 		 {
 			 m_State = IDLE;
 		 }
 		
 	 }
 		 
-	 
+	 if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+	 {
+		 m_State = ATTACK;
+	 }
 	
 
 	if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
@@ -220,6 +333,7 @@ void CPlayer::Key_Input(void)
 			{
 				m_fSpeed_Vertical = 10.f;
 				m_bJump = true;
+				m_State = JUMP;
 			}
 		}
 	}
@@ -261,6 +375,7 @@ void CPlayer::Jump()
 	if (0.f < fY - m_tInfo.fY)
 		m_bJump = true;
 
+
 	if (m_bJump)
 	{
 		if (bLineCol && (fY < m_tInfo.fY - m_fSpeed_Vertical) && m_fSpeed_Vertical < 0.f)
@@ -268,11 +383,13 @@ void CPlayer::Jump()
 			m_bJump = false;
 			m_tInfo.fY = fY;
  			m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
+			m_State = RUN;
 		}
 		else
 		{
 			m_tInfo.fY -= m_fSpeed_Vertical;
 			m_fSpeed_Vertical -= (0.034f * G);
+
 		}
 	}
 	else if (bLineCol)
@@ -285,6 +402,7 @@ void CPlayer::Jump()
 		m_tInfo.fY -= m_fSpeed_Vertical;
 		m_fSpeed_Vertical -= (0.034f * G);
 	}
+
 }
 
 /////////////////////////////////////////////////////////////////
@@ -292,14 +410,15 @@ void CPlayer::Jump()
 //각 객체의 해당 애니메이션 키값 넣어주기
 void CPlayer::StateUpdate()
 {
+
 	if (m_PrevState != m_State)
 	{
 		m_FrameMap[m_State].iFrameStart = 0;
-		m_FrameMap[m_State].dwSpeed = 200;
 		m_FrameMap[m_State].dwTime = GetTickCount64();
 
 		m_PrevState = m_State;
 	}
+
 
 	if (m_fFrontAngle == 0)
 		m_FrameMap[m_State].iMotion = 0;
@@ -309,31 +428,34 @@ void CPlayer::StateUpdate()
 	switch (m_State)
 	{
 	case IDLE:
-		m_fAccelTime = 0.f;
+		m_fSpeed = 5.f;
 		break;
 
 	case IDLE_TO_RUN:
 			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 				m_State = RUN;
-			m_fAccel = 1.f;
-			m_fAccelTime += 0.3f;
 		break;
 
 	case RUN:
-		m_fAccel = 1.f;
 		break;
 
 	case RUN_TO_IDLE:
 			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 				m_State = IDLE;
-			m_fAccel = 1.f;
-			m_fAccelTime -= 0.3f;
+			m_fSpeed -= m_fAccel;
+			if (m_fSpeed <= 5.f)
+				m_fSpeed = 5.f;
 		break;
 
 	case ATTACK:
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			m_State = RUN;
 		break;
 
 	case JUMP:
+		if (0 >= m_iAdditionJump_Count)
+			m_State = FALL;
+
 		break;
 
 	case ROLL:
@@ -357,6 +479,8 @@ void CPlayer::StateUpdate()
 	case DOORBREAK:
 		break;
 	}
+
+	
 
 
 }
