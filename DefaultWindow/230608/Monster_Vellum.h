@@ -1,0 +1,85 @@
+#pragma once
+
+#include "Monster.h"
+#include <functional>
+
+class CMonster_Vellum :
+    public CMonster
+{
+public:
+	CMonster_Vellum();
+	virtual ~CMonster_Vellum();
+
+public:
+	virtual void	Initialize(void)	override;
+	virtual void	Update(void)		override;
+	virtual void	LateUpdate(void)	override;
+	virtual void	Render(HDC hDC)		override;
+	virtual void	Release(void)		override;
+
+
+	virtual	int			OnCollision(CObj* _target, DIR _dir)		override;
+public:
+	void StateUpdate();
+	void Jump();
+
+public:
+	enum class STATE
+	{
+		IDLE, MOVE_TO_ENEMY, MOVE_TO_ANYWHERE, HIDE, 
+		ATTACK_DIGOUT, ATTACK_DIGOUT_SHORT, 
+		ATTACK_METEOR, ATTACK_RANGED, ATTACK_NEEDLE,
+		CHARGE, ATTACK_BREATH, ATTACK_BREATH_END, 
+		DIE, HIT, ATTACK_TAIL, SET_TARGET
+	};
+
+private:
+	STATE	m_eState;
+	bool	m_bStateChanged;
+	int		m_iPatternRandom;
+	map<STATE, function<void(CMonster_Vellum*)>> m_mFnAction;
+
+public:
+	void StateChange(STATE _eState)
+	{
+		m_eState = _eState;
+		m_bStateChanged = true;
+	}
+
+	bool IsStateChanged()
+	{
+		if (m_bStateChanged)
+		{
+			m_bStateChanged = false;
+			return true;
+		}
+		return m_bStateChanged;
+	}
+
+private:
+	void Idle();
+	void MoveToEnemy();
+	void MoveToAnywhere();
+	void Hide();
+	void Attack_Digout();
+	void Attack_DigoutShort();
+	void Attack_Meteor();
+	void Attack_Ranged();
+	void Attack_Needle();
+	void Charge();
+	void Attack_Breath();
+	void Attack_BreathEnd();
+	void Attack_Tail();
+	void Hit();
+	void Die();
+	void SetTarget();
+
+private:
+	CObj* m_pTarget = nullptr;
+	ULONGLONG dwStateTimer;
+	ULONGLONG dwTailAttackTimer;
+
+private:
+	int m_iHP;
+};
+
