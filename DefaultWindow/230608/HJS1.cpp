@@ -29,6 +29,8 @@ void CHJS1::Initialize()
 	CLineMgr::Get_Instance()->Add_Line({ 500,300 }, { 800,300 });
 
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77,400,155,370));	
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77 + 300, 450, 110, 200));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77+1070, 400, 155, 370));
 }
 
 void CHJS1::Update()

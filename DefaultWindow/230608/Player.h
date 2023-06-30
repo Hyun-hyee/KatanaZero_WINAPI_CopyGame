@@ -34,5 +34,7 @@ private:
 	bool				m_WallJump;
 	bool				m_DirCheck[DIR_END]; // 0 : left , 1 : right
 
+	float				m_fWallSpeed;
+
 };
 

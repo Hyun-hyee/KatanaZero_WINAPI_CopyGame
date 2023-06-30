@@ -40,6 +40,8 @@ void CPlayer::Initialize(void)
 	m_iAdditionJump_MaxCount = 3;
 	m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
 	m_fAccel = 0.1f;
+	m_fWallSpeed = 1.f;
+	m_fSpeed = 3.f;
 
 	m_WallJump = false;
 	
@@ -200,6 +202,7 @@ void CPlayer::InitImage()
 	TempFrame.iFrameSizeY = 84;
 
 	m_FrameMap.insert({ JUMP, TempFrame });
+	m_FrameMap.insert({ JUMP_WALL, TempFrame });
 
 	TempFrame.AnimKey = L"Player_FALL";
 	TempFrame.iFrameStart = 0;
@@ -211,7 +214,7 @@ void CPlayer::InitImage()
 	TempFrame.iFrameSizeY = 91;
 
 	m_FrameMap.insert({ FALL, TempFrame });
-
+	m_FrameMap.insert({ FALL_WALL, TempFrame });
 	//
 	TempFrame.AnimKey = L"Player_FLIP";
 	TempFrame.iFrameStart = 0;
@@ -292,100 +295,100 @@ void CPlayer::Key_Input(void)
 	{
 		m_tInfo.fPrevX = m_tInfo.fX;
 
-		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
-		{
-			if (!m_DirCheck[LEFT])
-			{
-				if (m_State == IDLE)
-					m_State = IDLE_TO_RUN;
-				Set_FrontAngle(PI);
-				m_tInfo.fX -= m_fSpeed;
-				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
-			}
+		//if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		//{
+		//	if (!m_DirCheck[LEFT])
+		//	{
+		//		if (m_State == IDLE)
+		//			m_State = IDLE_TO_RUN;
+		//		Set_FrontAngle(PI);
+		//		m_tInfo.fX -= m_fSpeed;
+		//		m_fSpeed += m_fAccel;
+		//		if (m_fSpeed >= 8.f)
+		//			m_fSpeed = 8.f;
+		//	}a  da  d  ad    ad  ad  ad
 
-		}
+		//}
 
-		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
-		{
-			if (!m_DirCheck[RIGHT])
-			{
-				if (m_State == IDLE)
-					m_State = IDLE_TO_RUN;
-				Set_FrontAngle(0);
-				m_tInfo.fX += m_fSpeed;
-				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
-			}
+		//if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		//{
+		//	if (!m_DirCheck[RIGHT])
+		//	{
+		//		if (m_State == IDLE)
+		//			m_State = IDLE_TO_RUN;
+		//		Set_FrontAngle(0);
+		//		m_tInfo.fX += m_fSpeed;
+		//		m_fSpeed += m_fAccel;
+		//		if (m_fSpeed >= 8.f)
+		//			m_fSpeed = 8.f;
+		//	}
 
-		}
-
-
-		if (CKeyMgr::Get_Instance()->Key_Down('A') || CKeyMgr::Get_Instance()->Key_Down('D'))
-		{
-			if (m_State == IDLE || m_State == IDLE_TO_RUN)
-				m_State = IDLE_TO_RUN;
-			else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
-				m_State = RUN;
-		}
-		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
-		{
-			if (m_State == RUN || m_State == RUN_TO_IDLE)
-				m_State = RUN_TO_IDLE;
-			else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
-			{
-				m_State = IDLE;
-			}
-
-		}
-
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
+		//}
 
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
-		{
-			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
-			{
-				m_tInfo.fY -= -10.0f;
-			}
-			else
-			{
-				if (m_WallJump)
-				{
-					if (m_fFrontAngle == PI)
-					{
-						m_fFrontAngle == 0;
-						m_bJump = true;
-						m_State = JUMP;
-						m_fSpeed_Vertical = 20.f;
-						m_tInfo.fX += 100.f;
-						m_fSpeed += m_fAccel;
-					}
-					else
-					{
-						m_fFrontAngle == PI;
-						m_bJump = true;
-						m_State = JUMP;
-						m_fSpeed_Vertical = 20.f;
-						m_tInfo.fX -= 100.f;
-						m_fSpeed += m_fAccel;
-					}
-				}
-				
+		//if (CKeyMgr::Get_Instance()->Key_Down('A') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		//{
+		//	if (m_State == IDLE || m_State == IDLE_TO_RUN)
+		//		m_State = IDLE_TO_RUN;
+		//	else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
+		//		m_State = RUN;
+		//}
+		//if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
+		//{
+		//	if (m_State == RUN || m_State == RUN_TO_IDLE)
+		//		m_State = RUN_TO_IDLE;
+		//	else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
+		//	{
+		//		m_State = IDLE;
+		//	}
 
-				if (0 < m_iAdditionJump_Count--)
-				{
-					m_fSpeed_Vertical = 10.f;
-					m_bJump = true;
-					m_State = JUMP;
-				}
-			}
-		}
+		//}
+
+		//if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		//{
+		//	m_State = ATTACK;
+		//}
+
+
+		//if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		//{
+		//	if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+		//	{
+		//		m_tInfo.fY -= -10.0f;
+		//	}
+		//	else
+		//	{
+		//		if (m_WallJump)
+		//		{
+		//			if (m_fFrontAngle == PI)
+		//			{
+		//				m_fFrontAngle == 0;
+		//				m_bJump = true;
+		//				//m_State = JUMP;
+		//				m_fSpeed_Vertical = 20.f;
+		//				m_tInfo.fX += 100.f;
+		//				m_fSpeed += m_fAccel;
+		//			}
+		//			else
+		//			{
+		//				m_fFrontAngle == PI;
+		//				m_bJump = true;
+		//				//m_State = JUMP;
+		//				m_fSpeed_Vertical = 20.f;
+		//				m_tInfo.fX -= 100.f;
+		//				m_fSpeed += m_fAccel;
+		//			}
+		//		}
+		//		
+
+		//		if (0 < m_iAdditionJump_Count--)
+		//		{
+		//			m_fSpeed_Vertical = 10.f;
+		//			m_bJump = true;
+		//			//m_State = JUMP;
+		//		}
+		//	}
+		//}
 
 		if (CKeyMgr::Get_Instance()->Key_Pressing(VK_SHIFT))
 		{
@@ -434,16 +437,7 @@ void CPlayer::Key_Input(void)
 		}
 	}
 
-	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_CONTROL))
-	{
-		CAMERAMODE = true;
-		m_State = IDLE;
-	}
-	else 
-	{
-		CAMERAMODE = false;
-	}
-
+	
 
 	/*******************************************************/
 
@@ -470,17 +464,17 @@ void CPlayer::Jump()
 			m_bJump = false;
 			m_tInfo.fY = fY;
  			m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
-			m_State = RUN;
+			//m_State = RUN;
 		}
 		else
 		{
-			if (!m_WallJump)
+			if (m_State != GRAB_WALL)
 			{
 				m_tInfo.fY -= m_fSpeed_Vertical;
 				m_fSpeed_Vertical -= (0.034f * G);
 
-				if (m_fSpeed_Vertical < 0)
-					m_State = FALL;
+				/*if (m_fSpeed_Vertical < 0)
+					m_State = FALL;*/
 			}
 			else
 			{
@@ -527,31 +521,458 @@ void CPlayer::StateUpdate()
 	switch (m_State)
 	{
 	case IDLE:
-		m_fSpeed = 5.f;
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Pressing('D'))
+		{
+			m_State = IDLE_TO_RUN;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+		
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
 		break;
 
 	case IDLE_TO_RUN:
-			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
-				m_State = RUN;
+		
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			if (!m_DirCheck[LEFT])
+			{
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+		
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+
+		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
+		{
+			m_State = RUN_TO_IDLE;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			m_State = RUN;
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
+
 		break;
 
 	case RUN:
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			if (!m_DirCheck[LEFT])
+			{
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+
+		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
+		{
+				m_State = RUN_TO_IDLE;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
 		break;
 
 	case RUN_TO_IDLE:
-			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
-				m_State = IDLE;
-			m_fSpeed -= m_fAccel;
-			if (m_fSpeed <= 5.f)
-				m_fSpeed = 5.f;
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			if (!m_DirCheck[LEFT])
+			{
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
+
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			m_State = IDLE;
+		
+		m_fSpeed -= m_fAccel;
+		if (m_fSpeed <= 5.f)
+			m_fSpeed = 5.f;
+		
 		break;
 
 	case ATTACK:
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 			m_State = RUN;
 		break;
 
 	case JUMP:
+
+   		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			if (!m_DirCheck[LEFT])
+			{
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
+		if (!m_bJump)
+			m_State = RUN;
+
+		if (m_WallJump && m_fSpeed_Vertical < 8.f )
+		{
+			if ((CKeyMgr::Get_Instance()->Key_Pressing('D')))
+			{
+				if (m_fFrontAngle == 0)
+				{
+					m_State = GRAB_WALL;
+					m_fSpeed_Vertical = 0.f;
+				}
+			}
+			else if ((CKeyMgr::Get_Instance()->Key_Pressing('A')))
+			{
+				if (m_fFrontAngle == PI)
+				{
+					m_State = GRAB_WALL;
+					m_tInfo.fX -= 34.f;
+					m_fSpeed_Vertical = 0.f;
+				}
+			}
+		}
+
+
+		break;
+
+	case FALL:
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			if (!m_DirCheck[LEFT])
+			{
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+		if (!m_bJump)
+		{
+			m_State = RUN;
+		}
+			
+		if (m_WallJump && m_fSpeed_Vertical < 8.f)
+		{
+			if ((CKeyMgr::Get_Instance()->Key_Pressing('D')))
+			{
+				if (m_fFrontAngle == 0)
+				{
+					m_State = GRAB_WALL;
+					m_fSpeed_Vertical = 0.f;
+				}
+			}
+			else if ((CKeyMgr::Get_Instance()->Key_Pressing('A')))
+			{
+				if (m_fFrontAngle == PI)
+				{
+					m_State = GRAB_WALL;
+					m_tInfo.fX -= 34.f;
+					m_fSpeed_Vertical = 0.f;
+				}
+			}
+		}
+
+		break;
+
+	case GRAB_WALL:
+
+		if (!m_bJump)
+		{
+			m_State = RUN;
+			if (m_fFrontAngle == PI)
+				m_tInfo.fX += 34.f;
+		}
+		
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (m_fFrontAngle == PI)
+				m_fFrontAngle = 0;
+			else if (m_fFrontAngle == 0)
+				m_fFrontAngle = PI;
+
+			m_fSpeed_Vertical = 10.f;
+			m_bJump = true;
+			m_WallJump = false;
+			m_State = JUMP_WALL;
+		}
+
+		break;
+
+	case JUMP_WALL:
+
+		if (!m_bJump)
+		{
+			m_State = RUN;
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL_WALL;
+
+
+		if (m_WallJump)
+		{
+			m_State = GRAB_WALL;
+			m_fSpeed_Vertical = 0.f;
+			if (m_fFrontAngle == PI)
+				m_tInfo.fX -= 34.f;
+		}
+		else
+		{
+			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+			m_fWallSpeed += m_fAccel;
+			if (m_fWallSpeed >= 8.f)
+				m_fWallSpeed = 8.f;
+		}
+
+		break;
+	
+	case FALL_WALL:
+		if (!m_bJump)
+		{
+			m_State = RUN;
+		}
+
+		if (m_WallJump)
+		{
+			m_State = GRAB_WALL;
+			m_fSpeed_Vertical = 0.f;
+			if (m_fFrontAngle == PI)
+				m_tInfo.fX -= 34.f;
+		}
+		else
+		{
+			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+			m_fWallSpeed += m_fAccel;
+			if (m_fWallSpeed >= 8.f)
+				m_fWallSpeed = 8.f;
+		}
 
 		break;
 
@@ -559,12 +980,6 @@ void CPlayer::StateUpdate()
 		break;
 
 	case FLIP:
-		break;
-
-	case FALL:
-		break;
-
-	case GRAB_WALL:
 		break;
 
 	case HURTFLY:
@@ -575,6 +990,19 @@ void CPlayer::StateUpdate()
 
 	case DOORBREAK:
 		break;
+	}
+
+	if(m_State != JUMP_WALL && m_State != FALL_WALL)
+		m_fWallSpeed = 1.f;
+
+	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_CONTROL))
+	{
+		CAMERAMODE = true;
+		m_State = IDLE;
+	}
+	else
+	{
+		CAMERAMODE = false;
 	}
 
 	
@@ -611,6 +1039,9 @@ int CPlayer::OnCollision(CObj* _target, DIR _dir)
 	{
 		m_WallJump = true;
 		m_DirCheck[_dir] = true;
+		/*
+		if (_dir == RIGHT)
+			m_tInfo.fX -= 10.f;*/
 	}
 	return 0;
 }
