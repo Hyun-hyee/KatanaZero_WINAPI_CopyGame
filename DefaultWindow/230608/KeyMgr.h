@@ -6,6 +6,7 @@ class CKeyMgr
 private:
 	CKeyMgr();
 	~CKeyMgr();
+	void Release();
 
 public:
 	bool Key_Pressing(int _iKey);

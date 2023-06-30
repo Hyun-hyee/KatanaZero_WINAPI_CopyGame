@@ -15,5 +15,10 @@ private:
 	fPOINT BackSize;
 public:
 	void Set_BackSize(float x, float y) { BackSize.x = x; BackSize.y = y; }
+
+private:
+	POINT	PrevMousePos;
+	POINT	NowMousePos;
+	fPOINT	pos;
 };
 

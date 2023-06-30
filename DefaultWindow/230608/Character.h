@@ -17,7 +17,7 @@ public:
 
 public:
 	virtual	int	 OnCollision(CObj* _target, DIR _dir)	override;
-
+	virtual	int	 OutCollision(CObj* _target)	override;
 	void AddComponent(Component* component);
 	void RemoveComponent(Component* component);
 

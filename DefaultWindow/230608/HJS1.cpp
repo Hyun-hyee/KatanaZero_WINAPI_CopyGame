@@ -8,8 +8,7 @@
 #include "BmpMgr.h"
 #include "Define.h"
 #include "SceneManager.h"
-#include "Portal.h"
-#include "BasicMonster.h"
+#include "Wall.h"
 
 CHJS1::CHJS1()
 {
@@ -27,8 +26,9 @@ void CHJS1::Initialize()
 	CSceneManager::Get_Instance()->Set_BackSize({1344, 784});
 	
 	CLineMgr::Get_Instance()->Add_Line({ -500,550 }, { WINCX + 500,550 });
+	CLineMgr::Get_Instance()->Add_Line({ 500,300 }, { 800,300 });
 
-	
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77,400,155,370));	
 }
 
 void CHJS1::Update()
@@ -63,9 +63,6 @@ void CHJS1::Render(HDC _hDC)
 
 void CHJS1::Release()
 {
-	CObjMgr::Get_Instance()->Release();
-	CLineMgr::Get_Instance()->Release();
-	//ReleaseDC(g_hWnd, m_hDC);
 }
 
 

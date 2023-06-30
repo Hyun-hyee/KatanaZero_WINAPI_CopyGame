@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "ObjMgr.h"
-#include "CollisionManager.h"
+#include "CollisionMgr.h"
 #include "ObjFactory.h"
-#include "Monster.h"
 #include "Obj.h"
-#include "Monster.h"
-#include "Bullet.h"
 
 CObjMgr* CObjMgr::m_pInstance = nullptr;
 
 CObjMgr::CObjMgr()
 {
+	m_CheckPairMap.insert({ PLAYER, SKILL });
+	m_CheckPairMap.insert({ PLAYER, ENEMY });
+	m_CheckPairMap.insert({ PLAYER, WALL });
+	m_CheckPairMap.insert({ ENEMY, SKILL });
 }
 
 CObjMgr::~CObjMgr()
@@ -23,9 +24,15 @@ void CObjMgr::Update()
 
 	for (int i = 0; i < OBJ_TYPE_END; ++i)
 	{
-		for (int r = 0; r < OBJ_TYPE_END; ++r)
-			CCollisionManager::Update(m_ObjList[i], m_ObjList[r]);
-
+		for (int r = 0; r < OBJ_TYPE_END; ++r)\
+		{
+			for (const auto iter : m_CheckPairMap)
+			{
+				if ((i == iter.first && r == iter.second) || (i == iter.second && r == iter.first))
+					CCollisionMgr::Get_Instance()->Update(m_ObjList[i], m_ObjList[r]);
+			}
+		}
+			
 		for (auto iter = m_ObjList[i].begin(); iter != m_ObjList[i].end(); ++iter)
 		{
 			(*iter)->Update();

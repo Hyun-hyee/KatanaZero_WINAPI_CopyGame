@@ -11,9 +11,12 @@
 #define		VK_MAX		0xff
 
 #define		SMALL		 4/5
+
+
+#define		ORIGIN_FRAME	10
+
 extern HWND g_hWnd;
-
-
+extern DWORD g_FrameLimit;
 
 
 

@@ -152,7 +152,7 @@
     <ClInclude Include="BmpMgr.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="Character.h" />
-    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Functor.h" />
@@ -173,6 +173,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="230608.cpp" />
@@ -181,7 +182,7 @@
     <ClCompile Include="BmpMgr.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="Character.cpp" />
-    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="HJS1.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
@@ -200,6 +201,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="230608.rc" />

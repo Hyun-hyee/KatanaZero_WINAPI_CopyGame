@@ -1,1 +1,31 @@
-﻿  230608.vcxproj -> D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\x64\Debug\230608.exe
+﻿  Player.cpp
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(106,25): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(107,24): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(108,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(109,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(130,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(131,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(132,28): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(133,29): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(103,33): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(104,33): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(142,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(153,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(164,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(176,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(187,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(198,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(209,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(221,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(232,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(244,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(256,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(268,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(280,35): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(362,21): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(371,21): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(512,46): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(594,32): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Player.cpp(595,32): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  230608.vcxproj -> C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\x64\Debug\230608.exe

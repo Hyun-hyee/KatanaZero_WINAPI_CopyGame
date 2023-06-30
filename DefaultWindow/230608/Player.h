@@ -18,17 +18,21 @@ public:
 	virtual void	InitImage()			override;
 
 	virtual	int		OnCollision(CObj* _target, DIR _dir)		override ;
-	 
+	virtual	int		OutCollision(CObj* _target)		override;
 private:
 	void		Key_Input(void);
-	void		Set_Angle();
 
 	void		Jump();
 
 	void		StateUpdate();
+	void		AttackAngleUpdate();
 
 private:
 	bool				EDITMODE;
+	bool				CAMERAMODE;
+
+	bool				m_WallJump;
+	bool				m_DirCheck[DIR_END]; // 0 : left , 1 : right
 
 };
 

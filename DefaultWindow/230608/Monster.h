@@ -20,11 +20,10 @@ public:
 	virtual void	Release(void)		override;
 	virtual void InitImage()			override;
 
-protected:
-
 public:
 	void Attack();
 	virtual	int			OnCollision(CObj* _target, DIR _dir)		override;
+	virtual	int		OutCollision(CObj* _target)		override;
 
 };
 

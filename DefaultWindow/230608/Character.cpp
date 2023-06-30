@@ -56,6 +56,11 @@ int CCharacter::OnCollision(CObj* _target, DIR _dir)
 	return 0;
 }
 
+int CCharacter::OutCollision(CObj* _target)
+{
+	return 0;
+}
+
 void CCharacter::AddComponent(Component* component)
 {
 	if (component == nullptr)

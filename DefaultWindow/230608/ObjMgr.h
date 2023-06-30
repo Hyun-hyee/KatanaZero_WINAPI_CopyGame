@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Define.h"
-#include "Obj.h"
+#include "Enum.h"
+
+class CObj;
 
 class CObjMgr
 {
@@ -22,7 +24,7 @@ public:
 		return m_pInstance;
 	}
 
-	static void Destory_Instance()
+	static void Destroy_Instance()
 	{
 		if (m_pInstance)
 		{
@@ -35,6 +37,7 @@ public:
 private:
 	list<CObj*>		m_ObjList[OBJ_TYPE_END];
 
+	multimap <OBJ_TYPE, OBJ_TYPE> m_CheckPairMap;
 
 public:
 	void 		Update();

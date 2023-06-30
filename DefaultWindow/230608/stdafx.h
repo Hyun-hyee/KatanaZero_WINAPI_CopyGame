@@ -25,6 +25,7 @@
 #include <ctime>
 #include <math.h>
 #include <map>
+#include <unordered_map>
 #include <algorithm>
 #include<cstdlib> //rand(), srand()
 #include<ctime> //time()
@@ -33,3 +34,15 @@ using namespace std;
 #include <ole2.h>
 #pragma comment(lib, "gdiplus.lib") //gdiplus라이브러리
 #include <gdiplus.h> //gdiplus사용을 위한 헤더
+
+
+
+//누수 잡는 코드
+#include <crtdbg.h>
+
+#ifndef DBG_NEW 
+
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ ) 
+#define new DBG_NEW 
+
+#endif

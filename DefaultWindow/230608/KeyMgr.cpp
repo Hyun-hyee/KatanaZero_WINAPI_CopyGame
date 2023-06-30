@@ -13,6 +13,11 @@ CKeyMgr::~CKeyMgr()
 {
 }
 
+void CKeyMgr::Release()
+{
+
+}
+
 bool CKeyMgr::Key_Pressing(int _iKey)
 {
 	if (GetAsyncKeyState(_iKey) & 0x8000)

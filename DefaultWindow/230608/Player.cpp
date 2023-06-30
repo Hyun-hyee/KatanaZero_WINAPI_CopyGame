@@ -7,7 +7,7 @@
 #include "BitMap.h"
 #include "CameraComponent.h"
 #include "ObjMgr.h"
-#include "CollisionManager.h"
+#include "CollisionMgr.h"
 #include "ObjFactory.h"
 #include "CameraComponent.h"
 
@@ -17,10 +17,11 @@ CPlayer::CPlayer()
 {
 	////////////////
 	EDITMODE = false;
+	CAMERAMODE = false;
 	////////////////
 
 	m_Type = PLAYER;
-	m_Collider_type = ELLIPSE;
+	m_Collider_type = RECTANGLE;
 }
 
 CPlayer::~CPlayer()
@@ -39,12 +40,11 @@ void CPlayer::Initialize(void)
 	m_iAdditionJump_MaxCount = 3;
 	m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
 	m_fAccel = 0.1f;
-	m_fAccelTime = 0.f;
 
-	if (EDITMODE)
-		m_fSpeed = 20.f;
-	else
-		m_fSpeed = 5.f;
+	m_WallJump = false;
+	
+	for (int i = 0; i < DIR_END; ++i)
+		m_DirCheck[i] = false;
 
 	InitImage();
 }
@@ -56,14 +56,20 @@ void CPlayer::Update(void)
 
 	//키값 판단
 	Key_Input();
-
-	//EDIT모드 아닐때 중력 적용
+	
+	//EDIT모드 아닐때
 	if (!EDITMODE)
+	{
+		//중력 적용 + 점프
 		Jump();
 
-	//상태 업데이트 (애니메이션 전환)
-	StateUpdate();
-
+		//상태 업데이트 (애니메이션 전환)
+		StateUpdate();
+	}
+	
+	//AttackAngle 업데이트
+	AttackAngleUpdate();
+	
 	//RECT,Collide,FrontCollide 업데이트
 	CObj::Update_Rect();
 
@@ -92,9 +98,17 @@ void CPlayer::Render(HDC hDC)
 		GetCursorPos(&ptMouse);	// 마우스 위치 값을 얻어오는 함수
 
 		ScreenToClient(g_hWnd, &ptMouse); // 스크린 상의 좌표를 우리가 생성한 창 좌표로 변환
+		
+		fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
+		ptMouse.x = ((float)ptMouse.x + ((float)cameraPos.x - WINCX / 2));
+		ptMouse.y = ((float)ptMouse.y + ((float)cameraPos.y - WINCY / 2));
+
 
 		_stprintf_s(text, L"[Mouse] x : %f \t y : %f", (float)ptMouse.x, (float)ptMouse.y);
 		TextOutW(hDC, 0, 20, text, lstrlen(text));
+
+		_stprintf_s(text, L"[AttackAngle] %f", m_fAttackAngle);
+		TextOutW(hDC, 0, 40, text, lstrlen(text));
 	}
 
 }
@@ -274,91 +288,163 @@ void CPlayer::InitImage()
 
 void CPlayer::Key_Input(void)
 {
-	int Num = 0;
-
-	m_tInfo.fPrevX = m_tInfo.fX;
-
-	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_LEFT) || CKeyMgr::Get_Instance()->Key_Down(VK_LEFT))
+	if (!EDITMODE && !CAMERAMODE)
 	{
-		Set_FrontAngle(PI);
-		m_tInfo.fX -= m_fSpeed;
-		m_fSpeed += m_fAccel;
-		if (m_fSpeed >= 8.f)
-			m_fSpeed = 8.f;
-	}
+		m_tInfo.fPrevX = m_tInfo.fX;
 
-	 if (CKeyMgr::Get_Instance()->Key_Pressing(VK_RIGHT) || CKeyMgr::Get_Instance()->Key_Down(VK_RIGHT))
-	{
-		Set_FrontAngle(0);
-		m_tInfo.fX += m_fSpeed;
-		m_fSpeed += m_fAccel;
-		if (m_fSpeed >= 8.f)
-			m_fSpeed = 8.f;
-	}
-
-
-	 if (CKeyMgr::Get_Instance()->Key_Down(VK_LEFT) || CKeyMgr::Get_Instance()->Key_Down(VK_RIGHT))
-	 {
-		 if (m_State == IDLE || m_State == IDLE_TO_RUN)
-			 m_State = IDLE_TO_RUN;
-		 else if (m_State != JUMP)
-			 m_State = RUN;
-	 }
-	 if (!CKeyMgr::Get_Instance()->Key_Pressing(VK_LEFT) && !CKeyMgr::Get_Instance()->Key_Pressing(VK_RIGHT) && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
-	 {
-		 if (m_State == RUN || m_State == RUN_TO_IDLE)
-			 m_State = RUN_TO_IDLE;
-		 else if (m_State != JUMP && m_State != ATTACK)
-		 {
-			 m_State = IDLE;
-		 }
-		
-	 }
-		 
-	 if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-	 {
-		 m_State = ATTACK;
-	 }
-	
-
-	if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
-	{
-		if (CKeyMgr::Get_Instance()->Key_Pressing(VK_DOWN) && !m_bJump)
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
 		{
-			m_tInfo.fY -= -20.0f;
+			if (!m_DirCheck[LEFT])
+			{
+				if (m_State == IDLE)
+					m_State = IDLE_TO_RUN;
+				Set_FrontAngle(PI);
+				m_tInfo.fX -= m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (!m_DirCheck[RIGHT])
+			{
+				if (m_State == IDLE)
+					m_State = IDLE_TO_RUN;
+				Set_FrontAngle(0);
+				m_tInfo.fX += m_fSpeed;
+				m_fSpeed += m_fAccel;
+				if (m_fSpeed >= 8.f)
+					m_fSpeed = 8.f;
+			}
+
+		}
+
+
+		if (CKeyMgr::Get_Instance()->Key_Down('A') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			if (m_State == IDLE || m_State == IDLE_TO_RUN)
+				m_State = IDLE_TO_RUN;
+			else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
+				m_State = RUN;
+		}
+		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
+		{
+			if (m_State == RUN || m_State == RUN_TO_IDLE)
+				m_State = RUN_TO_IDLE;
+			else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
+			{
+				m_State = IDLE;
+			}
+
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+		}
+
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (m_WallJump)
+				{
+					if (m_fFrontAngle == PI)
+					{
+						m_fFrontAngle == 0;
+						m_bJump = true;
+						m_State = JUMP;
+						m_fSpeed_Vertical = 20.f;
+						m_tInfo.fX += 100.f;
+						m_fSpeed += m_fAccel;
+					}
+					else
+					{
+						m_fFrontAngle == PI;
+						m_bJump = true;
+						m_State = JUMP;
+						m_fSpeed_Vertical = 20.f;
+						m_tInfo.fX -= 100.f;
+						m_fSpeed += m_fAccel;
+					}
+				}
+				
+
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+				}
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing(VK_SHIFT))
+		{
+			g_FrameLimit = 300;
 		}
 		else
 		{
-			if (0 < m_iAdditionJump_Count--)
-			{
-				m_fSpeed_Vertical = 10.f;
-				m_bJump = true;
-				m_State = JUMP;
-			}
+			g_FrameLimit = ORIGIN_FRAME;
 		}
+			
+
 	}
+	
 
 	
 
 
 	/*******************************************************/
 	if (CKeyMgr::Get_Instance()->Key_Down('1'))
+	{
 		EDITMODE = !EDITMODE;
 
+		if (EDITMODE)
+			m_fSpeed = 10.f;
+		else
+			m_fSpeed = 5.f;	
+	}	
+	
 	if (EDITMODE)
 	{
-		if (CKeyMgr::Get_Instance()->Key_Pressing(VK_DOWN))
-		{
-			m_tInfo.fY += m_fSpeed;
-			Set_FrontAngle(PI);
-		}
-
-		else if (CKeyMgr::Get_Instance()->Key_Pressing(VK_UP))
+		if (CKeyMgr::Get_Instance()->Key_Pressing('W'))
 		{
 			m_tInfo.fY -= m_fSpeed;
-			Set_FrontAngle(0);
+		}
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A'))
+		{
+			m_tInfo.fX -= m_fSpeed;
+		}
+		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
+		{
+			m_tInfo.fY += m_fSpeed;
+		}
+		if (CKeyMgr::Get_Instance()->Key_Pressing('D'))
+		{
+			m_tInfo.fX += m_fSpeed;
 		}
 	}
+
+	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_CONTROL))
+	{
+		CAMERAMODE = true;
+		m_State = IDLE;
+	}
+	else 
+	{
+		CAMERAMODE = false;
+	}
+
+
 	/*******************************************************/
 
 
@@ -378,6 +464,7 @@ void CPlayer::Jump()
 
 	if (m_bJump)
 	{
+		
 		if (bLineCol && (fY < m_tInfo.fY - m_fSpeed_Vertical) && m_fSpeed_Vertical < 0.f)
 		{
 			m_bJump = false;
@@ -387,9 +474,21 @@ void CPlayer::Jump()
 		}
 		else
 		{
-			m_tInfo.fY -= m_fSpeed_Vertical;
-			m_fSpeed_Vertical -= (0.034f * G);
+			if (!m_WallJump)
+			{
+				m_tInfo.fY -= m_fSpeed_Vertical;
+				m_fSpeed_Vertical -= (0.034f * G);
 
+				if (m_fSpeed_Vertical < 0)
+					m_State = FALL;
+			}
+			else
+			{
+				if (m_fSpeed_Vertical > 0)
+					m_fSpeed_Vertical = 0;
+				m_tInfo.fY -= m_fSpeed_Vertical;
+				m_fSpeed_Vertical -= (0.034f * G * 0.1f);
+			}
 		}
 	}
 	else if (bLineCol)
@@ -397,11 +496,7 @@ void CPlayer::Jump()
 		m_tInfo.fY = fY;
 		m_fSpeed_Vertical = 0.f;
 	}
-	else
-	{
-		m_tInfo.fY -= m_fSpeed_Vertical;
-		m_fSpeed_Vertical -= (0.034f * G);
-	}
+	
 
 }
 
@@ -421,10 +516,14 @@ void CPlayer::StateUpdate()
 
 
 	if (m_fFrontAngle == 0)
+	{
 		m_FrameMap[m_State].iMotion = 0;
+	}
 	else if (m_fFrontAngle == PI)
+	{
 		m_FrameMap[m_State].iMotion = 1;
-
+	}
+		
 	switch (m_State)
 	{
 	case IDLE:
@@ -453,8 +552,6 @@ void CPlayer::StateUpdate()
 		break;
 
 	case JUMP:
-		if (0 >= m_iAdditionJump_Count)
-			m_State = FALL;
 
 		break;
 
@@ -485,6 +582,22 @@ void CPlayer::StateUpdate()
 
 }
 
+void CPlayer::AttackAngleUpdate()
+{
+	POINT	ptMouse{};
+
+	GetCursorPos(&ptMouse);	// 마우스 위치 값을 얻어오는 함수
+
+	ScreenToClient(g_hWnd, &ptMouse); // 스크린 상의 좌표를 우리가 생성한 창 좌표로 변환
+
+	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
+	ptMouse.x = ((float)ptMouse.x + ((float)cameraPos.x - WINCX / 2));
+	ptMouse.y = ((float)ptMouse.y + ((float)cameraPos.y - WINCY / 2));
+
+	m_fAttackAngle = atan2(ptMouse.y - m_tInfo.fY, ptMouse.x - m_tInfo.fX);
+}
+
+
 
 
 
@@ -494,14 +607,27 @@ void CPlayer::StateUpdate()
 
 int CPlayer::OnCollision(CObj* _target, DIR _dir)
 {
+	if (_target->Get_Type() == WALL)
+	{
+		m_WallJump = true;
+		m_DirCheck[_dir] = true;
+	}
+	return 0;
+}
 
+int CPlayer::OutCollision(CObj* _target)
+{
+
+	if (_target->Get_Type() == WALL)
+	{
+		m_WallJump = false;
+		for (int i = 0; i < DIR_END; ++i)
+			m_DirCheck[i] = false;
+	}
+		
 	return 0;
 }
 
 
 
-void CPlayer::Set_Angle()
-{
-
-}
 

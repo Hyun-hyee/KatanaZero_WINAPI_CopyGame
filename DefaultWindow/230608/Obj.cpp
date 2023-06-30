@@ -7,7 +7,7 @@
 CObj::CObj() : 
 	m_fSpeed(0.f), m_State(IDLE), m_Type(OBJ_NONE),
 	m_Collider_type(RECTANGLE),m_fAccel(0.f),m_Owner(nullptr),
-	m_fFrontAngle(0.f), m_FrontCWidth(50.f),m_PrevState(OBJ_STATE_END)
+	m_fFrontAngle(0.f), m_fFrontCWidth(50.f),m_PrevState(OBJ_STATE_END)
 {
 	ZeroMemory(&m_tInfo, sizeof(m_tInfo));
 	ZeroMemory(&m_tRect, sizeof(m_tRect));
@@ -120,12 +120,12 @@ void CObj::Update_Rect()
 	if (m_fFrontAngle == 0)
 	{
 		m_FrontCollide.left = m_tInfo.fX;
-		m_FrontCollide.right = m_Collide.right + m_FrontCWidth;
+		m_FrontCollide.right = m_Collide.right + m_fFrontCWidth;
 	}
 	if (m_fFrontAngle == PI)
 	{
 		m_FrontCollide.right = m_tInfo.fX;
-		m_FrontCollide.left = m_Collide.left - m_FrontCWidth;
+		m_FrontCollide.left = m_Collide.left - m_fFrontCWidth;
 	}
 	m_FrontCollide.top = m_Collide.top;
 	m_FrontCollide.bottom = m_Collide.bottom;
@@ -162,33 +162,49 @@ void CObj::FrameRender(HDC hDC)
 	attr.SetColorKey(Gdiplus::Color(255, 0, 255), Gdiplus::Color(255, 0, 255),
 		Gdiplus::ColorAdjustTypeBitmap);
 
-	g.DrawImage(pImage,
-		Gdiplus::Rect(
-			((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
-			((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
-			(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
-			(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
-		),
-		m_FrameMap[m_State].iFrameStart * (int)m_FrameMap[m_State].iFrameSizeX,
-		m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
-		(int)m_FrameMap[m_State].iFrameSizeX,
-		(int)m_FrameMap[m_State].iFrameSizeY, //이미지 원본 사이즈
-		Gdiplus::UnitPixel, &attr);
+	if (m_fFrontAngle == 0)
+	{
+		g.DrawImage(pImage,
+			Gdiplus::Rect(
+				((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
+				((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
+				(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
+			),
+			m_FrameMap[m_State].iFrameStart * (int)m_FrameMap[m_State].iFrameSizeX,
+			m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
+			(int)m_FrameMap[m_State].iFrameSizeX,
+			(int)m_FrameMap[m_State].iFrameSizeY, //이미지 원본 사이즈
+			Gdiplus::UnitPixel, &attr);
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		g.DrawImage(pImage,
+			Gdiplus::Rect(
+				((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
+				((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
+				(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
+			),
+			(m_FrameMap[m_State].iFrameEnd - m_FrameMap[m_State].iFrameStart) * (int)m_FrameMap[m_State].iFrameSizeX,
+			m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
+			(int)m_FrameMap[m_State].iFrameSizeX,
+			(int)m_FrameMap[m_State].iFrameSizeY, //이미지 원본 사이즈
+			Gdiplus::UnitPixel, &attr);
+	}
+
 }
 
-void CObj::TempRender(HDC hDC)
-{
-}
 
 void CObj::Move_Frame()
 {
 	if (m_FrameMap[m_State].dwTime + m_FrameMap[m_State].dwSpeed < GetTickCount())
 	{
-		++m_FrameMap[m_State].iFrameStart;
+			++m_FrameMap[m_State].iFrameStart;
 
-		if (m_FrameMap[m_State].iFrameStart > m_FrameMap[m_State].iFrameEnd)
-			m_FrameMap[m_State].iFrameStart = 0;
-
+			if (m_FrameMap[m_State].iFrameStart > m_FrameMap[m_State].iFrameEnd)
+				m_FrameMap[m_State].iFrameStart = 0;
+		
 		m_FrameMap[m_State].dwTime = GetTickCount();
 	}
 }

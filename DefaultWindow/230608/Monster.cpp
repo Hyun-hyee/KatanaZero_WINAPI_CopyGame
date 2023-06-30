@@ -5,7 +5,7 @@
 
 CMonster::CMonster()
 {
-	m_Type = MONSTER;
+	m_Type = ENEMY;
 	m_Collider_type = RECTANGLE;
 }
 
@@ -31,11 +31,7 @@ void CMonster::LateUpdate(void)
 
 void CMonster::Render(HDC hDC)
 {
-	Rectangle(hDC,
-		m_tRect.left,
-		m_tRect.top,
-		m_tRect.right,
-		m_tRect.bottom);
+	
 }
 
 void CMonster::Release(void)
@@ -54,6 +50,11 @@ int CMonster::OnCollision(CObj* _target, DIR _dir)
 {
 	
 	return OBJ_NOEVENT;
+}
+
+int CMonster::OutCollision(CObj* _target)
+{
+	return 0;
 }
 
 

@@ -37,3 +37,8 @@ int CSkill::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }
+
+int CSkill::OutCollision(CObj* _target)
+{
+	return 0;
+}

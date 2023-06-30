@@ -76,6 +76,9 @@
     <Filter Include="100.Header">
       <UniqueIdentifier>{f2495b7b-2a1e-417d-828b-c7896f618b7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Obj\03.Wall">
+      <UniqueIdentifier>{173ab8a7-4b58-4220-bae8-83b5ed40bdbb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -96,7 +99,7 @@
     <ClInclude Include="Monster.h">
       <Filter>01. Obj\00.Character\01.Monster</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionManager.h">
+    <ClInclude Include="CollisionMgr.h">
       <Filter>99.Design\01.CollisionManager</Filter>
     </ClInclude>
     <ClInclude Include="ObjMgr.h">
@@ -162,6 +165,9 @@
     <ClInclude Include="Struct.h">
       <Filter>100.Header</Filter>
     </ClInclude>
+    <ClInclude Include="Wall.h">
+      <Filter>01. Obj\03.Wall</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -176,7 +182,7 @@
     <ClCompile Include="Monster.cpp">
       <Filter>01. Obj\00.Character\01.Monster</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionManager.cpp">
+    <ClCompile Include="CollisionMgr.cpp">
       <Filter>99.Design\01.CollisionManager</Filter>
     </ClCompile>
     <ClCompile Include="ObjMgr.cpp">
@@ -223,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="HJS1.cpp">
       <Filter>00.SceneManager\HJS1</Filter>
+    </ClCompile>
+    <ClCompile Include="Wall.cpp">
+      <Filter>01. Obj\03.Wall</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

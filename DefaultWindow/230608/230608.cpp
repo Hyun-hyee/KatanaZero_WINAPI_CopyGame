@@ -14,6 +14,7 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 HWND	g_hWnd;
+DWORD   g_FrameLimit = 10;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);		// 창 스타일을 제어하는 기능의 함수
@@ -54,6 +55,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
      //CScrollGame     ScrollGame;
      //ScrollGame.Initialize();
     ///////////////////////////
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     CSceneManager::Get_Instance()->Initialize();
 
 
@@ -62,9 +64,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
 	// 1 / 1000초의 DWORD 정수 값으로 반환(밀리 세컨드)
     srand(unsigned int(time(NULL)));
 	ULONGLONG	dwTime = GetTickCount64();	// 30
-		 
+    ULONGLONG	dwTime2 = GetTickCount64();
     int SelectScene = 1;
-
     while (true)
     {
 		// PeekMessage : 메세지를 읽어오면 TRUE, 읽을 메세지가 없으면 FALSE를 반환
@@ -91,9 +92,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
                     //MainGame.Update();
                     //MainGame.LateUpdate();
                     //MainGame.Render();
-                
-                    CSceneManager::Get_Instance()->Update();
-                    CSceneManager::Get_Instance()->LateUpdate();
+                    
+                    if (dwTime2 + g_FrameLimit < GetTickCount64())
+                    {
+                        CSceneManager::Get_Instance()->Update();
+                        CSceneManager::Get_Instance()->LateUpdate();
+                        dwTime2 = GetTickCount64();
+                    }
                     CSceneManager::Get_Instance()->Render();
                 }
 
@@ -237,6 +242,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;*/
 
 		case VK_ESCAPE:
+            CSceneManager::Destroy_Instance();
 			DestroyWindow(g_hWnd);
 			break;
 		}

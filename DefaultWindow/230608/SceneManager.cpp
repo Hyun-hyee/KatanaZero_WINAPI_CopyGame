@@ -5,6 +5,7 @@
 #include "ObjFactory.h"
 #include "LineMgr.h"
 #include "KeyMgr.h"
+#include "BmpMgr.h"
 #include "HJS1.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
@@ -21,7 +22,7 @@ CSceneManager::~CSceneManager()
 
 void CSceneManager::Initialize()
 {
-	ShowCursor(FALSE);
+	ShowCursor(TRUE);
 	srand((unsigned int)time(NULL));
 
 	ULONG_PTR ptr; //Gdi+사용을 위한 포인터객체
@@ -86,10 +87,6 @@ void CSceneManager::Render()
 	::PatBlt(_hdcBack, 0, 0, _rect.right, _rect.bottom, WHITENESS);
 }
 
-void CSceneManager::Release()
-{
-	Gdiplus::GdiplusShutdown(ptr);
-}
 
 void CSceneManager::ToNextScene()
 {
@@ -123,3 +120,17 @@ void CSceneManager::ToPrevScene()
 
 
 
+void CSceneManager::Release()
+{
+	for (auto& iter : SceneList)
+		Safe_Delete<CScene*>(iter);
+	SceneList.clear();
+
+	Gdiplus::GdiplusShutdown(ptr);
+	CObjMgr::Destroy_Instance();
+	CKeyMgr::Destroy_Instance();
+	CBmpMgr::Destroy_Instance();
+	CLineMgr::Destroy_Instance();
+	CObjMgr::Destroy_Instance();
+	//ReleaseDC(g_hWnd, m_hDC);
+}
