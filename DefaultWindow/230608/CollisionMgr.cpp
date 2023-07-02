@@ -49,10 +49,11 @@ void CCollisionMgr::Update(list<CObj*> _firstList, list<CObj*> _secondList)
 					
 					if (Searchiter == m_CollisionOutMap.end())
 					{
-						//OnCollision 이벤트
+						//InCollision 이벤트
 						m_CollisionOutMap.push_back({ iter,iter2 });
-						ObjEvent = (iter)->OnCollision((iter2), CollisionDIR);
+						ObjEvent = (iter)->InCollision((iter2), CollisionDIR);
 					}
+					ObjEvent = (iter)->OnCollision((iter2));
 				}
 				else
 				{

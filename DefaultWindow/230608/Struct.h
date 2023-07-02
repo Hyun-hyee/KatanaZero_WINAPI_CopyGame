@@ -62,3 +62,13 @@ typedef struct tagFrame
 	DWORD		dwTime;
 
 }FRAME;
+
+typedef struct tagUI
+{
+	TCHAR*	AnimKey;
+	int		PosX;
+	int		PosY;
+	int		SizeX;
+	int		SizeY;
+	bool	bCheckOn;
+}UI;

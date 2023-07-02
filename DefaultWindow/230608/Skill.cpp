@@ -33,12 +33,17 @@ void CSkill::InitImage()
 {
 }
 
-int CSkill::OnCollision(CObj* _target, DIR _dir)
+int CSkill::InCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }
 
 int CSkill::OutCollision(CObj* _target)
+{
+	return 0;
+}
+
+int CSkill::OnCollision(CObj* _target)
 {
 	return 0;
 }

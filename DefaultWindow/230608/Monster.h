@@ -6,7 +6,6 @@
 class CMonster  : public CCharacter
 {
 private:
-	list<CObj*>* m_pBulletList;
 
 public:
 	CMonster();
@@ -22,8 +21,9 @@ public:
 
 public:
 	void Attack();
-	virtual	int			OnCollision(CObj* _target, DIR _dir)		override;
+	virtual	int			InCollision(CObj* _target, DIR _dir)		override;
 	virtual	int		OutCollision(CObj* _target)		override;
+	virtual	int		OnCollision(CObj* _target)					override;
 
 };
 

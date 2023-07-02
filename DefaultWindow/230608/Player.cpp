@@ -10,6 +10,9 @@
 #include "CollisionMgr.h"
 #include "ObjFactory.h"
 #include "CameraComponent.h"
+#include "Item.h"
+#include "UIMgr.h"
+#include "SoundMgr.h"
 
 
 
@@ -34,7 +37,7 @@ void CPlayer::Initialize(void)
 	AddComponent(camera);
 	CCharacter::Initialize();
 	
-	m_tInfo = { 600.f, 900.f, 49.f, 74.f };
+	m_tInfo = { 600.f, 900.f, 49.f * SMALL, 74.f * SMALL };
 	m_fJump_Power = 20.f;
 	m_fJump_Angle = PI / 3;
 	m_iAdditionJump_MaxCount = 3;
@@ -42,8 +45,14 @@ void CPlayer::Initialize(void)
 	m_fAccel = 0.1f;
 	m_fWallSpeed = 1.f;
 	m_fSpeed = 3.f;
-
+	m_fFixAttackAngle = m_fAttackAngle;
 	m_WallJump = false;
+	m_PlayerSoundCh = 0;
+	m_SlowRun = 100;
+	m_BatteryCount = 9;
+	m_BatteryTime = 0;
+
+	m_ItemState = ITEM_NONE;
 	
 	for (int i = 0; i < DIR_END; ++i)
 		m_DirCheck[i] = false;
@@ -59,11 +68,14 @@ void CPlayer::Update(void)
 	//키값 판단
 	Key_Input();
 	
+	SlowMotionUpdate();
+
 	//EDIT모드 아닐때
 	if (!EDITMODE)
 	{
 		//중력 적용 + 점프
 		Jump();
+		BatteryChange();
 
 		//상태 업데이트 (애니메이션 전환)
 		StateUpdate();
@@ -88,12 +100,14 @@ void CPlayer::Render(HDC hDC)
 	CCharacter::Render(hDC);
 	CObj::FrameRender(hDC);
 
+	CObj::CollideRender(hDC);
+
 	//플레이어만 필요
 	if (EDITMODE)
 	{
 		WCHAR text[100];
 		_stprintf_s(text, L"[Player] x : %f \t y : %f", m_tInfo.fX, m_tInfo.fY);
-		TextOutW(hDC, 0, 0, text, lstrlen(text));
+		TextOutW(hDC, 0, 40, text, lstrlen(text));
 
 		POINT	ptMouse{};
 
@@ -107,12 +121,11 @@ void CPlayer::Render(HDC hDC)
 
 
 		_stprintf_s(text, L"[Mouse] x : %f \t y : %f", (float)ptMouse.x, (float)ptMouse.y);
-		TextOutW(hDC, 0, 20, text, lstrlen(text));
+		TextOutW(hDC, 0, 60, text, lstrlen(text));
 
 		_stprintf_s(text, L"[AttackAngle] %f", m_fAttackAngle);
-		TextOutW(hDC, 0, 40, text, lstrlen(text));
+		TextOutW(hDC, 0, 80, text, lstrlen(text));
 	}
-
 }
 
 void CPlayer::Release(void)
@@ -128,6 +141,7 @@ void CPlayer::InitImage()
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_attack_7x2.bmp", L"Player_ATTACK");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_jump_4x2.bmp", L"Player_JUMP");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_roll_7x2.bmp", L"Player_ROLL");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_rollStart_1x2.png", L"Player_ROLLSTART");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_flip_11x2.bmp", L"Player_FLIP");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_fall_4x2.bmp", L"Player_FALL");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/player_grab_wall_4x2.bmp", L"Player_GRAB_WALL");
@@ -185,12 +199,13 @@ void CPlayer::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 6;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 30;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 120;
 	TempFrame.iFrameSizeY = 82;
 
 	m_FrameMap.insert({ ATTACK, TempFrame });
+	m_FrameMap.insert({ ATTACK_WALL, TempFrame });
 
 	TempFrame.AnimKey = L"Player_JUMP";
 	TempFrame.iFrameStart = 0;
@@ -202,7 +217,6 @@ void CPlayer::InitImage()
 	TempFrame.iFrameSizeY = 84;
 
 	m_FrameMap.insert({ JUMP, TempFrame });
-	m_FrameMap.insert({ JUMP_WALL, TempFrame });
 
 	TempFrame.AnimKey = L"Player_FALL";
 	TempFrame.iFrameStart = 0;
@@ -215,6 +229,7 @@ void CPlayer::InitImage()
 
 	m_FrameMap.insert({ FALL, TempFrame });
 	m_FrameMap.insert({ FALL_WALL, TempFrame });
+	m_FrameMap.insert({ FALL_ATTACK, TempFrame });
 	//
 	TempFrame.AnimKey = L"Player_FLIP";
 	TempFrame.iFrameStart = 0;
@@ -225,7 +240,8 @@ void CPlayer::InitImage()
 	TempFrame.iFrameSizeX = 96;
 	TempFrame.iFrameSizeY = 88;
 
-	m_FrameMap.insert({ FLIP, TempFrame });
+	//m_FrameMap.insert({ FLIP, TempFrame });
+	m_FrameMap.insert({ JUMP_WALL, TempFrame });
 
 	TempFrame.AnimKey = L"Player_ROLL";
 	TempFrame.iFrameStart = 0;
@@ -237,6 +253,17 @@ void CPlayer::InitImage()
 	TempFrame.iFrameSizeY = 64;
 
 	m_FrameMap.insert({ ROLL, TempFrame });
+
+	TempFrame.AnimKey = L"Player_ROLLSTART";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 0;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 94;
+	TempFrame.iFrameSizeY = 64;
+
+	m_FrameMap.insert({ ROLLSTART, TempFrame });
 
 
 	TempFrame.AnimKey = L"Player_GRAB_WALL";
@@ -295,117 +322,39 @@ void CPlayer::Key_Input(void)
 	{
 		m_tInfo.fPrevX = m_tInfo.fX;
 
-		//if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
-		//{
-		//	if (!m_DirCheck[LEFT])
-		//	{
-		//		if (m_State == IDLE)
-		//			m_State = IDLE_TO_RUN;
-		//		Set_FrontAngle(PI);
-		//		m_tInfo.fX -= m_fSpeed;
-		//		m_fSpeed += m_fAccel;
-		//		if (m_fSpeed >= 8.f)
-		//			m_fSpeed = 8.f;
-		//	}a  da  d  ad    ad  ad  ad
-
-		//}
-
-		//if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
-		//{
-		//	if (!m_DirCheck[RIGHT])
-		//	{
-		//		if (m_State == IDLE)
-		//			m_State = IDLE_TO_RUN;
-		//		Set_FrontAngle(0);
-		//		m_tInfo.fX += m_fSpeed;
-		//		m_fSpeed += m_fAccel;
-		//		if (m_fSpeed >= 8.f)
-		//			m_fSpeed = 8.f;
-		//	}
-
-		//}
-
-
-		//if (CKeyMgr::Get_Instance()->Key_Down('A') || CKeyMgr::Get_Instance()->Key_Down('D'))
-		//{
-		//	if (m_State == IDLE || m_State == IDLE_TO_RUN)
-		//		m_State = IDLE_TO_RUN;
-		//	else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
-		//		m_State = RUN;
-		//}
-		//if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
-		//{
-		//	if (m_State == RUN || m_State == RUN_TO_IDLE)
-		//		m_State = RUN_TO_IDLE;
-		//	else if (m_State != JUMP && m_State != ATTACK && m_State != FALL)
-		//	{
-		//		m_State = IDLE;
-		//	}
-
-		//}
-
-		//if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		//{
-		//	m_State = ATTACK;
-		//}
-
-
-		//if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
-		//{
-		//	if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
-		//	{
-		//		m_tInfo.fY -= -10.0f;
-		//	}
-		//	else
-		//	{
-		//		if (m_WallJump)
-		//		{
-		//			if (m_fFrontAngle == PI)
-		//			{
-		//				m_fFrontAngle == 0;
-		//				m_bJump = true;
-		//				//m_State = JUMP;
-		//				m_fSpeed_Vertical = 20.f;
-		//				m_tInfo.fX += 100.f;
-		//				m_fSpeed += m_fAccel;
-		//			}
-		//			else
-		//			{
-		//				m_fFrontAngle == PI;
-		//				m_bJump = true;
-		//				//m_State = JUMP;
-		//				m_fSpeed_Vertical = 20.f;
-		//				m_tInfo.fX -= 100.f;
-		//				m_fSpeed += m_fAccel;
-		//			}
-		//		}
-		//		
-
-		//		if (0 < m_iAdditionJump_Count--)
-		//		{
-		//			m_fSpeed_Vertical = 10.f;
-		//			m_bJump = true;
-		//			//m_State = JUMP;
-		//		}
-		//	}
-		//}
-
-		if (CKeyMgr::Get_Instance()->Key_Pressing(VK_SHIFT))
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SHIFT))
 		{
-			g_FrameLimit = 300;
+			g_SlowMotion = true;
+			CSoundMgr::Get_Instance()->PlaySound(L"Slowmo_Enter.wav", SOUND_SLOW, SOUND_VOL3);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_FOOTSTEP, 0.5f);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER, 0.5f);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER2, 0.5f);
+			m_SlowRun =400;
 		}
-		else
+		else if (CKeyMgr::Get_Instance()->Key_Up(VK_SHIFT))
 		{
-			g_FrameLimit = ORIGIN_FRAME;
+			if (g_SlowMotion)
+			{
+				CSoundMgr::Get_Instance()->StopSound(SOUND_SLOW);
+				CSoundMgr::Get_Instance()->PlaySound(L"Slowmo_Exit.wav", SOUND_SLOW, SOUND_VOL2);
+			}
+			g_SlowMotion = false;
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_FOOTSTEP, 2.f);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER, 2.f);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER2, 2.f);
+			m_SlowRun = 100;
 		}
-			
-
 	}
 	
-
-	
-
-
+	if (CKeyMgr::Get_Instance()->Key_Down(VK_RBUTTON))
+	{
+		if (m_ItemState != ITEM_NONE)
+		{
+			UseItem();
+			PlayerPlaySound(L"player_throw.wav");
+		}
+	}
+		
 	/*******************************************************/
 	if (CKeyMgr::Get_Instance()->Key_Down('1'))
 	{
@@ -464,25 +413,63 @@ void CPlayer::Jump()
 			m_bJump = false;
 			m_tInfo.fY = fY;
  			m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
-			//m_State = RUN;
 		}
 		else
 		{
-			if (m_State != GRAB_WALL)
+			if (g_SlowMotion)
 			{
-				m_tInfo.fY -= m_fSpeed_Vertical;
-				m_fSpeed_Vertical -= (0.034f * G);
+				if (g_SlowJumpTime + 80 < GetTickCount64())
+				{
+					if (m_State != GRAB_WALL)
+					{
+						m_tInfo.fY -= m_fSpeed_Vertical;
 
-				/*if (m_fSpeed_Vertical < 0)
-					m_State = FALL;*/
+						if (-2.f < m_fSpeed_Vertical && 2.f > m_fSpeed_Vertical)
+							m_fSpeed_Vertical -= (0.034f * G) * 0.6f;
+						else
+							m_fSpeed_Vertical -= (0.034f * G) * 1.2f;
+					}
+					else
+					{
+						if (m_fSpeed_Vertical < -5.f)
+							m_fSpeed_Vertical = -5.f;
+						m_tInfo.fY -= m_fSpeed_Vertical;
+
+						if (-1.f < m_fSpeed_Vertical && 1.f > m_fSpeed_Vertical)
+							m_fSpeed_Vertical -= (0.034f * G) * 0.2f;
+						else if (-4.f < m_fSpeed_Vertical && 4.f > m_fSpeed_Vertical)
+							m_fSpeed_Vertical -= (0.034f * G) * 0.4f;
+						else
+							m_fSpeed_Vertical -= (0.034f * G) * 0.6f;
+					}
+					g_SlowJumpTime = GetTickCount64();
+				}
+				
 			}
 			else
 			{
-				if (m_fSpeed_Vertical > 0)
-					m_fSpeed_Vertical = 0;
-				m_tInfo.fY -= m_fSpeed_Vertical;
-				m_fSpeed_Vertical -= (0.034f * G * 0.1f);
+				if (m_State != GRAB_WALL)
+				{
+					m_tInfo.fY -= m_fSpeed_Vertical;
+
+					if (-2.f < m_fSpeed_Vertical && 2.f > m_fSpeed_Vertical)
+						m_fSpeed_Vertical -= (0.034f * G) * 0.6f;
+					else
+						m_fSpeed_Vertical -= (0.034f * G) * 1.2f;
+				}
+				else
+				{
+					if (m_fSpeed_Vertical < -5.f)
+						m_fSpeed_Vertical = -5.f;
+					m_tInfo.fY -= m_fSpeed_Vertical;
+
+					if (-1.f < m_fSpeed_Vertical && 1.f > m_fSpeed_Vertical)
+						m_fSpeed_Vertical -= (0.034f * G) * 0.05f;
+					else
+						m_fSpeed_Vertical -= (0.034f * G) * 0.8f;
+				}
 			}
+			
 		}
 	}
 	else if (bLineCol)
@@ -499,6 +486,15 @@ void CPlayer::Jump()
 //각 객체의 해당 애니메이션 키값 넣어주기
 void CPlayer::StateUpdate()
 {
+	
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
+	}
 
 	if (m_PrevState != m_State)
 	{
@@ -508,31 +504,27 @@ void CPlayer::StateUpdate()
 		m_PrevState = m_State;
 	}
 
-
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
-		
 	switch (m_State)
 	{
 	case IDLE:
 		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Pressing('D'))
 		{
 			m_State = IDLE_TO_RUN;
+
+			PlayerPlaySound(L"player_prerun.wav");
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
+		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
+			m_State = ROLLSTART;
+
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -544,12 +536,37 @@ void CPlayer::StateUpdate()
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
 					m_State = JUMP;
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
 		
 		if (m_fSpeed_Vertical < 0)
 			m_State = FALL;
+
+		
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
 
 		break;
 
@@ -562,8 +579,8 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(PI);
 				m_tInfo.fX -= m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 		}
 		
@@ -574,26 +591,34 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(0);
 				m_tInfo.fX += m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
+			m_State = ROLLSTART;
 
 		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
 		{
 			m_State = RUN_TO_IDLE;
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
+		
 
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		{
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
+		}
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -604,7 +629,9 @@ void CPlayer::StateUpdate()
 				{
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
-					m_State = JUMP;
+					m_State = JUMP; 
+
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
@@ -612,10 +639,37 @@ void CPlayer::StateUpdate()
 		if (m_fSpeed_Vertical < 0)
 			m_State = FALL;
 
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
 
 		break;
 
 	case RUN:
+		
+		if (m_RunningSoundTime + m_SlowRun < GetTickCount64())
+		{
+			CSoundMgr::Get_Instance()->PlaySound(L"player_running_4.wav", SOUND_FOOTSTEP, SOUND_VOL3);
+			m_RunningSoundTime = GetTickCount64();
+		}
 
 		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
 		{
@@ -624,8 +678,8 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(PI);
 				m_tInfo.fX -= m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 
 		}
@@ -637,23 +691,27 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(0);
 				m_tInfo.fX += m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
+			m_State = ROLLSTART;
 
 		if (!CKeyMgr::Get_Instance()->Key_Pressing('A') && !CKeyMgr::Get_Instance()->Key_Pressing('D') && !CKeyMgr::Get_Instance()->Key_Pressing(VK_SPACE))
 		{
 				m_State = RUN_TO_IDLE;
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -664,7 +722,10 @@ void CPlayer::StateUpdate()
 				{
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
-					m_State = JUMP;
+					m_State = JUMP; 
+
+
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
@@ -672,19 +733,49 @@ void CPlayer::StateUpdate()
 		if (m_fSpeed_Vertical < 0)
 			m_State = FALL;
 
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
+
 		break;
 
 	case RUN_TO_IDLE:
 
+		
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+
+
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			m_State = IDLE;
+
 		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
 		{
 			if (!m_DirCheck[LEFT])
-			{
+			{  
 				Set_FrontAngle(PI);
 				m_tInfo.fX -= m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 
 		}
@@ -696,18 +787,22 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(0);
 				m_tInfo.fX += m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
+
+		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
+			m_State = ROLLSTART;
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -719,30 +814,135 @@ void CPlayer::StateUpdate()
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
 					m_State = JUMP;
+
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
 
-		if (m_fSpeed_Vertical < 0)
-			m_State = FALL;
-
-
-		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
-			m_State = IDLE;
 		
 		m_fSpeed -= m_fAccel;
 		if (m_fSpeed <= 5.f)
 			m_fSpeed = 5.f;
 		
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
+
 		break;
 
 	case ATTACK:
 
-		if (m_fSpeed_Vertical < 0)
-			m_State = FALL;
-
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
-			m_State = RUN;
+		{
+			if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+			{
+				m_fFixAttackAngle = m_fAttackAngle;
+				if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+				{
+					m_fFrontAngle = 0;
+					if (!m_DirCheck[RIGHT])
+						m_tInfo.fX += 50.f;
+				}
+				else
+				{
+					m_fFrontAngle = PI;
+					if (!m_DirCheck[LEFT])
+						m_tInfo.fX -= 10.f;
+				}
+				m_fSpeed_Vertical = 2.f;
+				m_FrameMap[m_State].iFrameStart = 0;
+				m_FrameMap[m_State].dwTime = GetTickCount64();
+			}
+			else
+				m_State = FALL_ATTACK;
+		}
+
+		if (!m_WallJump)
+		{
+			if (m_fFrontAngle == PI) {
+				if (!m_DirCheck[LEFT])
+				{
+					m_tInfo.fX += (m_fSpeed + 2.5f) * cos(m_fFixAttackAngle);
+					m_fSpeed += m_fAccel;
+					if (m_fSpeed >= SPEED_LIMIT)
+						m_fSpeed = SPEED_LIMIT;
+				}
+			}
+			else
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_tInfo.fX += (m_fSpeed + 2.5f) * cos(m_fFixAttackAngle);
+					m_fSpeed += m_fAccel;
+					if (m_fSpeed >= SPEED_LIMIT)
+						m_fSpeed = SPEED_LIMIT;
+				}
+			}
+				
+		}
+
+		
+		break;
+
+	case ATTACK_WALL:
+
+		if (m_WallJump)
+		{
+			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			{
+				if ((CKeyMgr::Get_Instance()->Key_Pressing('D')))
+				{
+					if (m_fFrontAngle == 0)
+					{
+						if (m_DirCheck[RIGHT])
+						{
+							m_State = GRAB_WALL;
+							if (m_fSpeed_Vertical < -1.f)
+								m_fSpeed_Vertical = 0.f;
+						}
+
+					}
+				}
+				else if ((CKeyMgr::Get_Instance()->Key_Pressing('A')))
+				{
+					if (m_fFrontAngle == PI)
+					{
+						if (m_DirCheck[LEFT])
+						{
+							m_State = GRAB_WALL; 
+							if (m_fSpeed_Vertical < - 1.f)
+								m_fSpeed_Vertical = 0.f;
+						}
+					}
+				}
+				else
+					m_State = FALL;
+			}
+		}
+		else
+		{
+			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+				m_State = FALL;
+		}
 		break;
 
 	case JUMP:
@@ -754,8 +954,8 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(PI);
 				m_tInfo.fX -= m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 
 		}
@@ -767,18 +967,18 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(0);
 				m_tInfo.fX += m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
-		}
-
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
 		}
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -790,6 +990,8 @@ void CPlayer::StateUpdate()
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
 					m_State = JUMP;
+
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
@@ -798,7 +1000,10 @@ void CPlayer::StateUpdate()
 			m_State = FALL;
 
 		if (!m_bJump)
+		{
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
+		}
 
 		if (m_WallJump && m_fSpeed_Vertical < 8.f )
 		{
@@ -806,23 +1011,99 @@ void CPlayer::StateUpdate()
 			{
 				if (m_fFrontAngle == 0)
 				{
-					m_State = GRAB_WALL;
-					m_fSpeed_Vertical = 0.f;
+					if (!m_DirCheck[LEFT])
+					{
+						m_State = GRAB_WALL;
+						m_fSpeed_Vertical -= 3.f;
+
+						if (m_fSpeed_Vertical < -1.f)
+							m_fSpeed_Vertical = 0.f;
+					}
 				}
 			}
 			else if ((CKeyMgr::Get_Instance()->Key_Pressing('A')))
 			{
 				if (m_fFrontAngle == PI)
 				{
-					m_State = GRAB_WALL;
-					m_tInfo.fX -= 34.f;
-					m_fSpeed_Vertical = 0.f;
+					if (!m_DirCheck[RIGHT])
+					{
+						m_State = GRAB_WALL;
+						m_tInfo.fX -= 34.f * SMALL;
+						m_fSpeed_Vertical -= 3.f;
+
+						if (m_fSpeed_Vertical < -1.f)
+							m_fSpeed_Vertical = 0.f;
+					}
 				}
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
 			}
 		}
 
 
 		break;
+
+	case FALL_ATTACK:
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 2.f;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+			break;
+		}
+		
+		if (!m_WallJump)
+		{
+			if (m_fFrontAngle == PI) {
+				if (!m_DirCheck[LEFT])
+				{
+					m_tInfo.fX += (2.f) * cos(m_fFixAttackAngle);
+				}
+			}
+			else
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_tInfo.fX += (2.f) * cos(m_fFixAttackAngle);
+				}
+			}
+			
+		}
+		
 
 	case FALL:
 
@@ -833,8 +1114,8 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(PI);
 				m_tInfo.fX -= m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 
 		}
@@ -846,13 +1127,18 @@ void CPlayer::StateUpdate()
 				Set_FrontAngle(0);
 				m_tInfo.fX += m_fSpeed;
 				m_fSpeed += m_fAccel;
-				if (m_fSpeed >= 8.f)
-					m_fSpeed = 8.f;
+				if (m_fSpeed >= SPEED_LIMIT)
+					m_fSpeed = SPEED_LIMIT;
 			}
 		}
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
 			{
 				m_tInfo.fY -= -10.0f;
@@ -864,17 +1150,15 @@ void CPlayer::StateUpdate()
 					m_fSpeed_Vertical = 10.f;
 					m_bJump = true;
 					m_State = JUMP;
+
+					PlayerPlaySound(L"player_jump.wav");
 				}
 			}
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
-		{
-			m_State = ATTACK;
-		}
-
 		if (!m_bJump)
 		{
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
 		}
 			
@@ -884,43 +1168,148 @@ void CPlayer::StateUpdate()
 			{
 				if (m_fFrontAngle == 0)
 				{
-					m_State = GRAB_WALL;
-					m_fSpeed_Vertical = 0.f;
+					if (!m_DirCheck[LEFT])
+					{
+						m_State = GRAB_WALL;
+						m_fSpeed_Vertical -= 3.f;
+
+						if (m_fSpeed_Vertical < -1.f)
+							m_fSpeed_Vertical = 0.f;
+					}
 				}
 			}
 			else if ((CKeyMgr::Get_Instance()->Key_Pressing('A')))
 			{
 				if (m_fFrontAngle == PI)
 				{
-					m_State = GRAB_WALL;
-					m_tInfo.fX -= 34.f;
-					m_fSpeed_Vertical = 0.f;
+					if (!m_DirCheck[RIGHT])
+					{
+						m_State = GRAB_WALL;
+						m_tInfo.fX -= 34.f * SMALL;
+						m_fSpeed_Vertical -= 3.f;
+
+						if (m_fSpeed_Vertical < -1.f)
+							m_fSpeed_Vertical = 0.f;
+					}
 				}
+			}
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
 			}
 		}
 
 		break;
 
+
+
 	case GRAB_WALL:
+
+		
+		CSoundMgr::Get_Instance()->PlaySound(L"wallslide.wav", SOUND_FOOTSTEP, SOUND_VOL3);
+		CSoundMgr::Get_Instance()->SetChannelVolume(SOUND_FOOTSTEP,abs( 0.3f * m_fSpeed_Vertical ));
 
 		if (!m_bJump)
 		{
+			
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
+
+			CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+			
 			if (m_fFrontAngle == PI)
-				m_tInfo.fX += 34.f;
+				m_tInfo.fX += 34.f * SMALL;
 		}
 		
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
 			if (m_fFrontAngle == PI)
 				m_fFrontAngle = 0;
 			else if (m_fFrontAngle == 0)
 				m_fFrontAngle = PI;
 
-			m_fSpeed_Vertical = 10.f;
+			m_fSpeed_Vertical = 8.f;
 			m_bJump = true;
 			m_WallJump = false;
 			m_State = JUMP_WALL;
+
+			CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+			PlayerPlaySound(L"player_roll.wav");
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_State = ATTACK;
+					AttackSound();
+
+					m_tInfo.fX += 50.f;
+					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
+
+					CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+				}
+				else
+				{
+					m_State = ATTACK_WALL;
+					AttackSound();
+
+					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
+
+					CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+				}
+				m_fFrontAngle = 0;
+			}
+			else
+			{
+				if (!m_DirCheck[LEFT])
+				{
+					m_State = ATTACK;
+					AttackSound();
+
+					m_tInfo.fX -= 10.f;
+					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
+
+					CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+				}
+				else
+				{
+					m_State = ATTACK_WALL;
+					AttackSound();
+
+					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
+
+					CSoundMgr::Get_Instance()->StopSound(SOUND_FOOTSTEP);
+				}
+				m_fFrontAngle = PI;
+			}
 		}
 
 		break;
@@ -929,26 +1318,49 @@ void CPlayer::StateUpdate()
 
 		if (!m_bJump)
 		{
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
 		}
 
 		if (m_fSpeed_Vertical < 0)
 			m_State = FALL_WALL;
 
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
 
-		if (m_WallJump)
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
+		else if (m_WallJump)
 		{
 			m_State = GRAB_WALL;
-			m_fSpeed_Vertical = 0.f;
+			m_fSpeed_Vertical -= 3.f;
 			if (m_fFrontAngle == PI)
-				m_tInfo.fX -= 34.f;
+				m_tInfo.fX -= 34.f * SMALL;
+			if (m_fSpeed_Vertical < -1.f)
+				m_fSpeed_Vertical = 0.f;
 		}
 		else
 		{
 			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
 			m_fWallSpeed += m_fAccel;
-			if (m_fWallSpeed >= 8.f)
-				m_fWallSpeed = 8.f;
+			if (m_fWallSpeed >= SPEED_LIMIT)
+				m_fWallSpeed = SPEED_LIMIT;
 		}
 
 		break;
@@ -956,31 +1368,139 @@ void CPlayer::StateUpdate()
 	case FALL_WALL:
 		if (!m_bJump)
 		{
+			m_RunningSoundTime = GetTickCount64();
 			m_State = RUN;
 		}
 
-		if (m_WallJump)
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
+		{
+			m_State = ATTACK;
+			AttackSound();
+
+			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
+			m_bJump = true;
+			m_fFixAttackAngle = m_fAttackAngle;
+			if ((0 <= m_fAttackAngle && 0.5f * PI >= m_fAttackAngle) || (0 > m_fAttackAngle && -0.5f * PI < m_fAttackAngle))
+			{
+				m_fFrontAngle = 0;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 50.f;
+			}
+			else
+			{
+				m_fFrontAngle = PI;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 10.f;
+			}
+		}
+		else if (m_WallJump)
 		{
 			m_State = GRAB_WALL;
-			m_fSpeed_Vertical = 0.f;
+			m_fSpeed_Vertical -= 3.f;
 			if (m_fFrontAngle == PI)
 				m_tInfo.fX -= 34.f;
+			if (m_fSpeed_Vertical < -1.f)
+				m_fSpeed_Vertical = 0.f;
 		}
 		else
 		{
 			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
 			m_fWallSpeed += m_fAccel;
-			if (m_fWallSpeed >= 8.f)
-				m_fWallSpeed = 8.f;
+			if (m_fWallSpeed >= SPEED_LIMIT)
+				m_fWallSpeed = SPEED_LIMIT;
 		}
+
+		
+
+		break;
+
+	case ROLLSTART:
+		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
+		{
+			Set_FrontAngle(PI);
+			m_State = ROLL;
+
+
+			PlayerPlaySound(L"player_roll.wav");
+		}
+		else if (CKeyMgr::Get_Instance()->Key_Pressing('D') || CKeyMgr::Get_Instance()->Key_Down('D'))
+		{
+			Set_FrontAngle(0);
+			m_State = ROLL;
+
+			PlayerPlaySound(L"player_roll.wav");
+		}
+
+		if (CKeyMgr::Get_Instance()->Key_Up('S'))
+		{
+			m_RunningSoundTime = GetTickCount64();
+			m_State = RUN;
+		}
+
+
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
+		{
+			if (g_SlowMotion)
+				g_SlowJumpTime = GetTickCount64();
+			else
+				g_SlowJumpTime = 0;
+
+			if (CKeyMgr::Get_Instance()->Key_Pressing('S') && !m_bJump)
+			{
+				m_tInfo.fY -= -10.0f;
+			}
+			else
+			{
+				if (0 < m_iAdditionJump_Count--)
+				{
+					m_fSpeed_Vertical = 10.f;
+					m_bJump = true;
+					m_State = JUMP;
+
+					PlayerPlaySound(L"player_jump.wav");
+				}
+			}
+		}
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
 
 		break;
 
 	case ROLL:
-		break;
+		if (m_FrameMap[m_State].iFrameStart < m_FrameMap[m_State].iFrameEnd)
+		{
+			if (m_fFrontAngle == PI)
+			{
+				if (!m_DirCheck[LEFT])
+				{
+					m_tInfo.fX -= m_fSpeed;
+					m_fSpeed += m_fAccel + 5.f;
+					if (m_fSpeed >= SPEED_LIMIT + 5.f)
+						m_fSpeed = SPEED_LIMIT + 5.f;
+				}
+			}
+			else
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_tInfo.fX += m_fSpeed;
+					m_fSpeed += m_fAccel + 5.f;
+					if (m_fSpeed >= SPEED_LIMIT + 5.f)
+						m_fSpeed = SPEED_LIMIT + 5.f;
+				}
+			}
+		}
+		else
+			m_State = RUN_TO_IDLE;
 
-	case FLIP:
-		break;
+
+		if (m_fSpeed_Vertical < 0)
+			m_State = FALL;
+					
+				
+	break;
+
 
 	case HURTFLY:
 		break;
@@ -993,7 +1513,7 @@ void CPlayer::StateUpdate()
 	}
 
 	if(m_State != JUMP_WALL && m_State != FALL_WALL)
-		m_fWallSpeed = 1.f;
+		m_fWallSpeed =3.f;
 
 	if (CKeyMgr::Get_Instance()->Key_Pressing(VK_CONTROL))
 	{
@@ -1022,40 +1542,148 @@ void CPlayer::AttackAngleUpdate()
 	ptMouse.x = ((float)ptMouse.x + ((float)cameraPos.x - WINCX / 2));
 	ptMouse.y = ((float)ptMouse.y + ((float)cameraPos.y - WINCY / 2));
 
-	m_fAttackAngle = atan2(ptMouse.y - m_tInfo.fY, ptMouse.x - m_tInfo.fX);
+	m_fAttackAngle = (-1.f) * atan2(ptMouse.y - (m_tInfo.fY + (m_tInfo.fCY * 0.5)), ptMouse.x - m_tInfo.fX);
+}
+
+void CPlayer::UseItem()
+{
+	CObj* Temp = CObjFactory<CItem>::Create(m_tInfo.fX, m_tInfo.fY, 30, 30);
+	Temp->SetOwner(this);
+	Temp->Set_AttackAngle(m_fAttackAngle);
+	dynamic_cast<CItem*>(Temp)->SetThrow(true);
+	dynamic_cast<CItem*>(Temp)->SetITemType(m_ItemState);
+	CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
+
+	m_ItemState = ITEM_NONE;
+	CUIMgr::Get_Instance()->SetInven(L"DEFAULT");
 }
 
 
-
-
-
-
-
-
-
-int CPlayer::OnCollision(CObj* _target, DIR _dir)
+void CPlayer::PlayerPlaySound(TCHAR* _name)
 {
-	if (_target->Get_Type() == WALL)
+	if (m_PlayerSoundCh == 0)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER, SOUND_VOL3);
+	else if (m_PlayerSoundCh == 1)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER2, SOUND_VOL3);
+	else if (m_PlayerSoundCh == 2)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER3, SOUND_VOL3);
+
+	++m_PlayerSoundCh;
+	if (m_PlayerSoundCh == 3)
+		m_PlayerSoundCh = 0;
+}
+
+void CPlayer::AttackSound()
+{
+	int randNum = rand() % 3;
+	if (randNum == 0)
+		PlayerPlaySound(L"sound_player_slash_1.wav");
+	else if (randNum == 1)
+		PlayerPlaySound(L"sound_player_slash_2.wav");
+	else
+		PlayerPlaySound(L"sound_player_slash_3.wav");
+}
+
+void CPlayer::BatteryChange()
+{
+	if (g_SlowMotion)
+	{
+		if (m_BatteryTime + 500 < GetTickCount64())
+		{
+			--m_BatteryCount;
+			if (m_BatteryCount <= 0)
+			{
+				m_BatteryCount = 0;
+				g_SlowMotion = false;
+				CSoundMgr::Get_Instance()->StopSound(SOUND_SLOW);
+				CSoundMgr::Get_Instance()->PlaySound(L"Slowmo_Exit.wav", SOUND_SLOW, SOUND_VOL2);
+				CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_FOOTSTEP, 2.f);
+				CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER, 2.f);
+				CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER2, 2.f);
+				m_SlowRun = 100;
+			}
+			m_BatteryTime = GetTickCount64();
+			CUIMgr::Get_Instance()->SetBattery(m_BatteryCount);
+			
+		}
+	}
+	else
+	{
+		if (m_BatteryTime == 0)
+			m_BatteryTime = GetTickCount64();
+		else if (m_BatteryTime + 500 < GetTickCount64())
+		{
+			++m_BatteryCount;
+			if (m_BatteryCount >= 9)
+				m_BatteryCount = 9;
+			else
+				m_BatteryTime = GetTickCount64();
+
+			CUIMgr::Get_Instance()->SetBattery(m_BatteryCount);			
+		}
+	}
+
+}
+
+
+int CPlayer::InCollision(CObj* _target, DIR _dir)
+{
+	OBJ_TYPE targetType = _target->Get_Type();
+
+	if (targetType == GRABWALL)
 	{
 		m_WallJump = true;
 		m_DirCheck[_dir] = true;
-		/*
-		if (_dir == RIGHT)
-			m_tInfo.fX -= 10.f;*/
 	}
+	else if (targetType == WALL)
+	{
+		m_DirCheck[_dir] = true;
+	}
+
 	return 0;
 }
 
 int CPlayer::OutCollision(CObj* _target)
 {
+	OBJ_TYPE targetType = _target->Get_Type();
 
-	if (_target->Get_Type() == WALL)
+	if (targetType == GRABWALL)
 	{
 		m_WallJump = false;
 		for (int i = 0; i < DIR_END; ++i)
 			m_DirCheck[i] = false;
 	}
+	else if (targetType == WALL)
+	{
+		for (int i = 0; i < DIR_END; ++i)
+			m_DirCheck[i] = false;
+	}
+	
 		
+	return 0;
+}
+
+int CPlayer::OnCollision(CObj* _target)
+{
+	OBJ_TYPE targetType = _target->Get_Type();
+
+	if (targetType == ITEM)
+	{
+		if (CKeyMgr::Get_Instance()->Key_Up(VK_RBUTTON))
+		{
+			if (!dynamic_cast<CItem*> (_target)->GetThrow())
+			{
+				m_ItemState = dynamic_cast<CItem*>(_target)->GetITemType();
+				if (m_ItemState == SWORD)
+					CUIMgr::Get_Instance()->SetInven(L"SWORD");
+				else if (m_ItemState == OILBOTTLE)
+					CUIMgr::Get_Instance()->SetInven(L"OILBOTTLE");
+				_target->Set_State(DEAD);
+				PlayerPlaySound(L"pickup.wav");
+			}
+		}
+	}
+
 	return 0;
 }
 

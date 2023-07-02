@@ -12,6 +12,8 @@ CObjMgr::CObjMgr()
 	m_CheckPairMap.insert({ PLAYER, ENEMY });
 	m_CheckPairMap.insert({ PLAYER, WALL });
 	m_CheckPairMap.insert({ ENEMY, SKILL });
+	m_CheckPairMap.insert({ ITEM, WALL });
+	m_CheckPairMap.insert({ PLAYER, ITEM });
 }
 
 CObjMgr::~CObjMgr()

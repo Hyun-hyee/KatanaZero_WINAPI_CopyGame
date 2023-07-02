@@ -20,8 +20,9 @@ public:
 	virtual void		InitImage()				PURE;
 
 public:
-	virtual	int			OnCollision(CObj* _target, DIR _dir)		PURE;
+	virtual	int			InCollision(CObj* _target, DIR _dir)		PURE;
 	virtual	int			OutCollision(CObj* _target)					PURE;
+	virtual	int			OnCollision(CObj* _target)					PURE;
 
 protected:
 	void		Update_Rect();
@@ -35,7 +36,11 @@ protected:
 	RECT			m_tRect;
 	RECT			m_Collide;
 	COLLIDER_TYPE	m_Collider_type;
+	float			m_CollideSize;
+public:
+	void			SetCollideSize(float _size) { m_CollideSize = _size; }
 
+protected:
 	// 속도, 가속도, Vertical Speed
 	float			m_fSpeed;
 	float			m_fAccel;
@@ -80,13 +85,14 @@ public:
 	//Anim KEY,Frame 관련
 protected:
 	map<OBJ_STATE,FRAME>	m_FrameMap;
+	TCHAR* m_OneImgKey;
 
 protected:
 	void RatioFixByImage(const TCHAR* _tcAnimKey);
 
 	void BasicRender(HDC hDC);
 	void FrameRender(HDC hDC);
-
+	void CollideRender(HDC hDC);
 	void Move_Frame();
 
 
@@ -124,7 +130,7 @@ protected:
 		float				m_fAttackAngle;
 		RECT				m_AttackCollide;
 		float				m_fAttackCWidth;
-
+public:
 		void  Set_AttackCollide(float _left, float _top, float _right, float _bottom) //L,T,R,B
 		{
 			m_AttackCollide.left = _left;
@@ -139,5 +145,8 @@ protected:
 		//FrontCollide 길이 설정
 		void Set_AttackCWidth(float _width) { m_fFrontCWidth = _width; }
 
+public:
+	void SlowMotionUpdate();
+	
 };
 

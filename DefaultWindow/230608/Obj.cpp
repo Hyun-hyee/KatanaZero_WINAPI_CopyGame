@@ -7,7 +7,8 @@
 CObj::CObj() : 
 	m_fSpeed(0.f), m_State(IDLE), m_Type(OBJ_NONE),
 	m_Collider_type(RECTANGLE),m_fAccel(0.f),m_Owner(nullptr),
-	m_fFrontAngle(0.f), m_fFrontCWidth(50.f),m_PrevState(OBJ_STATE_END)
+	m_fFrontAngle(0.f), m_fFrontCWidth(50.f),m_PrevState(OBJ_STATE_END),
+	m_CollideSize(5.f/2.f), m_OneImgKey(L"")
 {
 	ZeroMemory(&m_tInfo, sizeof(m_tInfo));
 	ZeroMemory(&m_tRect, sizeof(m_tRect));
@@ -112,10 +113,10 @@ void CObj::Update_Rect()
 	m_tRect.top		 = LONG(m_tInfo.fY - (m_tInfo.fCY * 0.5f));
 	m_tRect.right	 = LONG(m_tInfo.fX + (m_tInfo.fCX * 0.5f));
 	m_tRect.bottom   = LONG(m_tInfo.fY + (m_tInfo.fCY * 0.5f));
-	m_Collide.left	 = m_tRect.left	   - 5/2;
-	m_Collide.top    = m_tRect.top	   - 5/2;
-	m_Collide.right  = m_tRect.right   + 5/2;
-	m_Collide.bottom = m_tRect.bottom  + 5/2;
+	m_Collide.left	 = m_tRect.left	   - m_CollideSize;
+	m_Collide.top    = m_tRect.top	   - m_CollideSize;
+	m_Collide.right  = m_tRect.right   + m_CollideSize;
+	m_Collide.bottom = m_tRect.bottom  + m_CollideSize;
 	
 	if (m_fFrontAngle == 0)
 	{
@@ -131,7 +132,32 @@ void CObj::Update_Rect()
 	m_FrontCollide.bottom = m_Collide.bottom;
 }
 
+void CObj::CollideRender(HDC hDC)
+{
+	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
 
+	HBRUSH myBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, myBrush);
+
+	HPEN myPen = CreatePen(PS_SOLID, 0, RGB(255, 0, 255));
+	HPEN oldPen = (HPEN)SelectObject(hDC, myPen);
+
+	Rectangle(hDC, m_tRect.left - ((float)cameraPos.x - WINCX / 2),
+		m_tRect.top - ((float)cameraPos.y - WINCY / 2),
+		m_tRect.right - ((float)cameraPos.x - WINCX / 2),
+		m_tRect.bottom - ((float)cameraPos.y - WINCY / 2));
+
+	Rectangle(hDC, m_Collide.left - ((float)cameraPos.x - WINCX / 2),
+		m_Collide.top - ((float)cameraPos.y - WINCY / 2),
+		m_Collide.right - ((float)cameraPos.x - WINCX / 2),
+		m_Collide.bottom - ((float)cameraPos.y - WINCY / 2));
+
+	SelectObject(hDC, oldBrush);
+	DeleteObject(myBrush);
+
+	SelectObject(hDC, oldPen);
+	DeleteObject(myPen);
+}
 
 
 void CObj::RatioFixByImage(const TCHAR* _tcAnimKey)
@@ -142,8 +168,29 @@ void CObj::RatioFixByImage(const TCHAR* _tcAnimKey)
 }
 
 void CObj::BasicRender(HDC hDC)
-{
+{	
+	//카메라 위치(디폴트 -> 플레이어)
+	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
 
+	//사용할 이미지 Key 가져오기
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_OneImgKey);
+	Gdiplus::Bitmap* pImage = pBitMap->Get_Image();
+
+	Gdiplus::Graphics g(hDC);
+
+	//이미지 출력 (빠름, 알파블랜딩 X)
+	g.DrawImage(pImage,
+		Gdiplus::Rect(
+			((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
+			((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
+			m_tInfo.fCX,  //복사 사이즈
+			m_tInfo.fCY //복사 사이즈
+		),
+		0,
+		0,
+		pImage->GetWidth(),
+		pImage->GetHeight(), //이미지 원본 사이즈
+		Gdiplus::UnitPixel);
 }
 
 void CObj::FrameRender(HDC hDC)
@@ -168,8 +215,8 @@ void CObj::FrameRender(HDC hDC)
 			Gdiplus::Rect(
 				((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
 				((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
-				(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
-				(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeX * SMALL, //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeY * SMALL //복사 사이즈
 			),
 			m_FrameMap[m_State].iFrameStart * (int)m_FrameMap[m_State].iFrameSizeX,
 			m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
@@ -183,8 +230,8 @@ void CObj::FrameRender(HDC hDC)
 			Gdiplus::Rect(
 				((int)m_tRect.left - ((int)cameraPos.x - WINCX / 2)),
 				((int)m_tRect.top - ((int)cameraPos.y - WINCY / 2)),
-				(int)m_FrameMap[m_State].iFrameSizeX, //복사 사이즈
-				(int)m_FrameMap[m_State].iFrameSizeY //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeX * SMALL, //복사 사이즈
+				(int)m_FrameMap[m_State].iFrameSizeY * SMALL //복사 사이즈
 			),
 			(m_FrameMap[m_State].iFrameEnd - m_FrameMap[m_State].iFrameStart) * (int)m_FrameMap[m_State].iFrameSizeX,
 			m_FrameMap[m_State].iMotion * (int)m_FrameMap[m_State].iFrameSizeY,
@@ -198,14 +245,39 @@ void CObj::FrameRender(HDC hDC)
 
 void CObj::Move_Frame()
 {
-	if (m_FrameMap[m_State].dwTime + m_FrameMap[m_State].dwSpeed < GetTickCount())
+	if (g_SlowMotion)
 	{
+		if (m_FrameMap[m_State].dwTime + m_FrameMap[m_State].dwSpeed + 80 < GetTickCount64())
+		{
 			++m_FrameMap[m_State].iFrameStart;
 
 			if (m_FrameMap[m_State].iFrameStart > m_FrameMap[m_State].iFrameEnd)
 				m_FrameMap[m_State].iFrameStart = 0;
-		
-		m_FrameMap[m_State].dwTime = GetTickCount();
+
+			m_FrameMap[m_State].dwTime = GetTickCount64();
+		}
+	}
+	else
+	{
+		if (m_FrameMap[m_State].dwTime + m_FrameMap[m_State].dwSpeed < GetTickCount64())
+		{
+			++m_FrameMap[m_State].iFrameStart;
+
+			if (m_FrameMap[m_State].iFrameStart > m_FrameMap[m_State].iFrameEnd)
+				m_FrameMap[m_State].iFrameStart = 0;
+
+			m_FrameMap[m_State].dwTime = GetTickCount64();
+		}
+	}
+	
+}
+
+void CObj::SlowMotionUpdate()
+{
+	if (g_SlowMotion)
+	{
+		m_fSpeed = 1.f;
+		//m_fSpeed_Vertical -= 1.f;
 	}
 }
 

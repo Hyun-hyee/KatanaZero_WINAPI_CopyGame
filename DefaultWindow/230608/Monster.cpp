@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Monster.h"
-#include "Bullet.h"
 #include "ObjFactory.h"
 
 CMonster::CMonster()
@@ -46,13 +45,18 @@ void CMonster::Attack()
 {
 }
 
-int CMonster::OnCollision(CObj* _target, DIR _dir)
+int CMonster::InCollision(CObj* _target, DIR _dir)
 {
 	
 	return OBJ_NOEVENT;
 }
 
 int CMonster::OutCollision(CObj* _target)
+{
+	return 0;
+}
+
+int CMonster::OnCollision(CObj* _target)
 {
 	return 0;
 }

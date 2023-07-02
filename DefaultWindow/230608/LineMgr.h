@@ -1,7 +1,6 @@
 #pragma once
 #include "Line.h"
 #include "Define.h"
-#include "Define.h"
 #include "Enum.h"
 #include "Struct.h"
 #include "Functor.h"

@@ -2,9 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "230608.h"/*
-#include "MainGame.h"
-#include "ScrollGame.h"*/
+#include "230608.h"
 #include "SceneManager.h"
 
 #define MAX_LOADSTRING 100

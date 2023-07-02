@@ -5,10 +5,15 @@
 #include "ObjFactory.h"
 #include "LineMgr.h"
 #include "KeyMgr.h"
+#include "UIMgr.h"
 #include "BmpMgr.h"
 #include "HJS1.h"
+#include "SoundMgr.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
+
+bool g_SlowMotion = false;
+DWORD g_SlowJumpTime = 0;
 
 CSceneManager::CSceneManager()
 {
@@ -22,7 +27,7 @@ CSceneManager::~CSceneManager()
 
 void CSceneManager::Initialize()
 {
-	ShowCursor(TRUE);
+	ShowCursor(FALSE);
 	srand((unsigned int)time(NULL));
 
 	ULONG_PTR ptr; //Gdi+사용을 위한 포인터객체
@@ -37,6 +42,8 @@ void CSceneManager::Initialize()
 	HBITMAP prev = (HBITMAP)::SelectObject(_hdcBack, _bmpBack); // DC와 BMP를 연결
 	::DeleteObject(prev);
 
+	//UIMgr
+	CUIMgr::Get_Instance()->Initialize();
 
 	//캐릭터 생성
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
@@ -81,6 +88,7 @@ void CSceneManager::Render()
 		if ((*iter)->Get_SceneOn())
 			(*iter)->Render(_hdcBack);
 	}
+	CUIMgr::Get_Instance()->Render(_hdcBack);
 
 	// Double Buffering
 	::BitBlt(_hdc, 0, 0, _rect.right, _rect.bottom, _hdcBack, 0, 0, SRCCOPY); // 비트 블릿 : 고속 복사
@@ -120,6 +128,7 @@ void CSceneManager::ToPrevScene()
 
 
 
+
 void CSceneManager::Release()
 {
 	for (auto& iter : SceneList)
@@ -132,5 +141,7 @@ void CSceneManager::Release()
 	CBmpMgr::Destroy_Instance();
 	CLineMgr::Destroy_Instance();
 	CObjMgr::Destroy_Instance();
+	CUIMgr::Destroy_Instance();
+	CSoundMgr::Destroy_Instance();
 	//ReleaseDC(g_hWnd, m_hDC);
 }

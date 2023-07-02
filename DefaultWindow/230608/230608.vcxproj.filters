@@ -79,6 +79,15 @@
     <Filter Include="01. Obj\03.Wall">
       <UniqueIdentifier>{173ab8a7-4b58-4220-bae8-83b5ed40bdbb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="99.Design\06.UIMgr">
+      <UniqueIdentifier>{2e15a604-8510-4dbf-8273-8d301b598282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\04.Item">
+      <UniqueIdentifier>{451c2c75-35a9-40ba-9fc4-93c9e317802c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Design\07.SoundMgr">
+      <UniqueIdentifier>{ed5e4b62-6deb-48d9-b2ee-8bb2e443f298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -168,6 +177,18 @@
     <ClInclude Include="Wall.h">
       <Filter>01. Obj\03.Wall</Filter>
     </ClInclude>
+    <ClInclude Include="UIMgr.h">
+      <Filter>99.Design\06.UIMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>01. Obj\04.Item</Filter>
+    </ClInclude>
+    <ClInclude Include="GrabWall.h">
+      <Filter>01. Obj\03.Wall</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundMgr.h">
+      <Filter>99.Design\07.SoundMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -232,6 +253,18 @@
     </ClCompile>
     <ClCompile Include="Wall.cpp">
       <Filter>01. Obj\03.Wall</Filter>
+    </ClCompile>
+    <ClCompile Include="UIMgr.cpp">
+      <Filter>99.Design\06.UIMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>01. Obj\04.Item</Filter>
+    </ClCompile>
+    <ClCompile Include="GrabWall.cpp">
+      <Filter>01. Obj\03.Wall</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundMgr.cpp">
+      <Filter>99.Design\07.SoundMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

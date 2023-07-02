@@ -51,12 +51,17 @@ void CCharacter::Release(void)
 
 }
 
-int CCharacter::OnCollision(CObj* _target, DIR _dir)
+int CCharacter::InCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }
 
 int CCharacter::OutCollision(CObj* _target)
+{
+	return 0;
+}
+
+int CCharacter::OnCollision(CObj* _target)
 {
 	return 0;
 }

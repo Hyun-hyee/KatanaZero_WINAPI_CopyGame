@@ -9,6 +9,11 @@
 #include "Define.h"
 #include "SceneManager.h"
 #include "Wall.h"
+#include "GrabWall.h"
+#include "Item.h"
+#include "SoundMgr.h"
+
+float	g_fSound = 1.f;
 
 CHJS1::CHJS1()
 {
@@ -24,13 +29,22 @@ void CHJS1::Initialize()
 	//배경 이미지 경로
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render.bmp", L"FirstScene");
 	CSceneManager::Get_Instance()->Set_BackSize({1344, 784});
+	Set_BackGroundKey(L"FirstScene");
 	
 	CLineMgr::Get_Instance()->Add_Line({ -500,550 }, { WINCX + 500,550 });
 	CLineMgr::Get_Instance()->Add_Line({ 500,300 }, { 800,300 });
 
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77,400,155,370));	
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77 + 300, 450, 110, 200));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CWall>::Create(77+1070, 400, 155, 370));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::Create(77,400,155,370));	
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::Create(77 + 300, 450, 80, 200));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::Create(77+1070, 400, 155, 370));
+
+	CObj* Temp = CObjFactory<CItem>::Create(800,550, 30, 30);
+	dynamic_cast<CItem*>(Temp)->SetITemType(SWORD);
+	CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
+
+	//BGM
+	CSoundMgr::Get_Instance()->Initialize();
+	CSoundMgr::Get_Instance()->PlayBGM(L"song_ending.ogg", g_fSound);
 }
 
 void CHJS1::Update()
@@ -45,20 +59,7 @@ void CHJS1::LateUpdate()
 
 void CHJS1::Render(HDC _hDC)
 {
-
-	//사용할 이미지 Key 가져오기
-	Gdiplus::Bitmap* Image = CBmpMgr::Get_Instance()->Find_Img(L"FirstScene");
-	//카메라 위치(디폴트 -> 플레이어)
-	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
-
-	Gdiplus::Graphics g(_hDC);
-
-	//이미지 출력 (빠름, 알파블랜딩 X)
-	Gdiplus::CachedBitmap cBitMap(Image, &g);
-	g.DrawCachedBitmap(&cBitMap,
-		0 - ((int)cameraPos.x - WINCX / 2), // 복사 받을 위치 X,Y 좌표
-		0 - ((int)cameraPos.y - WINCY / 2)
-	);
+	BackGroundRender(_hDC);
 
 	CObjMgr::Get_Instance()->Render(_hDC);
 }
