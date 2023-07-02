@@ -12,6 +12,7 @@
 #include "GrabWall.h"
 #include "Item.h"
 #include "SoundMgr.h"
+#include "ArmEnemy.h"
 
 float	g_fSound = 1.f;
 
@@ -31,16 +32,22 @@ void CHJS1::Initialize()
 	CSceneManager::Get_Instance()->Set_BackSize({1344, 784});
 	Set_BackGroundKey(L"FirstScene");
 	
+	//라인
 	CLineMgr::Get_Instance()->Add_Line({ -500,550 }, { WINCX + 500,550 });
 	CLineMgr::Get_Instance()->Add_Line({ 500,300 }, { 800,300 });
 
+	//벽
 	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::Create(77,400,155,370));	
-	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::Create(77 + 300, 450, 80, 200));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::Create(77 + 250, 450, 80, 200));
 	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::Create(77+1070, 400, 155, 370));
 
+	//아이템
 	CObj* Temp = CObjFactory<CItem>::Create(800,550, 30, 30);
 	dynamic_cast<CItem*>(Temp)->SetITemType(SWORD);
 	CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
+
+	//적
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(600, 250, 60, 72));
 
 	//BGM
 	CSoundMgr::Get_Instance()->Initialize();

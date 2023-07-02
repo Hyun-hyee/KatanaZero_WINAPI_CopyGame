@@ -49,9 +49,6 @@
     <Filter Include="01. Obj\00.Character\00. Player">
       <UniqueIdentifier>{a538927e-c2c1-40f9-93f1-1f42f6ff2455}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01. Obj\00.Character\01.Monster">
-      <UniqueIdentifier>{46b54179-8d1f-45be-ad7f-6091a15aa1b5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="98.Component\00.Camera">
       <UniqueIdentifier>{b7b961e2-27c3-4fad-8c6f-c0ae3a70a211}</UniqueIdentifier>
     </Filter>
@@ -88,6 +85,9 @@
     <Filter Include="99.Design\07.SoundMgr">
       <UniqueIdentifier>{ed5e4b62-6deb-48d9-b2ee-8bb2e443f298}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Obj\00.Character\01.Enemy">
+      <UniqueIdentifier>{46b54179-8d1f-45be-ad7f-6091a15aa1b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -105,8 +105,8 @@
     <ClInclude Include="ObjFactory.h">
       <Filter>99.Design\00.ObjFactory</Filter>
     </ClInclude>
-    <ClInclude Include="Monster.h">
-      <Filter>01. Obj\00.Character\01.Monster</Filter>
+    <ClInclude Include="ArmEnemy.h">
+      <Filter>01. Obj\00.Character\01.Enemy</Filter>
     </ClInclude>
     <ClInclude Include="CollisionMgr.h">
       <Filter>99.Design\01.CollisionManager</Filter>
@@ -200,8 +200,8 @@
     <ClCompile Include="Obj.cpp">
       <Filter>01. Obj</Filter>
     </ClCompile>
-    <ClCompile Include="Monster.cpp">
-      <Filter>01. Obj\00.Character\01.Monster</Filter>
+    <ClCompile Include="ArmEnemy.cpp">
+      <Filter>01. Obj\00.Character\01.Enemy</Filter>
     </ClCompile>
     <ClCompile Include="CollisionMgr.cpp">
       <Filter>99.Design\01.CollisionManager</Filter>

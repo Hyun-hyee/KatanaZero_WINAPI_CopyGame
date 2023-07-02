@@ -93,6 +93,7 @@ protected:
 	void BasicRender(HDC hDC);
 	void FrameRender(HDC hDC);
 	void CollideRender(HDC hDC);
+	void CollideRender(HDC hDC, RECT _collide);
 	void Move_Frame();
 
 

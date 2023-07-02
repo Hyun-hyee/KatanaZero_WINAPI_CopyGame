@@ -157,6 +157,57 @@ void CObj::CollideRender(HDC hDC)
 
 	SelectObject(hDC, oldPen);
 	DeleteObject(myPen);
+
+	if (m_Type == PLAYER || m_Type == ENEMY)
+	{
+		myBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+		oldBrush = (HBRUSH)SelectObject(hDC, myBrush);
+
+		myPen = CreatePen(PS_SOLID, 0, RGB(0, 255, 255));
+		oldPen = (HPEN)SelectObject(hDC, myPen);
+
+		Rectangle(hDC, m_FrontCollide.left - ((float)cameraPos.x - WINCX / 2),
+			m_FrontCollide.top - ((float)cameraPos.y - WINCY / 2),
+			m_FrontCollide.right - ((float)cameraPos.x - WINCX / 2),
+			m_FrontCollide.bottom - ((float)cameraPos.y - WINCY / 2));
+
+		Rectangle(hDC, m_AttackCollide.left - ((float)cameraPos.x - WINCX / 2),
+			m_AttackCollide.top - ((float)cameraPos.y - WINCY / 2),
+			m_AttackCollide.right - ((float)cameraPos.x - WINCX / 2),
+			m_AttackCollide.bottom - ((float)cameraPos.y - WINCY / 2));
+
+		SelectObject(hDC, oldBrush);
+		DeleteObject(myBrush);
+
+		SelectObject(hDC, oldPen);
+		DeleteObject(myPen);
+	}
+	
+
+
+}
+
+void CObj::CollideRender(HDC hDC, RECT _collide)
+{
+	fPOINT cameraPos = CSceneManager::Get_Instance()->GetCameraPos();
+
+	HBRUSH myBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, myBrush);
+
+	HPEN myPen = CreatePen(PS_SOLID, 0, RGB(255, 255, 0));
+	HPEN oldPen = (HPEN)SelectObject(hDC, myPen);
+
+	Rectangle(hDC, _collide.left - ((float)cameraPos.x - WINCX / 2),
+		_collide.top - ((float)cameraPos.y - WINCY / 2),
+		_collide.right - ((float)cameraPos.x - WINCX / 2),
+		_collide.bottom - ((float)cameraPos.y - WINCY / 2));
+
+	SelectObject(hDC, oldBrush);
+	DeleteObject(myBrush);
+
+	SelectObject(hDC, oldPen);
+	DeleteObject(myPen);
+
 }
 
 
