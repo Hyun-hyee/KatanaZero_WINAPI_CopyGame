@@ -20,8 +20,10 @@ public:
 	virtual	int	 OnCollision(CObj* _target)					override;
 
 private:
+	/*
 	bool		 bThrow;
-	ITEM_TYPE			m_ItemType;
+	ITEM_TYPE	 m_ItemType;
+	*/
 public:
 	bool		 GetThrow() { return bThrow; }
 	void		 SetThrow(bool _check) { bThrow = _check; SetCollideSize(5.f/2.f);}

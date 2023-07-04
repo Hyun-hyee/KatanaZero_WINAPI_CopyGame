@@ -2,9 +2,11 @@
 #include "Item.h"
 #include "KeyMgr.h"
 #include "BmpMgr.h"
+#include "SoundMgr.h"
 
-CItem::CItem() : bThrow(false)
+CItem::CItem()
 {
+	bThrow = false;
 	m_Type = ITEM;
 	m_Collider_type = RECTANGLE;
 	m_ItemType = ITEM_NONE;
@@ -63,8 +65,30 @@ int CItem::InCollision(CObj* _target, DIR _dir)
 	OBJ_TYPE targetType = _target->Get_Type();
 	if (bThrow)
 	{
-		if (targetType == WALL || targetType == GRABWALL)
-			Set_State(DEAD);
+		if (targetType == WALL || targetType == GRABWALL || targetType == ENEMY)
+		{
+			if (m_ItemType == SWORD)
+			{
+				if (targetType == ENEMY)
+				{
+					if (_target->Get_State() != HURT && _target->Get_State() != HURTGROUND)
+						Set_State(DEAD);
+				}
+				else
+				{
+					bThrow = false;
+					SetCollideSize(40.f);
+				}
+				CSoundMgr::Get_Instance()->PlaySound(L"swordcrash.wav", SOUND_EFFECT, SOUND_VOL3);
+			}
+			else if (m_ItemType == OILBOTTLE)
+			{
+				CSoundMgr::Get_Instance()->PlaySound(L"glass1.wav", SOUND_EFFECT, SOUND_VOL3);
+				Set_State(DEAD);
+			}
+		}
+
+
 	}
 	else
 	{

@@ -35,5 +35,7 @@ protected:
 	int					m_iAdditionJump_MaxCount;
 	int					m_iAdditionJump_Count;
 
+	bool				m_DirCheck[DIR_END];
+
 };
 

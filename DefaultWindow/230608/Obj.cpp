@@ -19,6 +19,28 @@ CObj::~CObj()
 {
 }
 
+//CObj& CObj::operator=(const CObj& other)
+//{
+//	memcpy(&m_tInfo, &other.m_tInfo, sizeof(m_tInfo));
+//	memcpy(&m_tRect, &other.m_tRect, sizeof(m_tRect));
+//	this->m_FrameMap = other.m_FrameMap;
+//	this->m_OneImgKey = other.m_OneImgKey;
+//	this->m_fFrontAngle = other.m_fFrontAngle;
+//	this->m_State = other.m_State;
+//
+//	return *this;
+//}
+
+//
+//CObj::CObj( CObj& other)
+//{
+//	memcpy(&m_tInfo, &other.m_tInfo,sizeof( m_tInfo ));
+//	memcpy(&m_tRect, &other.m_tRect, sizeof(m_tRect));
+//	other.m_FrameMap =this->m_FrameMap;
+//	other.m_OneImgKey = this->m_OneImgKey;
+//	other.m_fFrontAngle = this->m_fFrontAngle;
+//}
+
 void CObj::Render(HDC hDC)
 {
 	//// »ç¿ëÇÒ CBitmap
@@ -166,10 +188,13 @@ void CObj::CollideRender(HDC hDC)
 		myPen = CreatePen(PS_SOLID, 0, RGB(0, 255, 255));
 		oldPen = (HPEN)SelectObject(hDC, myPen);
 
-		Rectangle(hDC, m_FrontCollide.left - ((float)cameraPos.x - WINCX / 2),
-			m_FrontCollide.top - ((float)cameraPos.y - WINCY / 2),
-			m_FrontCollide.right - ((float)cameraPos.x - WINCX / 2),
-			m_FrontCollide.bottom - ((float)cameraPos.y - WINCY / 2));
+		if (m_Type == ENEMY)
+		{
+			Rectangle(hDC, m_FrontCollide.left - ((float)cameraPos.x - WINCX / 2),
+				m_FrontCollide.top - ((float)cameraPos.y - WINCY / 2),
+				m_FrontCollide.right - ((float)cameraPos.x - WINCX / 2),
+				m_FrontCollide.bottom - ((float)cameraPos.y - WINCY / 2));
+		}
 
 		Rectangle(hDC, m_AttackCollide.left - ((float)cameraPos.x - WINCX / 2),
 			m_AttackCollide.top - ((float)cameraPos.y - WINCY / 2),
@@ -183,8 +208,6 @@ void CObj::CollideRender(HDC hDC)
 		DeleteObject(myPen);
 	}
 	
-
-
 }
 
 void CObj::CollideRender(HDC hDC, RECT _collide)
@@ -321,6 +344,17 @@ void CObj::Move_Frame()
 		}
 	}
 	
+}
+
+void CObj::UpdateAttackCollide()
+{
+	m_AttackCInfo.fX = m_tInfo.fX + m_AttackCDistance * cos(m_fAttackAngle);
+	m_AttackCInfo.fY = m_tInfo.fY - m_AttackCDistance * sin(m_fAttackAngle);
+	
+	m_AttackCollide.left = m_AttackCInfo.fX - 0.5 * m_AttackCInfo.fCX;
+	m_AttackCollide.top = m_AttackCInfo.fY - 0.5 * m_AttackCInfo.fCY;
+	m_AttackCollide.right = m_AttackCInfo.fX + 0.5 * m_AttackCInfo.fCX;
+	m_AttackCollide.bottom = m_AttackCInfo.fY + 0.5 * m_AttackCInfo.fCY;
 }
 
 void CObj::SlowMotionUpdate()

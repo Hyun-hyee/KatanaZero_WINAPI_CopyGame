@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <string>
+#include <typeinfo>
 using namespace std;
 
 #include <ole2.h>

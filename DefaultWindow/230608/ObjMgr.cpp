@@ -3,22 +3,31 @@
 #include "CollisionMgr.h"
 #include "ObjFactory.h"
 #include "Obj.h"
+#include "MementoMgr.h"
 
 CObjMgr* CObjMgr::m_pInstance = nullptr;
 
 CObjMgr::CObjMgr()
 {
-	m_CheckPairMap.insert({ PLAYER, SKILL });
-	m_CheckPairMap.insert({ PLAYER, ENEMY });
-	m_CheckPairMap.insert({ PLAYER, WALL });
-	m_CheckPairMap.insert({ ENEMY, SKILL });
-	m_CheckPairMap.insert({ ITEM, WALL });
-	m_CheckPairMap.insert({ PLAYER, ITEM });
 }
 
 CObjMgr::~CObjMgr()
 {
 	Release();
+}
+
+void CObjMgr::Initialize()
+{
+	m_CheckPairMap.insert({ PLAYER, BULLET });
+	m_CheckPairMap.insert({ PLAYER, ENEMY });
+	m_CheckPairMap.insert({ PLAYER, WALL });
+	m_CheckPairMap.insert({ ENEMY, ITEM });
+	m_CheckPairMap.insert({ ENEMY, WALL });
+	m_CheckPairMap.insert({ ENEMY, BULLET });
+	m_CheckPairMap.insert({ ITEM, WALL });
+	m_CheckPairMap.insert({ BULLET, WALL });
+	m_CheckPairMap.insert({ PLAYER, ITEM });
+
 }
 
 void CObjMgr::Update()
@@ -68,6 +77,10 @@ void CObjMgr::Render(HDC hDC)
 		for (auto& iter : m_ObjList[i])
 			iter->Render(hDC);
 	}
+
+	/*WCHAR text[100];
+	_stprintf_s(text, L"[Bullet] %d ", m_ObjList[BULLET].size());
+	TextOutW(hDC, 0, 60, text, lstrlen(text));*/
 }
 
 void CObjMgr::Release()

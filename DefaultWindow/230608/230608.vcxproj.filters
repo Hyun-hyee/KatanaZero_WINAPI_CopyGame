@@ -55,9 +55,6 @@
     <Filter Include="02.Line">
       <UniqueIdentifier>{b28fb68e-0c48-45d3-a45a-88e75e0a0cf2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01. Obj\02.Skill">
-      <UniqueIdentifier>{821cea92-ccc3-4668-a101-d71a5a0831a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="99.Design\05.BmpMgr">
       <UniqueIdentifier>{0e1fc38c-e501-4175-99b6-ae57f909eca8}</UniqueIdentifier>
     </Filter>
@@ -88,6 +85,18 @@
     <Filter Include="01. Obj\00.Character\01.Enemy">
       <UniqueIdentifier>{46b54179-8d1f-45be-ad7f-6091a15aa1b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Obj\02.Bullet">
+      <UniqueIdentifier>{821cea92-ccc3-4668-a101-d71a5a0831a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\00.Character\01.Enemy\ArmEnemy">
+      <UniqueIdentifier>{7e0c348b-c1d2-45e1-845d-4e5377f6d12f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\00.Character\01.Enemy\GunEnemy">
+      <UniqueIdentifier>{c6e97278-b4ad-45e6-ba4d-960dd288a0da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Design\07.MementoMgr">
+      <UniqueIdentifier>{7eece3ea-4fa5-43b4-809f-0eb0c1b08a56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -104,9 +113,6 @@
     </ClInclude>
     <ClInclude Include="ObjFactory.h">
       <Filter>99.Design\00.ObjFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="ArmEnemy.h">
-      <Filter>01. Obj\00.Character\01.Enemy</Filter>
     </ClInclude>
     <ClInclude Include="CollisionMgr.h">
       <Filter>99.Design\01.CollisionManager</Filter>
@@ -138,8 +144,8 @@
     <ClInclude Include="Character.h">
       <Filter>01. Obj\00.Character</Filter>
     </ClInclude>
-    <ClInclude Include="Skill.h">
-      <Filter>01. Obj\02.Skill</Filter>
+    <ClInclude Include="Bullet.h">
+      <Filter>01. Obj\02.Bullet</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>01. Obj\00.Character\00. Player</Filter>
@@ -189,6 +195,15 @@
     <ClInclude Include="SoundMgr.h">
       <Filter>99.Design\07.SoundMgr</Filter>
     </ClInclude>
+    <ClInclude Include="ArmEnemy.h">
+      <Filter>01. Obj\00.Character\01.Enemy\ArmEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="GunEnemy.h">
+      <Filter>01. Obj\00.Character\01.Enemy\GunEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="MementoMgr.h">
+      <Filter>99.Design\07.MementoMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -199,9 +214,6 @@
     </ClCompile>
     <ClCompile Include="Obj.cpp">
       <Filter>01. Obj</Filter>
-    </ClCompile>
-    <ClCompile Include="ArmEnemy.cpp">
-      <Filter>01. Obj\00.Character\01.Enemy</Filter>
     </ClCompile>
     <ClCompile Include="CollisionMgr.cpp">
       <Filter>99.Design\01.CollisionManager</Filter>
@@ -233,8 +245,8 @@
     <ClCompile Include="Character.cpp">
       <Filter>01. Obj\00.Character</Filter>
     </ClCompile>
-    <ClCompile Include="Skill.cpp">
-      <Filter>01. Obj\02.Skill</Filter>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>01. Obj\02.Bullet</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>01. Obj\00.Character\00. Player</Filter>
@@ -265,6 +277,15 @@
     </ClCompile>
     <ClCompile Include="SoundMgr.cpp">
       <Filter>99.Design\07.SoundMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="ArmEnemy.cpp">
+      <Filter>01. Obj\00.Character\01.Enemy\ArmEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="GunEnemy.cpp">
+      <Filter>01. Obj\00.Character\01.Enemy\GunEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="MementoMgr.cpp">
+      <Filter>99.Design\07.MementoMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

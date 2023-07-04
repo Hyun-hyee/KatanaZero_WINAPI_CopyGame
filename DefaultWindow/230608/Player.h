@@ -8,6 +8,7 @@ class CPlayer :
 public:
 	CPlayer();
 	virtual ~CPlayer();
+	
 
 public:
 	virtual void	Initialize(void)	override;
@@ -35,8 +36,6 @@ private:
 	bool				CAMERAMODE;
 
 	bool				m_WallJump;
-	bool				m_DirCheck[DIR_END]; // 0 : left , 1 : right
-
 	float				m_fWallSpeed;
 	float				m_fFixAttackAngle;
 
@@ -52,9 +51,12 @@ public:
 	void				AttackSound();
 
 	void				BatteryChange();
+
+	void				Attack();
+	void				Parring();
 private:
 	int					m_BatteryCount;
 	DWORD				m_BatteryTime;
-
+	bool				m_HurtOn;
 };
 

@@ -61,6 +61,7 @@ public:
 	fPOINT GetCameraPos() { return _cameraPos; }
 	void SetCameraPos(fPOINT pos) { _cameraPos = pos; }
 
+
 private:
 	fPOINT _cameraPos = { WINCX, WINCY };
 
@@ -79,4 +80,6 @@ public:
 	void Set_BackSize(fPOINT point) { BackSize.x = point.x; BackSize.y = point.y; }
 	fPOINT Get_BackSize() { return BackSize; }
 
+public:
+	void AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom);
 };

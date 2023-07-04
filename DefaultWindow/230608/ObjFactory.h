@@ -24,5 +24,19 @@ public :
 		return pObj;
 	}
 
+	static CObj* CreateRECT(float _left, float _top, float _right, float _bottom)
+	{
+		float fCX = _right - _left;
+		float fCY = _bottom - _top;
+		float fX = _left + 0.5 * fCX;
+		float fY = _top + 0.5 * fCY;
+
+		CObj* pObj = new T;
+		pObj->Set_Pos(fX, fY);
+		pObj->Set_Size(fCX, fCY);
+		pObj->Initialize();
+		return pObj;
+	}
+
 
 };

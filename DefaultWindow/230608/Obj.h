@@ -10,6 +10,9 @@ class CObj abstract
 public:
 	CObj();
 	virtual ~CObj();
+	////CObj( CObj& other);
+
+	//CObj& operator = (const CObj& other);
 
 public:
 	virtual void		Initialize(void)		PURE;
@@ -77,7 +80,7 @@ public:
 	//Collider 설정
 	COLLIDER_TYPE Get_Collider_type() { return m_Collider_type; }
 	RECT*		Get_Collide() { return &m_Collide; }
-
+	RECT*		Get_Rect() { return &m_tRect; }
 
 
 
@@ -116,7 +119,7 @@ public:
 		m_FrontCollide.bottom = _bottom;
 	}
 	void  Set_FrontCollide(RECT _collide) { m_FrontCollide = _collide; }
-	RECT Get_FrontCollide() { return m_FrontCollide; }
+	RECT* Get_FrontCollide() { return &m_FrontCollide; }
 
 	//FrontCollide 길이 설정
 	void Set_FrontWidth(float _width) { m_fFrontCWidth = _width; }
@@ -130,7 +133,8 @@ public:
 protected:
 		float				m_fAttackAngle;
 		RECT				m_AttackCollide;
-		float				m_fAttackCWidth;
+		INFO				m_AttackCInfo;
+		float				m_AttackCDistance;
 public:
 		void  Set_AttackCollide(float _left, float _top, float _right, float _bottom) //L,T,R,B
 		{
@@ -140,14 +144,18 @@ public:
 			m_AttackCollide.bottom = _bottom;
 		}
 		void Set_AttackAngle(float _angle) { m_fAttackAngle = _angle; }
+		float Get_AttackAngle() { return m_fAttackAngle; }
 		void  Set_AttackCollide(RECT _collide) { m_FrontCollide = _collide; }
-		RECT Get_AttackCollide() { return m_FrontCollide; }
-
-		//FrontCollide 길이 설정
-		void Set_AttackCWidth(float _width) { m_fFrontCWidth = _width; }
+		RECT* Get_AttackCollide() { return &m_FrontCollide; }
+		void UpdateAttackCollide();
 
 public:
 	void SlowMotionUpdate();
+
+protected:
+	//아이템
+	bool		 bThrow;
+	ITEM_TYPE	 m_ItemType;
 	
 };
 

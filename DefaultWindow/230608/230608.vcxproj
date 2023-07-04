@@ -92,8 +92,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>fmodex_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -170,11 +169,13 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Functor.h" />
     <ClInclude Include="GrabWall.h" />
+    <ClInclude Include="GunEnemy.h" />
     <ClInclude Include="HJS1.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="LineMgr.h" />
+    <ClInclude Include="MementoMgr.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="ArmEnemy.h" />
     <ClInclude Include="ObjFactory.h" />
@@ -184,7 +185,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="Skill.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
@@ -202,9 +203,11 @@
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GrabWall.cpp" />
+    <ClCompile Include="GunEnemy.cpp" />
     <ClCompile Include="HJS1.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
+    <ClCompile Include="MementoMgr.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Line.cpp" />
@@ -213,7 +216,7 @@
     <ClCompile Include="ArmEnemy.cpp" />
     <ClCompile Include="Obj.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
-    <ClCompile Include="Skill.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="SoundMgr.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

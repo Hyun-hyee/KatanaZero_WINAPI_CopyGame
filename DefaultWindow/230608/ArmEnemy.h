@@ -24,7 +24,6 @@ public:
 	virtual	int		OutCollision(CObj* _target)		override;
 	virtual	int		OnCollision(CObj* _target)					override;
 
-	void			 Attack();
 
 	void			StateUpdate();
 
@@ -37,10 +36,14 @@ private:
 	RECT			m_CheckCollide;
 	float			m_CheckCWidth;
 	bool			m_bFollow;
+	bool			m_HurtOn;
+	DWORD			m_WalkTime;
+	bool			m_BulletHurt;
+
 
 public:
 	bool			CheckTargetFront();
 	void			SetTarget(CObj* _target) { m_Target = _target; }
-
+	void			Attack();
 };
 

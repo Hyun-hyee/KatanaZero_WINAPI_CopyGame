@@ -9,6 +9,9 @@
 #include "BmpMgr.h"
 #include "HJS1.h"
 #include "SoundMgr.h"
+#include "Wall.h"
+#include "GrabWall.h"
+#include "MementoMgr.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -41,6 +44,10 @@ void CSceneManager::Initialize()
 	_bmpBack = ::CreateCompatibleBitmap(_hdc, _rect.right, _rect.bottom); // _hdc와 호환되는 비트맵 생성
 	HBITMAP prev = (HBITMAP)::SelectObject(_hdcBack, _bmpBack); // DC와 BMP를 연결
 	::DeleteObject(prev);
+
+	//ObjMgr,MementoMgr (순서 중요)
+	CObjMgr::Get_Instance()->Initialize();
+	CMementoMgr::Get_Instance()->Initialize();
 
 	//UIMgr
 	CUIMgr::Get_Instance()->Initialize();
@@ -89,12 +96,11 @@ void CSceneManager::Render()
 			(*iter)->Render(_hdcBack);
 	}
 	CUIMgr::Get_Instance()->Render(_hdcBack);
-
+	CLineMgr::Get_Instance()->Render(_hdcBack);
 	// Double Buffering
 	::BitBlt(_hdc, 0, 0, _rect.right, _rect.bottom, _hdcBack, 0, 0, SRCCOPY); // 비트 블릿 : 고속 복사
 	::PatBlt(_hdcBack, 0, 0, _rect.right, _rect.bottom, WHITENESS);
 }
-
 
 void CSceneManager::ToNextScene()
 {
@@ -126,6 +132,16 @@ void CSceneManager::ToPrevScene()
 	}
 }
 
+void CSceneManager::AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom)
+{
+	if(_walltype == GRABWALL)
+		CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::CreateRECT(_left, _top, _right, _bottom));
+	else if (_walltype == WALL)
+		CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(_left, _top, _right, _bottom));
+
+	CLineMgr::Get_Instance()->Add_Line({ _left - 10.f,_top - 10.f }, { _right + 10.f,_top - 10.f });
+}
+
 
 
 
@@ -143,5 +159,7 @@ void CSceneManager::Release()
 	CObjMgr::Destroy_Instance();
 	CUIMgr::Destroy_Instance();
 	CSoundMgr::Destroy_Instance();
+	CMementoMgr::Destroy_Instance();
 	//ReleaseDC(g_hWnd, m_hDC);
 }
+

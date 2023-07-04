@@ -13,7 +13,7 @@
 #include "Item.h"
 #include "UIMgr.h"
 #include "SoundMgr.h"
-
+#include "Bullet.h"
 
 
 CPlayer::CPlayer()
@@ -31,6 +31,7 @@ CPlayer::~CPlayer()
 {
 }
 
+
 void CPlayer::Initialize(void)
 {
 	CameraComponent* camera = new CameraComponent();
@@ -42,20 +43,22 @@ void CPlayer::Initialize(void)
 	m_fJump_Angle = PI / 3;
 	m_iAdditionJump_MaxCount = 3;
 	m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
-	m_fAccel = 0.1f;
+	m_fAccel = 0.2f;
 	m_fWallSpeed = 1.f;
-	m_fSpeed = 3.f;
+	m_fSpeed = 5.f;
 	m_fFixAttackAngle = m_fAttackAngle;
 	m_WallJump = false;
 	m_PlayerSoundCh = 0;
 	m_SlowRun = 100;
 	m_BatteryCount = 9;
 	m_BatteryTime = 0;
+	m_HurtOn = false;
+	
+	m_AttackCInfo = { m_tInfo.fX, m_tInfo.fY, 70.f, 70.f };
+	m_AttackCDistance = 50.f;
 
 	m_ItemState = ITEM_NONE;
 	
-	for (int i = 0; i < DIR_END; ++i)
-		m_DirCheck[i] = false;
 
 	InitImage();
 }
@@ -86,6 +89,7 @@ void CPlayer::Update(void)
 	
 	//RECT,Collide,FrontCollide 업데이트
 	CObj::Update_Rect();
+	CObj::UpdateAttackCollide();
 
 	CObj::Move_Frame();
 }
@@ -130,6 +134,7 @@ void CPlayer::Render(HDC hDC)
 
 void CPlayer::Release(void)
 {
+	//Safe_Delete< CameraComponent*>(camera);
 }
 
 void CPlayer::InitImage()
@@ -346,9 +351,9 @@ void CPlayer::Key_Input(void)
 		}
 	}
 	
-	if (CKeyMgr::Get_Instance()->Key_Down(VK_RBUTTON))
+	if (m_ItemState != ITEM_NONE)
 	{
-		if (m_ItemState != ITEM_NONE)
+		if (CKeyMgr::Get_Instance()->Key_Down(VK_RBUTTON))
 		{
 			UseItem();
 			PlayerPlaySound(L"player_throw.wav");
@@ -851,6 +856,8 @@ void CPlayer::StateUpdate()
 
 	case ATTACK:
 
+		Parring();
+		Attack();
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		{
 			if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
@@ -1168,7 +1175,7 @@ void CPlayer::StateUpdate()
 			{
 				if (m_fFrontAngle == 0)
 				{
-					if (!m_DirCheck[LEFT])
+					if (m_DirCheck[RIGHT])
 					{
 						m_State = GRAB_WALL;
 						m_fSpeed_Vertical -= 3.f;
@@ -1182,7 +1189,7 @@ void CPlayer::StateUpdate()
 			{
 				if (m_fFrontAngle == PI)
 				{
-					if (!m_DirCheck[RIGHT])
+					if (m_DirCheck[LEFT])
 					{
 						m_State = GRAB_WALL;
 						m_tInfo.fX -= 34.f * SMALL;
@@ -1357,10 +1364,27 @@ void CPlayer::StateUpdate()
 		}
 		else
 		{
-			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
-			m_fWallSpeed += m_fAccel;
-			if (m_fWallSpeed >= SPEED_LIMIT)
-				m_fWallSpeed = SPEED_LIMIT;
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+					m_fWallSpeed += m_fAccel;
+					if (m_fWallSpeed >= SPEED_LIMIT)
+						m_fWallSpeed = SPEED_LIMIT;
+				}
+			}
+			else
+			{
+				if (!m_DirCheck[LEFT])
+				{
+					m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+					m_fWallSpeed += m_fAccel;
+					if (m_fWallSpeed >= SPEED_LIMIT)
+						m_fWallSpeed = SPEED_LIMIT;
+				}
+			}
+			
 		}
 
 		break;
@@ -1404,10 +1428,26 @@ void CPlayer::StateUpdate()
 		}
 		else
 		{
-			m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
-			m_fWallSpeed += m_fAccel;
-			if (m_fWallSpeed >= SPEED_LIMIT)
-				m_fWallSpeed = SPEED_LIMIT;
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[RIGHT])
+				{
+					m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+					m_fWallSpeed += m_fAccel;
+					if (m_fWallSpeed >= SPEED_LIMIT)
+						m_fWallSpeed = SPEED_LIMIT;
+				}
+			}
+			else
+			{
+				if (!m_DirCheck[LEFT])
+				{
+					m_tInfo.fX += cos(m_fFrontAngle) * m_fWallSpeed;
+					m_fWallSpeed += m_fAccel;
+					if (m_fWallSpeed >= SPEED_LIMIT)
+						m_fWallSpeed = SPEED_LIMIT;
+				}
+			}
 		}
 
 		
@@ -1503,9 +1543,40 @@ void CPlayer::StateUpdate()
 
 
 	case HURTFLY:
+		if (!m_HurtOn)
+		{
+			m_bJump = true;
+			m_fSpeed_Vertical = 4.f;
+			m_HurtOn = true;
+		}
+
+		if (m_bJump)
+		{
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 5.f;
+			}
+			else if (m_fFrontAngle == PI)
+			{
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 5.f;
+			}
+		}
+		else if (!m_bJump)
+		{
+			m_State = HURTGROUND;
+			m_HurtOn = false;
+		}
 		break;
 
 	case HURTGROUND:
+		m_tInfo.fY += 15.f;
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			m_FrameMap[m_State].iFrameStart = m_FrameMap[m_State].iFrameEnd - 1;
+			
+		if (CKeyMgr::Get_Instance()->Key_Pressing('Q'))
+			m_State = IDLE;
 		break;
 
 	case DOORBREAK:
@@ -1588,7 +1659,7 @@ void CPlayer::BatteryChange()
 {
 	if (g_SlowMotion)
 	{
-		if (m_BatteryTime + 500 < GetTickCount64())
+		if (m_BatteryTime + 1000 < GetTickCount64())
 		{
 			--m_BatteryCount;
 			if (m_BatteryCount <= 0)
@@ -1625,6 +1696,67 @@ void CPlayer::BatteryChange()
 
 }
 
+void CPlayer::Attack()
+{
+	list<CObj*> *EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
+	for (auto& iter : *EnemyList)
+	{
+		if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_AttackCollide, iter->Get_Collide()))
+		{
+			if (iter->Get_State() != HURT && iter->Get_State() != HURTGROUND)
+			{
+				iter->Set_State(HURT);
+				iter->Set_AttackAngle(m_fAttackAngle);
+				if (iter->Get_Info()->fX < m_tInfo.fX)
+					iter->Set_FrontAngle(0);
+				else
+					iter->Set_FrontAngle(PI);
+
+				CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
+			}
+			
+		}
+			
+	}
+}
+
+void CPlayer::Parring()
+{
+	list<CObj*>* BulletList = CObjMgr::Get_Instance()->Get_ObjList(BULLET);
+
+	for (auto& iter : *BulletList)
+	{
+		if (iter->GetOwner() != this)
+		{
+			if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_AttackCollide, iter->Get_Collide()))
+			{				
+				CObj* Temp = CObjFactory<CBullet>::Create();
+				
+				INFO* iterInfo = iter->Get_Info();
+				Temp->Set_Pos(iterInfo->fX, iterInfo->fY);
+				Temp->SetOwner(this);
+				
+				if (iter->Get_FrontAngle() == PI)
+					Temp->Set_FrontAngle(0);
+				else
+					Temp->Set_FrontAngle(PI);
+				
+				float TempAngle = iter->Get_AttackAngle() + PI;
+				if (TempAngle >= 2.f * PI)
+					TempAngle -= 2.f * PI;
+				Temp->Set_AttackAngle(TempAngle);
+				iter->Set_State(DEAD);
+				CObjMgr::Get_Instance()->Add_Object(BULLET, Temp);
+				PlayerPlaySound(L"slash_bullet.wav");
+			}
+		}
+	}
+
+}
+
+
+
+
 
 int CPlayer::InCollision(CObj* _target, DIR _dir)
 {
@@ -1634,10 +1766,30 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 	{
 		m_WallJump = true;
 		m_DirCheck[_dir] = true;
+		if (_dir == TOP)
+			m_fSpeed_Vertical *= (-0.2f);
 	}
 	else if (targetType == WALL)
 	{
 		m_DirCheck[_dir] = true;
+		if (_dir == TOP)
+			m_fSpeed_Vertical *= (-0.2f);
+	}
+	else if (targetType == BULLET)
+	{
+		if (_target->GetOwner() != this)
+		{
+			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL) //구를때 무적
+			{
+				m_State = HURTFLY;
+				if (_dir == LEFT)
+					m_fFrontAngle = PI;
+				else if (_dir == RIGHT)
+					m_fFrontAngle = 0;
+				PlayerPlaySound(L"death_bullet.wav");
+				PlayerPlaySound(L"playerdie.wav");
+			}
+		}
 	}
 
 	return 0;
@@ -1669,9 +1821,9 @@ int CPlayer::OnCollision(CObj* _target)
 
 	if (targetType == ITEM)
 	{
-		if (CKeyMgr::Get_Instance()->Key_Up(VK_RBUTTON))
+		if (!dynamic_cast<CItem*> (_target)->GetThrow() && m_ItemState == ITEM_NONE)
 		{
-			if (!dynamic_cast<CItem*> (_target)->GetThrow())
+			if (CKeyMgr::Get_Instance()->Key_Down(VK_RBUTTON))
 			{
 				m_ItemState = dynamic_cast<CItem*>(_target)->GetITemType();
 				if (m_ItemState == SWORD)
@@ -1681,6 +1833,19 @@ int CPlayer::OnCollision(CObj* _target)
 				_target->Set_State(DEAD);
 				PlayerPlaySound(L"pickup.wav");
 			}
+		}
+	}
+	else if (targetType == GRABWALL)
+	{
+		if (m_State == GRAB_WALL)
+		{
+			RECT* targetRect = _target->Get_Rect();
+			if (m_tRect.top <= targetRect->top)
+			{
+					m_fSpeed_Vertical = (-0.5f);
+			}
+			else
+				m_WallJump = true;
 		}
 	}
 

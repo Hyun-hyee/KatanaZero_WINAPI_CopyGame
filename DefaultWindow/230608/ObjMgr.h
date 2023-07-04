@@ -40,6 +40,7 @@ private:
 	multimap <OBJ_TYPE, OBJ_TYPE> m_CheckPairMap;
 
 public:
+	void		Initialize();
 	void 		Update();
 	void		LateUpdate();
 	void		Render(HDC hDC);
@@ -50,9 +51,6 @@ public:
 	CObj* Get_Player() { return m_ObjList[PLAYER].front(); }
 	list<CObj*>* Get_ObjList(OBJID eID) { return &m_ObjList[eID]; }
 	void  Add_Object(OBJID eID, CObj* pInstance);
-
 	void Change_Scene();
-
-
 };
 

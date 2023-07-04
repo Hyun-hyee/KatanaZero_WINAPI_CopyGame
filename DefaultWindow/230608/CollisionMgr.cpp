@@ -97,8 +97,8 @@ DIR CCollisionMgr::Collision_Enter_SS(RECT* _first, RECT* _second)
 		else if (section.bottom == _second->bottom)
 			return TOP;
 	}
-	else
-		return DIR_NONE;
+	
+	return DIR_NONE;
 
 }
 

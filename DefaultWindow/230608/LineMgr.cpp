@@ -32,6 +32,8 @@ void CLineMgr::Release()
 
 void CLineMgr::Add_Line(LINEPOINT _Lpoint, LINEPOINT _Rpoint)
 {
+	_Lpoint.fY -= 25.f;
+	_Rpoint.fY -= 25.f;
 	m_LineList.push_back(new CLine(_Lpoint, _Rpoint));
 }
 
