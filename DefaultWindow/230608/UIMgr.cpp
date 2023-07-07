@@ -102,6 +102,12 @@ void CUIMgr::SetInven(wstring _item)
 	m_Inven = Temp + _item;
 }
 
+void CUIMgr::SetInven(ITEMTYPE _item)
+{
+	wstring Temp = L"INVEN_";
+	m_Inven = Temp + ItemType[_item];
+}
+
 
 
 void CUIMgr::Initialize()

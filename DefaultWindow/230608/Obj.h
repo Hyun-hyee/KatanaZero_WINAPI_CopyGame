@@ -10,8 +10,7 @@ class CObj abstract
 public:
 	CObj();
 	virtual ~CObj();
-	////CObj( CObj& other);
-
+	
 	//CObj& operator = (const CObj& other);
 
 public:
@@ -25,7 +24,7 @@ public:
 public:
 	virtual	int			InCollision(CObj* _target, DIR _dir)		PURE;
 	virtual	int			OutCollision(CObj* _target)					PURE;
-	virtual	int			OnCollision(CObj* _target)					PURE;
+	virtual	int			OnCollision(CObj* _target, DIR _dir)					PURE;
 
 protected:
 	void		Update_Rect();
@@ -89,12 +88,15 @@ public:
 protected:
 	map<OBJ_STATE,FRAME>	m_FrameMap;
 	TCHAR* m_OneImgKey;
+	bool   m_FrameReverse;
 
 protected:
 	void RatioFixByImage(const TCHAR* _tcAnimKey);
 
 	void BasicRender(HDC hDC);
 	void FrameRender(HDC hDC);
+	void RotateRender(HDC hDC, float _angle);
+	void RotateFrameRender_Vertical(HDC hDC, float _angle);
 	void CollideRender(HDC hDC);
 	void CollideRender(HDC hDC, RECT _collide);
 	void Move_Frame();

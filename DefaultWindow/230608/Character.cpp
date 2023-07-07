@@ -63,7 +63,7 @@ int CCharacter::OutCollision(CObj* _target)
 	return 0;
 }
 
-int CCharacter::OnCollision(CObj* _target)
+int CCharacter::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }

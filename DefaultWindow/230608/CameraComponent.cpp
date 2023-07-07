@@ -51,15 +51,15 @@ void CameraComponent::Update()
 
 
 	//카메라 배경 범위 제한
-	if (pos.x <= 400.f)
-		pos.x = 400.f;
-	else if (pos.x >= BackSize.x - 400.f)
-		pos.x = BackSize.x - 400.f;
+	if (pos.x <= WINCX / 2.f)
+		pos.x = WINCX / 2.f;
+	else if (pos.x >= BackSize.x - WINCX / 2.f)
+		pos.x = BackSize.x - WINCX / 2.f;
 
-	if (pos.y <= 300.f)
-		pos.y = 300.f;
-	else if (pos.y >= BackSize.y - 300.f)
-		pos.y = BackSize.y - 300.f;
+	if (pos.y <= WINCY / 2.f)
+		pos.y = WINCY / 2.f;
+	else if (pos.y >= BackSize.y - WINCY / 2.f)
+		pos.y = BackSize.y - WINCY / 2.f;
 
 	CSceneManager::Get_Instance()->SetCameraPos(pos);
 

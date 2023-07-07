@@ -555,6 +555,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -648,6 +649,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -742,6 +744,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -834,7 +837,8 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
-
+			Parring();
+			
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
 			m_fFixAttackAngle = m_fAttackAngle;
@@ -1049,6 +1053,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -1075,6 +1080,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 2.f;
 			m_fFixAttackAngle = m_fAttackAngle;
@@ -1206,6 +1212,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -1277,6 +1284,7 @@ void CPlayer::StateUpdate()
 				{
 					m_State = ATTACK;
 					AttackSound();
+					Parring();
 
 					m_tInfo.fX += 50.f;
 					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
@@ -1300,6 +1308,7 @@ void CPlayer::StateUpdate()
 				{
 					m_State = ATTACK;
 					AttackSound();
+					Parring();
 
 					m_tInfo.fX -= 10.f;
 					m_fSpeed_Vertical = 10.f * sin(m_fAttackAngle);
@@ -1336,6 +1345,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -1400,6 +1410,7 @@ void CPlayer::StateUpdate()
 		{
 			m_State = ATTACK;
 			AttackSound();
+			Parring();
 
 			m_fSpeed_Vertical = 12.f * sin(m_fAttackAngle);
 			m_bJump = true;
@@ -1741,7 +1752,7 @@ void CPlayer::Parring()
 				else
 					Temp->Set_FrontAngle(PI);
 				
-				float TempAngle = iter->Get_AttackAngle() + PI;
+				float TempAngle = m_fAttackAngle;
 				if (TempAngle >= 2.f * PI)
 					TempAngle -= 2.f * PI;
 				Temp->Set_AttackAngle(TempAngle);
@@ -1754,6 +1765,13 @@ void CPlayer::Parring()
 
 }
 
+void CPlayer::CameraReMake()
+{
+	if (!_components.empty())
+	{
+		_components.clear();
+	}
+}
 
 
 
@@ -1786,6 +1804,7 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 					m_fFrontAngle = PI;
 				else if (_dir == RIGHT)
 					m_fFrontAngle = 0;
+				_target->Set_State(DEAD);
 				PlayerPlaySound(L"death_bullet.wav");
 				PlayerPlaySound(L"playerdie.wav");
 			}
@@ -1815,15 +1834,15 @@ int CPlayer::OutCollision(CObj* _target)
 	return 0;
 }
 
-int CPlayer::OnCollision(CObj* _target)
+int CPlayer::OnCollision(CObj* _target, DIR _dir)
 {
 	OBJ_TYPE targetType = _target->Get_Type();
 
 	if (targetType == ITEM)
 	{
-		if (!dynamic_cast<CItem*> (_target)->GetThrow() && m_ItemState == ITEM_NONE)
+		if (CKeyMgr::Get_Instance()->Key_Pressing('E') || CKeyMgr::Get_Instance()->Key_Up(VK_RBUTTON))
 		{
-			if (CKeyMgr::Get_Instance()->Key_Down(VK_RBUTTON))
+			if (!dynamic_cast<CItem*> (_target)->GetThrow() && m_ItemState == ITEM_NONE)
 			{
 				m_ItemState = dynamic_cast<CItem*>(_target)->GetITemType();
 				if (m_ItemState == SWORD)

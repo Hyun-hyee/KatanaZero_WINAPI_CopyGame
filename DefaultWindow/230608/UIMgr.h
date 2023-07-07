@@ -44,6 +44,7 @@ public:
 	void SetBattery(wstring _num);
 	void SetBattery(int _num);
 	void SetInven(wstring _item);
+	void SetInven(ITEMTYPE _item);
 
 };
 

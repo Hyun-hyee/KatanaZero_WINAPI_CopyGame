@@ -12,6 +12,7 @@
 #include "Wall.h"
 #include "GrabWall.h"
 #include "MementoMgr.h"
+#include "BossStage.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -52,14 +53,24 @@ void CSceneManager::Initialize()
 	//UIMgr
 	CUIMgr::Get_Instance()->Initialize();
 
+	//SoundMgr
+	CSoundMgr::Get_Instance()->Initialize();
+
 	//某腐磐 积己
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
 
 	//Scene 积己
-	SceneList.push_back(new CHJS1);
+	SceneList.push_back(new CBossStage);
 	SceneList.back()->Initialize();
 	SceneList.back()->Set_SceneOn(true);
 	m_PlayScene = SceneList.back();
+
+	SceneList.push_back(new CHJS1);
+	SceneList.back()->Set_SceneOn(false);
+
+	SceneList[0]->Set_NextScene(SceneList[1]);
+
+	SceneList[1]->Set_PrevScene(SceneList[0]);
 }
 
 void CSceneManager::Update()
@@ -111,9 +122,12 @@ void CSceneManager::ToNextScene()
 		m_PlayScene->Set_SceneOn(false);
 		CObjMgr::Get_Instance()->Change_Scene();
 		CLineMgr::Get_Instance()->Change_Scene();
+		CMementoMgr::Get_Instance()->ChangeScene();
+		CSoundMgr::Get_Instance()->StopAll();
+		CObjMgr::Get_Instance()->Get_Player()->Initialize();
+
 		pNextScene->Initialize();
 		m_PlayScene = pNextScene;
-		CObjMgr::Get_Instance()->Get_Player()->SetfX(100.f);
 	}
 }
 
@@ -126,9 +140,12 @@ void CSceneManager::ToPrevScene()
 		m_PlayScene->Set_SceneOn(false);
 		CObjMgr::Get_Instance()->Change_Scene();
 		CLineMgr::Get_Instance()->Change_Scene();
+		CMementoMgr::Get_Instance()->ChangeScene();
+		CSoundMgr::Get_Instance()->StopAll();
+		CObjMgr::Get_Instance()->Get_Player()->Initialize();
+		
 		pPrevScene->Initialize();
 		m_PlayScene = pPrevScene;
-		CObjMgr::Get_Instance()->Get_Player()->SetfX(1820.f);
 	}
 }
 
@@ -139,7 +156,7 @@ void CSceneManager::AddLineRect(OBJID _walltype, float _left, float _top, float 
 	else if (_walltype == WALL)
 		CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(_left, _top, _right, _bottom));
 
-	CLineMgr::Get_Instance()->Add_Line({ _left - 10.f,_top - 10.f }, { _right + 10.f,_top - 10.f });
+	CLineMgr::Get_Instance()->Add_Line({ _left -20.f,_top - 20.f }, { _right + 20.f,_top - 20.f });
 }
 
 

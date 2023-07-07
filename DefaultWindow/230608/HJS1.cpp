@@ -16,7 +16,6 @@
 #include "GunEnemy.h"
 #include "MementoMgr.h"
 
-float	g_fSound = 1.f;
 
 CHJS1::CHJS1()
 {
@@ -55,12 +54,11 @@ void CHJS1::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
 
 	//Àû
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(600, 250, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(600, 560, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(600, 200, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(1000, 560, 60, 72));
 
 	//BGM
-	CSoundMgr::Get_Instance()->Initialize();
-	CSoundMgr::Get_Instance()->PlayBGM(L"song_ending.ogg", g_fSound);
+	CSoundMgr::Get_Instance()->PlayBGM(L"song_ending.ogg", SOUND_VOL1);
 }
 
 void CHJS1::Update()

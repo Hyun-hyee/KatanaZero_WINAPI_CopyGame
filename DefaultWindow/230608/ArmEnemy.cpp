@@ -223,9 +223,23 @@ void CArmEnemy::StateUpdate()
 		}
 		else
 		{
-			if (m_fFrontAngle == 0)//go right
+			if (m_bJump || m_DirCheck[RIGHT] || m_DirCheck[LEFT])
 			{
-				if (!m_DirCheck[RIGHT] && !m_bJump)
+				m_tInfo.fX -= cos(m_fFrontAngle) * (m_fSpeed * 10.f);
+				m_bFollow = false;
+				if (m_fFrontAngle == 0)
+					m_fFrontAngle = PI;
+				else if (m_fFrontAngle == PI)
+					m_fFrontAngle = 0;
+			}
+			else if (m_WalkTime + 4000 < GetTickCount64())
+			{
+				m_State = IDLE;
+				m_WalkTime = GetTickCount64();
+			}
+			else if (m_fFrontAngle == 0)//go right
+			{
+				if (!m_bJump)
 				{
 					m_tInfo.fX += m_fSpeed;
 				}
@@ -234,21 +248,12 @@ void CArmEnemy::StateUpdate()
 			}
 			else if (m_fFrontAngle == PI)//go left
 			{
-				if (!m_DirCheck[LEFT] && !m_bJump)
+				if (!m_bJump)
 				{
 					m_tInfo.fX -= m_fSpeed;
 				}
 				else
 					m_fFrontAngle = 0;
-			}
-
-			if (m_bJump)
-				m_tInfo.fX += cos(m_fFrontAngle) * m_fSpeed;
-
-			if (m_WalkTime + 4000 < GetTickCount64())
-			{
-				m_State = IDLE;
-				m_WalkTime = GetTickCount64();
 			}
 		}
 		
@@ -261,24 +266,26 @@ void CArmEnemy::StateUpdate()
 			if (m_bJump)
 			{
 				m_tInfo.fX -= cos(m_fFrontAngle) * (m_fSpeed + 2.f);
-				m_State = IDLE;
 				m_bFollow = false;
 				if (m_fFrontAngle == 0)
 					m_fFrontAngle = PI;
 				else if (m_fFrontAngle == PI)
 					m_fFrontAngle = 0;
+
 			}
 			else
 			{
 				if (m_tInfo.fX + 30.f < fTargetX)
 				{
 					m_fFrontAngle = 0;
-					m_tInfo.fX += cos(m_fFrontAngle) * (m_fSpeed);
+					if (!m_DirCheck[LEFT])
+						m_tInfo.fX += cos(m_fFrontAngle) * (m_fSpeed);
 				}
 				else if (m_tInfo.fX - 30.f > fTargetX)
 				{
 					m_fFrontAngle = PI;
-					m_tInfo.fX += cos(m_fFrontAngle) * (m_fSpeed);
+					if (!m_DirCheck[RIGHT])
+						m_tInfo.fX += cos(m_fFrontAngle) * (m_fSpeed);
 				}
 				else if (m_tInfo.fX - 30.f <= fTargetX && m_tInfo.fX + 30.f >= fTargetX)
 				{
@@ -494,7 +501,7 @@ int CArmEnemy::InCollision(CObj* _target, DIR _dir)
 	{
 		if (m_State != HURT && m_State != HURTGROUND)
 		{
-			if (_target->GetOwner() != this)
+			if (_target->GetOwner() != this && _target->GetOwner()->Get_Type() != ENEMY)
 			{
 				m_State = HURT;
 				if (_dir == LEFT)
@@ -502,8 +509,8 @@ int CArmEnemy::InCollision(CObj* _target, DIR _dir)
 				else if (_dir == RIGHT)
 					m_fFrontAngle = PI;
 				m_BulletHurt = true;
+				_target->Set_State(DEAD);
 				CSoundMgr::Get_Instance()->PlaySound(L"death_bullet.wav", SOUND_EFFECT, SOUND_VOL3);
-
 			}
 		}
 	}
@@ -524,8 +531,14 @@ int CArmEnemy::OutCollision(CObj* _target)
 	return OBJ_NOEVENT;
 }
 
-int CArmEnemy::OnCollision(CObj* _target)
+int CArmEnemy::OnCollision(CObj* _target, DIR _dir)
 {
+	OBJ_TYPE targetType = _target->Get_Type();
+
+	if (targetType == GRABWALL || targetType == WALL)
+	{
+		m_DirCheck[_dir] = true;
+	}
 	return OBJ_NOEVENT;
 }
 

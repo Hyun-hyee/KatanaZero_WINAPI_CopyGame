@@ -17,7 +17,7 @@ public:
 public:
 	virtual	int	 InCollision(CObj* _target, DIR _dir)	override;
 	virtual	int	 OutCollision(CObj* _target)	override;
-	virtual	int	 OnCollision(CObj* _target)					override;
+	virtual	int	 OnCollision(CObj* _target, DIR _dir)					override;
 
 private:
 	/*

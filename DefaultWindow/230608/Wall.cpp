@@ -50,7 +50,7 @@ int CWall::OutCollision(CObj* _target)
 	return 0;
 }
 
-int CWall::OnCollision(CObj* _target)
+int CWall::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }

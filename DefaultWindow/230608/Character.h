@@ -18,7 +18,7 @@ public:
 public:
 	virtual	int	 InCollision(CObj* _target, DIR _dir)	override;
 	virtual	int	 OutCollision(CObj* _target)	override;
-	virtual	int		OnCollision(CObj* _target)					override;
+	virtual	int		OnCollision(CObj* _target, DIR _dir)					override;
 	void AddComponent(Component* component);
 	void RemoveComponent(Component* component);
 
@@ -36,6 +36,8 @@ protected:
 	int					m_iAdditionJump_Count;
 
 	bool				m_DirCheck[DIR_END];
+public:
+	//vector<Component*> 
 
 };
 

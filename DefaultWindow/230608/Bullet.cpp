@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Bullet.h"
 #include "BmpMgr.h"
+#include "SceneManager.h"
 
 CBullet::CBullet()
 {
@@ -14,8 +15,8 @@ CBullet::~CBullet()
 
 void CBullet::Initialize()
 {
-	m_tInfo.fCX = 48.f;
-	m_tInfo.fCY = 2.f;
+	m_tInfo.fCX = 30.f;
+	m_tInfo.fCY = 30.f;
 	m_fSpeed = 20.f;
 	InitImage();
 	m_OneImgKey = L"Bullet_R";
@@ -23,10 +24,10 @@ void CBullet::Initialize()
 
 void CBullet::Update()
 {
-	if (m_fFrontAngle == 0)
+	/*if (m_fFrontAngle == 0)
 		m_OneImgKey = L"Bullet_R";
 	else if (m_fFrontAngle == PI)
-		m_OneImgKey = L"Bullet_L";
+		m_OneImgKey = L"Bullet_L";*/
 
 	if (g_SlowMotion)
 	{
@@ -39,6 +40,8 @@ void CBullet::Update()
 
 	m_tInfo.fX += cos(m_fAttackAngle) * m_fSpeed;
 	m_tInfo.fY -= sin(m_fAttackAngle) * m_fSpeed;
+
+	CheckRangeOut();
 }
 
 void CBullet::LateUpdate(void)
@@ -48,7 +51,8 @@ void CBullet::LateUpdate(void)
 void CBullet::Render(HDC hdc)
 {
 	CollideRender(hdc);
-	CObj::BasicRender(hdc);
+	//CObj::BasicRender(hdc);
+   	CObj::RotateRender(hdc,180.f - m_fAttackAngle * (180.f / PI));
 }
 
 void CBullet::Release(void)
@@ -57,7 +61,7 @@ void CBullet::Release(void)
 
 void CBullet::InitImage()
 {
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/enemy/enemy_bullet_L.png", L"Bullet_L");
+	//CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/enemy/enemy_bullet_L.png", L"Bullet_L");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/enemy/enemy_bullet_R.png", L"Bullet_R");
 }
 
@@ -67,8 +71,10 @@ int CBullet::InCollision(CObj* _target, DIR _dir)
 	
 	if (m_Owner != _target)
 	{
-		if (targetType == WALL || targetType == GRABWALL || targetType == ENEMY || targetType == PLAYER)
+		if (targetType == WALL || targetType == GRABWALL )
 		{
+			//if (targetType == PLAYER && _target->Get_State() == ATTACK)
+			//	return OBJ_NOEVENT;
 			Set_State(DEAD);
 		}
 	}
@@ -80,9 +86,16 @@ int CBullet::OutCollision(CObj* _target)
 	return 0;
 }
 
-int CBullet::OnCollision(CObj* _target)
+int CBullet::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;
+}
+
+void CBullet::CheckRangeOut()
+{
+	 fPOINT fRange = CSceneManager::Get_Instance()->Get_BackSize();
+	 if (m_tInfo.fX > fRange.x || m_tInfo.fX < 0 || m_tInfo.fY > fRange.y || m_tInfo.fY < 0)
+		 Set_State(DEAD);
 }
 
 //void CBullet:: SetAttackAngle()

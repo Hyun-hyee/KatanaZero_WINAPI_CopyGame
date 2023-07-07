@@ -47,13 +47,15 @@ void CCollisionMgr::Update(list<CObj*> _firstList, list<CObj*> _secondList)
 					//충돌 IN 했었는지 여부 체크
 					auto Searchiter = find(m_CollisionOutMap.begin(), m_CollisionOutMap.end(), SearchPair);
 					
+					//OnCollision 이벤트
+					ObjEvent = (iter)->OnCollision((iter2), CollisionDIR);
 					if (Searchiter == m_CollisionOutMap.end())
 					{
 						//InCollision 이벤트
 						m_CollisionOutMap.push_back({ iter,iter2 });
 						ObjEvent = (iter)->InCollision((iter2), CollisionDIR);
 					}
-					ObjEvent = (iter)->OnCollision((iter2));
+					
 				}
 				else
 				{

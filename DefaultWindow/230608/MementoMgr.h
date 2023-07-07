@@ -4,6 +4,11 @@
 #include "Struct.h"
 
 class CObj;
+class CPlayer;
+class CArmEnemy;
+class CGunEnemy;
+class CBullet;
+class CItem;
 
 class CMementoMgr
 {
@@ -12,6 +17,7 @@ private:
 	~CMementoMgr();
 	static CMementoMgr* m_pInstance;
 	CObj* pTemp;
+
 public:
 	static CMementoMgr* Get_Instance()
 	{
@@ -37,18 +43,26 @@ public:
 
 private:
 	list<CObj*>*	 m_pObjList[OBJ_TYPE_END];
-	vector<CObj*>    m_pMementoList[OBJ_TYPE_END];
-	
+
+	vector <CObj*>		m_pMementoList[OBJ_TYPE_END];
+	vector<CPlayer*>    m_MPlayerList;
+	vector<CArmEnemy*>    m_MEnemyAList;
+	vector<CGunEnemy*>    m_MEnemyGList;
+	vector<CBullet*>    m_MBulletList;
+	vector<CItem*>    m_MItemList;
+
 	vector<fPOINT>	 m_CameraList;
 	vector <int>	m_BulletSize;
 	vector <int>	m_ItemSize;
 
 	bool		m_ReverseOn;
-
+	int			m_ReverseSpeed;
 public:
 	void		SaveMemento();
 	void		RestoreMemento();
 	bool		GetReverseOn() { return m_ReverseOn; }
+
+	void		ChangeScene();
 
 };
 

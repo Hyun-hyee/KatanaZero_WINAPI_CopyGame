@@ -1,7 +1,7 @@
 #pragma once
 
-#define		WINCX		800
-#define		WINCY		600
+#define		WINCX		1344
+#define		WINCY		784
 #define		PURE		= 0
 #define		PI			3.141592f
 #define		G			9.8f
@@ -20,6 +20,7 @@ extern DWORD	g_FrameLimit;
 extern bool		g_SlowMotion;
 extern DWORD	g_SlowJumpTime;
 extern float	g_fSound;
+extern bool		g_BossStart;
 
 #define		SOUND_VOL1	 1.f
 #define		SOUND_VOL2	 0.8f

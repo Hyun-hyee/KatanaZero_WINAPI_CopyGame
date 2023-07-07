@@ -119,7 +119,7 @@ int CItem::OutCollision(CObj* _target)
 	return 0;
 }
 
-int CItem::OnCollision(CObj* _target)
+int CItem::OnCollision(CObj* _target, DIR _dir)
 {
 	return 0;
 }

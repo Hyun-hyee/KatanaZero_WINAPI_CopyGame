@@ -20,7 +20,7 @@ public:
 
 	virtual	int		InCollision(CObj* _target, DIR _dir)		override;
 	virtual	int		OutCollision(CObj* _target)					override;
-	virtual	int		OnCollision(CObj* _target)					override;
+	virtual	int		OnCollision(CObj* _target, DIR _dir)					override;
 private:
 	void		Key_Input(void);
 
@@ -39,7 +39,6 @@ private:
 	float				m_fWallSpeed;
 	float				m_fFixAttackAngle;
 
-	ITEM_TYPE			m_ItemState;
 
 	DWORD				m_RunningSoundTime;
 	int					m_SlowRun;
@@ -54,9 +53,17 @@ public:
 
 	void				Attack();
 	void				Parring();
+
 private:
+
+	ITEM_TYPE			m_ItemState;
 	int					m_BatteryCount;
 	DWORD				m_BatteryTime;
 	bool				m_HurtOn;
+
+public:
+	ITEM_TYPE			GetItemState() { return m_ItemState; }
+	int					GetBatteryCount() { return m_BatteryCount; }
+	void				CameraReMake();
 };
 

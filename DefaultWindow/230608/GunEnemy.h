@@ -5,8 +5,6 @@
 
 class CGunEnemy : public CCharacter
 {
-private:
-
 public:
 	CGunEnemy();
 	virtual ~CGunEnemy();
@@ -22,7 +20,7 @@ public:
 public:
 	virtual	int		InCollision(CObj* _target, DIR _dir)		override;
 	virtual	int		OutCollision(CObj* _target)		override;
-	virtual	int		OnCollision(CObj* _target)					override;
+	virtual	int		OnCollision(CObj* _target, DIR _dir)					override;
 
 
 	void			StateUpdate();
@@ -31,8 +29,9 @@ public:
 
 	void			Update_CheckCollide();
 	void			SetCheckCWidth(float _width) { m_CheckCWidth = _width; }
+
 private:
-	CObj* m_Target;
+	CObj*			m_Target;
 	RECT			m_CheckCollide;
 	float			m_CheckCWidth;
 	bool			m_bFollow;

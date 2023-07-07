@@ -9,12 +9,15 @@
 #include "GunEnemy.h"
 #include "Bullet.h"
 #include "Item.h"
+#include "UIMgr.h"
+#include "Boss.h"
 
 CMementoMgr* CMementoMgr::m_pInstance = nullptr;
 
 CMementoMgr::CMementoMgr()
 {
 	m_ReverseOn = false;
+	m_ReverseSpeed = 0;
 }
 
 CMementoMgr::~CMementoMgr()
@@ -50,7 +53,11 @@ void CMementoMgr::Release()
 	for (int i = 0; i < OBJ_TYPE_END; ++i)
 	{
 		for (auto& iter : m_pMementoList[i])
+		{
+			if (typeid(*iter) == typeid(CPlayer))
+				dynamic_cast<CPlayer*>(iter)->CameraReMake();
 			Safe_Delete<CObj*>(iter);
+		}
 		m_pMementoList[i].clear();
 	}
 }
@@ -63,10 +70,16 @@ void CMementoMgr::Update()
 
 void CMementoMgr::LateUpdate()
 {
-	if (m_ReverseOn)
-		RestoreMemento();
-	else
-		SaveMemento();
+	++m_ReverseSpeed;
+	if (m_ReverseSpeed == 1)
+	{
+		if (m_ReverseOn)
+			RestoreMemento();
+		else
+			SaveMemento();
+	}
+	else if (m_ReverseSpeed == 3)
+		m_ReverseSpeed = 0;
 }
 
 void CMementoMgr::SaveMemento()
@@ -75,21 +88,32 @@ void CMementoMgr::SaveMemento()
 	m_CameraList.push_back(CSceneManager::Get_Instance()->GetCameraPos());
 	
 	//플레이어
-	pTemp = new CPlayer;
-	*pTemp = *m_pObjList[PLAYER]->front();
-	m_pMementoList[PLAYER].push_back(pTemp);
+	CPlayer* pTempP = new CPlayer;
+	*pTempP = *(dynamic_cast<CPlayer*> (m_pObjList[PLAYER]->front()));
+	m_pMementoList[PLAYER].push_back(pTempP);
 	
 	//적
 
 	for (auto& iter : *m_pObjList[ENEMY])
 	{
-		if (typeid(iter) == typeid(CArmEnemy))
-			pTemp = new CArmEnemy;
-		else
-			pTemp = new CGunEnemy;
-		
-		*pTemp = *iter;
-		m_pMementoList[ENEMY].push_back(pTemp);
+		if (typeid(*iter) == typeid(CArmEnemy))
+		{
+			CArmEnemy* pTempEA = new CArmEnemy;
+			*pTempEA = *( dynamic_cast<CArmEnemy*> (iter));
+			m_pMementoList[ENEMY].push_back(pTempEA);
+		}
+		else if (typeid(*iter) == typeid(CGunEnemy))
+		{
+			CGunEnemy* pTempEG = new CGunEnemy;
+			*pTempEG = *(dynamic_cast<CGunEnemy*> (iter));
+			m_pMementoList[ENEMY].push_back(pTempEG);
+		}
+		else if (typeid(*iter) == typeid(CBoss))
+		{
+			CBoss* pTempEB = new CBoss;
+			*pTempEB = *(dynamic_cast<CBoss*> (iter));
+			m_pMementoList[ENEMY].push_back(pTempEB);
+		}
 	}
 
 	//총알
@@ -98,9 +122,9 @@ void CMementoMgr::SaveMemento()
 	{
 		for (auto& iter : *m_pObjList[BULLET])
 		{
-			pTemp = new CBullet;
-			*pTemp = *iter;
-			m_pMementoList[BULLET].push_back(pTemp);
+			CBullet* pTempB = new CBullet;
+			*pTempB = *(dynamic_cast<CBullet*> (iter));
+			m_pMementoList[BULLET].push_back(pTempB);
 		}
 	}
 
@@ -110,9 +134,9 @@ void CMementoMgr::SaveMemento()
 	{
 		for (auto& iter : *m_pObjList[ITEM])
 		{
-			pTemp = new CItem;
-			*pTemp = *iter;
-			m_pMementoList[ITEM].push_back(pTemp);
+			CItem* pTempI = new CItem;
+			*pTempI = *(dynamic_cast<CItem*> (iter));
+			m_pMementoList[ITEM].push_back(pTempI);
 		}
 	}
 	
@@ -125,7 +149,11 @@ void CMementoMgr::RestoreMemento()
 	if (!m_pMementoList[PLAYER].empty())
 	{
 		//플레이어
-		(*CObjMgr::Get_Instance()->Get_Player()) = (*m_pMementoList[PLAYER].back());		
+		CPlayer* PlayerTemp = dynamic_cast<CPlayer*>(CObjMgr::Get_Instance()->Get_Player());
+		* PlayerTemp = (*dynamic_cast<CPlayer*>(m_pMementoList[PLAYER].back()));
+		dynamic_cast<CPlayer*>(m_pMementoList[PLAYER].back())->CameraReMake();
+		CUIMgr::Get_Instance()->SetBattery(PlayerTemp->GetBatteryCount());
+		CUIMgr::Get_Instance()->SetInven(PlayerTemp->GetItemState());
 		Safe_Delete<CObj*>(m_pMementoList[PLAYER].back());
 		m_pMementoList[PLAYER].pop_back();
 
@@ -135,67 +163,73 @@ void CMementoMgr::RestoreMemento()
 			list<CObj*>::reverse_iterator riter((*m_pObjList[ENEMY]).rbegin());
 			for (; riter != (*m_pObjList[ENEMY]).rend(); ++riter)
 			{
-				**(riter) = (*m_pMementoList[ENEMY].back());
-				Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
-				m_pMementoList[ENEMY].pop_back();
+				if (typeid(**riter) == typeid(CArmEnemy))
+				{
+					*dynamic_cast<CArmEnemy*>(*(riter)) = (*dynamic_cast<CArmEnemy*>(m_pMementoList[ENEMY].back()));
+					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
+					m_pMementoList[ENEMY].pop_back();
+				}
+				else if (typeid(**riter) == typeid(CGunEnemy))
+				{
+					*dynamic_cast<CGunEnemy*>(*(riter)) = (*dynamic_cast<CGunEnemy*>(m_pMementoList[ENEMY].back()));
+					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
+					m_pMementoList[ENEMY].pop_back();
+				}
+				else if (typeid(**riter) == typeid(CBoss))
+				{
+					*dynamic_cast<CBoss*>(*(riter)) = (*dynamic_cast<CBoss*>(m_pMementoList[ENEMY].back()));
+					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
+					m_pMementoList[ENEMY].pop_back();
+				}
+				
 			}
 		}
 
 		//총알
-		if (!m_pMementoList[BULLET].empty())
-		{
+		//m_BulletSize가 끝나는게 모든 프레임 돌아간것이므로 조건 조심
 			if (!m_BulletSize.empty())
 			{
+				if (!m_pObjList[BULLET]->empty())
+				{
+					for (auto& iter : *m_pObjList[BULLET])
+						Safe_Delete<CObj*>(iter);
+					m_pObjList[BULLET]->clear();
+				}
 				if (m_BulletSize.back() != 0)
 				{
 					for (int i = 0; i < m_BulletSize.back(); ++i)
-					{
-						if (!m_pObjList[BULLET]->empty())
-						{
-							for (auto& iter : *m_pObjList[BULLET])
-								Safe_Delete<CObj*>(iter);
-							m_pObjList[BULLET]->clear();
-						}
-
+					{					
 						m_pObjList[BULLET]->push_back((m_pMementoList[BULLET].back()));
 						m_pMementoList[BULLET].pop_back();
-						m_BulletSize.pop_back();
 					}
 				}
-				else
-					m_BulletSize.pop_back();
+				m_BulletSize.pop_back();
 			}
 		
-		}
+		
 
 		//아이템
-		/*if (!m_pMementoList[ITEM].empty())
-		{
+		//m_ItemSize가 끝나는게 모든 프레임 돌아간것이므로 조건 조심
 			if (!m_ItemSize.empty())
 			{
-				if (m_ItemSize.back() != 0)
+				if (!m_pObjList[ITEM]->empty())
 				{
+					for (auto& iter : *m_pObjList[ITEM])
+						Safe_Delete<CObj*>(iter);
+					m_pObjList[ITEM]->clear();
+				}
+				if (m_ItemSize.back() != 0)
+				{					
 					for (int i = 0; i < m_ItemSize.back(); ++i)
 					{
-						if (!m_pObjList[ITEM]->empty())
-						{
-							for (auto& iter : *m_pObjList[ITEM])
-								Safe_Delete<CObj*>(iter);
-							m_pObjList[ITEM]->clear();
-						}
-
 						m_pObjList[ITEM]->push_back((m_pMementoList[ITEM].back()));
 						m_pMementoList[ITEM].pop_back();
-						m_ItemSize.pop_back();
 					}
-				}
-				else
-					m_ItemSize.pop_back();
+				}				
+				m_ItemSize.pop_back();
 			}
+	
 
-		}*/
-			
-		
 
 		//카메라
 		if (!m_CameraList.empty())
@@ -209,4 +243,9 @@ void CMementoMgr::RestoreMemento()
 		m_ReverseOn = false; //플레이어 모든 프레임 카운트 -> 플레이어 끝나면 다끝남
 	
 	
+}
+
+void CMementoMgr::ChangeScene()
+{
+	Release();
 }
