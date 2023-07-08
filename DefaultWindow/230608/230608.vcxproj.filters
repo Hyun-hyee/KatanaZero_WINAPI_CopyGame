@@ -106,6 +106,9 @@
     <Filter Include="01. Obj\05.Item">
       <UniqueIdentifier>{451c2c75-35a9-40ba-9fc4-93c9e317802c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="00.SceneManager\BossStage_1">
+      <UniqueIdentifier>{16d3281b-b67a-4885-940b-b917b7826145}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -222,6 +225,9 @@
     <ClInclude Include="Laser.h">
       <Filter>01. Obj\03.Laser</Filter>
     </ClInclude>
+    <ClInclude Include="BossStage_1.h">
+      <Filter>00.SceneManager\BossStage_1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -313,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="Laser.cpp">
       <Filter>01. Obj\03.Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="BossStage_1.cpp">
+      <Filter>00.SceneManager\BossStage_1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

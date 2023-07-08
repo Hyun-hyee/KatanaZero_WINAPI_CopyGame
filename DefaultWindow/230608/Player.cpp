@@ -45,7 +45,7 @@ void CPlayer::Initialize(void)
 	m_iAdditionJump_Count = m_iAdditionJump_MaxCount;
 	m_fAccel = 0.2f;
 	m_fWallSpeed = 1.f;
-	m_fSpeed = 5.f;
+	m_fSpeed = 7.f;
 	m_fFixAttackAngle = m_fAttackAngle;
 	m_WallJump = false;
 	m_PlayerSoundCh = 0;
@@ -430,9 +430,9 @@ void CPlayer::Jump()
 						m_tInfo.fY -= m_fSpeed_Vertical;
 
 						if (-2.f < m_fSpeed_Vertical && 2.f > m_fSpeed_Vertical)
-							m_fSpeed_Vertical -= (0.034f * G) * 0.6f;
+							m_fSpeed_Vertical -= (0.034f * G) * 1.6f;
 						else
-							m_fSpeed_Vertical -= (0.034f * G) * 1.2f;
+							m_fSpeed_Vertical -= (0.034f * G) * 2.0f;
 					}
 					else
 					{

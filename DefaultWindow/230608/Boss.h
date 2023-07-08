@@ -96,8 +96,12 @@ public:
 	void			Pattern_Move_LeftBottom();
 	void			Pattern_Move_RightBottom();
 
-	void			Set_Phase(int _phase) { m_Phase = _phase; }
-
+	void			Set_Phase(int _phase) 
+	{
+		m_Phase = _phase;
+		InitPatternList();
+	}
+	void			Set_Life(int _life) { m_Life = _life;}
 
 };
 

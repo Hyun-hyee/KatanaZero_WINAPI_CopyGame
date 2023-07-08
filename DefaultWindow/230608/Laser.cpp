@@ -29,7 +29,7 @@ void CLaser::Initialize()
 	m_tInfo.fCX = 20.f;
 	m_tInfo.fCY = 20.f;
 
-	for (int i = 1; i <= 40; ++i)
+	for (int i = 1; i <= 60; ++i)
 	{
 		float centerX = m_tInfo.fX + 20.f * i * cos(m_fAttackAngle);
 		float centerY = m_tInfo.fY + 20.f * i * sin(m_fAttackAngle);

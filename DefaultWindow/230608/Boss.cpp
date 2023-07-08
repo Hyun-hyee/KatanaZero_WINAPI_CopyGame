@@ -26,7 +26,6 @@ CBoss::~CBoss()
 void CBoss::Initialize(void)
 {
 	InitImage();
-	InitPatternList();
 
 	m_State = BOSS_IDLE;
 
@@ -51,7 +50,13 @@ void CBoss::Initialize(void)
 	m_PatternIndex = 0;
 	m_Levitation = false;
 
-	m_Life = 1;
+	/////////////////////////////
+	//라이프 , 페이즈 임시 설정//
+	m_Life = 4;
+	m_Phase = 2;
+	InitPatternList();
+	/////////////////////////////
+
 
 	m_Target = CObjMgr::Get_Instance()->Get_Player();
 }
@@ -94,8 +99,7 @@ void CBoss::Render(HDC hDC)
 {
 	CObj::FrameRender(hDC);
 
-	//CObj::CollideRender(hDC);
-	//CObj::CollideRender(hDC, m_CheckCollide);
+	CObj::CollideRender(hDC);
 }
 
 void CBoss::Release(void)
@@ -609,8 +613,16 @@ void CBoss::StateUpdate()
 		break;
 
 	case BOSS_DASH : //대시 한장짜리
-		if(m_tInfo.fX < 290.f || m_tInfo.fX > WINCX - 290.f)
-			Set_State(BOSS_DASHEND);
+		if (m_fFrontAngle == 0)
+		{
+			if (m_tInfo.fX > WINCX - 250.f)
+				Set_State(BOSS_DASHEND);
+		}
+		else
+		{
+			if (m_tInfo.fX < 250.f )
+				Set_State(BOSS_DASHEND);
+		}
 		
 		if(!g_SlowMotion)
 			m_tInfo.fX += cos(m_fFrontAngle) * (50.f);
@@ -1071,28 +1083,39 @@ int CBoss::OnCollision(CObj* _target, DIR _dir)
 
 void CBoss::InitPatternList()
 {
+	if (!m_PatternList.empty())
+		m_PatternList.clear();
+
 	if (m_Phase == 1) //페이즈 1
 	{
 	}
 	else if (m_Phase == 2) //페이즈 2
 	{
-
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_Laser180);
+		m_PatternList.push_back(&CBoss::Pattern_LeftLaser90);
+		m_PatternList.push_back(&CBoss::Pattern_RightLaser90);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+		m_PatternList.push_back(&CBoss::Pattern_Dash);
+		m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_RightLaser90);
+		m_PatternList.push_back(&CBoss::Pattern_LeftLaser90);
+		m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+		m_PatternList.push_back(&CBoss::Pattern_Dash);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
 	}
 
-
-	m_PatternList.push_back(&CBoss::Pattern_Dash);
-	m_PatternList.push_back(&CBoss::Pattern_LeftLaser90);
-
-
-
-	m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
-	m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
-	m_PatternList.push_back(&CBoss::Pattern_RightLaser90);
-	m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
-	m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
-	m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
-	m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
-	m_PatternList.push_back(&CBoss::Pattern_Laser180);
 }
 
 void CBoss::PatternChange()
@@ -1103,6 +1126,7 @@ void CBoss::PatternChange()
 		{
 			(this->*m_PatternList[m_PatternIndex])();
 			m_PatternOn = true;
+			m_FrameMap[m_State].iFrameStart = 0;
 			++m_PatternIndex;
 		}
 		else
@@ -1192,7 +1216,7 @@ void CBoss::Pattern_Laser180()
 void CBoss::Pattern_LeftLaser90()
 {
 	Set_Pos(300.f , 220.f);
-
+    m_fFrontAngle = 0;
 	m_Laser90 = true;	
 	m_bJump = false;
 	m_Levitation = true;
@@ -1202,7 +1226,7 @@ void CBoss::Pattern_LeftLaser90()
 void CBoss::Pattern_RightLaser90()
 {
 	Set_Pos(WINCX - 300.f, 220.f);
-
+	m_fFrontAngle = PI;
 	m_Laser90 = true;
 	m_bJump = false;
 	m_Levitation = true;
@@ -1221,7 +1245,7 @@ void CBoss::Pattern_LaserBottom_2()
 {
 	m_bJump = false;
 	m_Levitation = true;
-	Set_Pos(600.f , 220.f);
+	Set_Pos(500.f , 220.f);
 	Set_State(BOSS_TELEPORT_IN);
 }
 
@@ -1229,7 +1253,7 @@ void CBoss::Pattern_LaserBottom_3()
 {
 	m_bJump = false;
 	m_Levitation = true;
-	Set_Pos(WINCX - 600.f, 220.f);
+	Set_Pos(WINCX - 500.f, 220.f);
 	Set_State(BOSS_TELEPORT_IN);
 }
 
@@ -1256,13 +1280,13 @@ void CBoss::Pattern_Dash()
 void CBoss::Pattern_Move_LeftBottom()
 {
 	m_fFrontAngle = 0;
-	Set_Pos(300.f, 560.f);
+	Set_Pos(200.f, 560.f);
 	Set_State(BOSS_PATTERN_IN);
 }
 
 void CBoss::Pattern_Move_RightBottom()
 {
 	m_fFrontAngle = PI;
-	Set_Pos(WINCX - 300.f, 560.f);
+	Set_Pos(WINCX - 200.f, 560.f);
 	Set_State(BOSS_PATTERN_IN);
 }

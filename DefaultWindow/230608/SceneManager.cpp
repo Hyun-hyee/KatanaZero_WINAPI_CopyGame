@@ -13,6 +13,7 @@
 #include "GrabWall.h"
 #include "MementoMgr.h"
 #include "BossStage.h"
+#include "BossStage_1.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -60,16 +61,21 @@ void CSceneManager::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
 
 	//Scene »ý¼º
-	SceneList.push_back(new CBossStage);
+	SceneList.push_back(new CBossStage_1);
 	SceneList.back()->Initialize();
 	SceneList.back()->Set_SceneOn(true);
 	m_PlayScene = SceneList.back();
+
+	SceneList.push_back(new CBossStage);
+	SceneList.back()->Set_SceneOn(false);
 
 	SceneList.push_back(new CHJS1);
 	SceneList.back()->Set_SceneOn(false);
 
 	SceneList[0]->Set_NextScene(SceneList[1]);
+	SceneList[1]->Set_NextScene(SceneList[2]);
 
+	SceneList[2]->Set_PrevScene(SceneList[1]);
 	SceneList[1]->Set_PrevScene(SceneList[0]);
 }
 
