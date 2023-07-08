@@ -21,9 +21,12 @@ void CObjMgr::Initialize()
 	m_CheckPairMap.insert({ PLAYER, BULLET });
 	m_CheckPairMap.insert({ PLAYER, ENEMY });
 	m_CheckPairMap.insert({ PLAYER, WALL });
+	m_CheckPairMap.insert({ PLAYER, BOSS });
 	m_CheckPairMap.insert({ ENEMY, ITEM });
 	m_CheckPairMap.insert({ ENEMY, WALL });
 	m_CheckPairMap.insert({ ENEMY, BULLET });
+	m_CheckPairMap.insert({ BOSS, WALL });
+	m_CheckPairMap.insert({ BOSS, BULLET });
 	m_CheckPairMap.insert({ ITEM, WALL });
 	m_CheckPairMap.insert({ BULLET, WALL });
 	m_CheckPairMap.insert({ PLAYER, ITEM });

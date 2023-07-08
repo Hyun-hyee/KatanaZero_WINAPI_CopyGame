@@ -3,6 +3,7 @@
 
 class CObj;
 
+
 class CBoss :
     public CCharacter
 {
@@ -62,9 +63,42 @@ private:
 	DWORD			m_BulletTime; //안쓰면 지우기
 
 	bool			m_WallJump;
+	bool			m_Levitation;
 	CObj*			m_Laser;
 	int				m_PrevFrame;
 
 	bool			m_Laser90;
+
+	int				m_Phase;
+	int				m_Life;
+
+	typedef void (CBoss ::* pFunction)();
+
+	bool					m_PatternOn;
+	vector<pFunction>		m_PatternList;
+	int						m_PatternIndex;
+
+public:
+	void			InitPatternList();
+	void			PatternChange();
+	bool			CheckHurt();
+
+	void			Pattern_GroundLaser(); //조준 레이저 + ROLL + 점프->총 공격 -> 착지 후 은신
+	void			Pattern_Laser180(); //
+	void			Pattern_LeftLaser90();
+	void			Pattern_RightLaser90();
+	void			Pattern_LaserBottom_1();
+	void			Pattern_LaserBottom_2();
+	void			Pattern_LaserBottom_3();
+	void			Pattern_LaserBottom_4();
+	void			Pattern_Dash();
+
+	void			Pattern_Move_LeftBottom();
+	void			Pattern_Move_RightBottom();
+
+	void			Set_Phase(int _phase) { m_Phase = _phase; }
+
+
 };
+
 

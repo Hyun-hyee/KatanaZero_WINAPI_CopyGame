@@ -327,18 +327,17 @@ void CObj::RotateRender(HDC hDC, float _angle)
 
 	Gdiplus::Graphics g (hDC);
 
-	g.TranslateTransform((int)m_tInfo.fX - ((int)cameraPos.x - WINCX / 2)
-	, (int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
+	g.TranslateTransform((int)m_tInfo.fX - ((int)cameraPos.x - WINCX / 2) 
+		, (int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
 	//rotate
 	g.RotateTransform(_angle);
 	g.TranslateTransform(-(int)m_tInfo.fX - ((int)cameraPos.x - WINCX / 2)
-		,- (int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
-
+		, -(int)m_tInfo.fY - ((int)cameraPos.y - WINCY / 2));
 	//이미지 출력 (빠름, 알파블랜딩 X)
   	g.DrawImage(pImage,
 		Gdiplus::Rect(
-			((int)m_tRect.left + ((int)cameraPos.x - WINCX / 2)),
-			((int)m_tRect.top + ((int)cameraPos.y - WINCY / 2)),
+			((int)m_tInfo.fX + ((int)cameraPos.x - WINCX / 2)),
+			((int)m_tInfo.fY + ((int)cameraPos.y - WINCY / 2)),
 			pImage->GetWidth(),  //복사 사이즈
 			pImage->GetHeight()//복사 사이즈
 		),

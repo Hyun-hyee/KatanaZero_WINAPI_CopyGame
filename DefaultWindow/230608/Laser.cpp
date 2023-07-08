@@ -5,6 +5,8 @@
 #include "BmpMgr.h"
 #include "SceneManager.h"
 #include "ObjMgr.h"
+#include "CollisionMgr.h"
+#include "SoundMgr.h"
 
 CLaser::CLaser()
 {
@@ -24,8 +26,16 @@ void CLaser::Initialize()
 	m_LaserType = LASER_SHORT;
 	m_LaserAttack = false;
 
-	m_tInfo.fCX = 2.f;
-	m_tInfo.fCY = 50.f * SMALL * 0.5f;
+	m_tInfo.fCX = 20.f;
+	m_tInfo.fCY = 20.f;
+
+	for (int i = 1; i <= 40; ++i)
+	{
+		float centerX = m_tInfo.fX + 20.f * i * cos(m_fAttackAngle);
+		float centerY = m_tInfo.fY + 20.f * i * sin(m_fAttackAngle);
+		RECT TempC = { centerX - 10.f, centerY - 10.f, centerX + 10.f, centerY + 10.f };
+		m_LaserCollideList.push_back(TempC);
+	}
 
 	InitImage();
 }
@@ -40,10 +50,14 @@ void CLaser::Update()
 		m_fSpeed = 10.f;
 	
 	StateUpdate();
+	
+	if(m_State != LASER_AIM)
+		CheckAttackOn();
 
 	Update_Info();
 	__super::Update_Rect();
 	CObj::UpdateAttackCollide();
+	Update_LaserCollide();
 
 	CObj::Move_Frame();
 	//m_tInfo.fX += cos(m_fAttackAngle) * m_fSpeed;
@@ -56,7 +70,11 @@ void CLaser::LateUpdate(void)
 
 void CLaser::Render(HDC hdc)
 {
-	CollideRender(hdc);
+	CObj::CollideRender(hdc);
+	
+	for (auto& iter : m_LaserCollideList)
+		CObj::CollideRender(hdc,iter);
+
 	CObj::RotateFrameRender_Vertical(hdc, m_fAttackAngle * (180.f / PI));
 }
 
@@ -211,8 +229,41 @@ void CLaser::Update_Info()
 	m_tInfo.fY = m_Axis.y - m_tInfo.fCX * 0.5f * sin(m_fAttackAngle);	
 }
 
+void CLaser::Update_LaserCollide()
+{
+	for (int i = 0; i < 40; ++i)
+	{
+		float centerX = m_tInfo.fX + 20.f * (i + 1) * cos(m_fAttackAngle);
+		float centerY = m_tInfo.fY + 20.f * (i + 1) * sin(m_fAttackAngle);
+		m_LaserCollideList[i].left = centerX - 10.f;
+		m_LaserCollideList[i].top = centerY - 10.f;
+		m_LaserCollideList[i].right = centerX + 10.f;
+		m_LaserCollideList[i].bottom = centerY + 10.f;
+	}
+
+}
+
 void CLaser::RotateAxis(float _Addx, float _y)
 {
 	m_Axis.x += _Addx;
 	m_Axis.y = _y;
+}
+
+void CLaser::CheckAttackOn()
+{
+	CObj* Target = CObjMgr::Get_Instance()->Get_Player();
+	OBJ_STATE TargetState = Target->Get_State();
+
+	for (auto& iter : m_LaserCollideList)
+	{
+		if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&iter, Target->Get_Collide()))
+		{
+			if (TargetState != HURTFLY && TargetState != HURTGROUND && TargetState != ROLL)
+			{
+				Target->Set_State(HURTFLY);
+				CSoundMgr::Get_Instance()->PlaySound(L"playerdie.wav", SOUND_EFFECT, SOUND_VOL3);
+			}
+			break;
+		}
+	}
 }

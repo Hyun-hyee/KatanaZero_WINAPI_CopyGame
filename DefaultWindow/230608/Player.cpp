@@ -1710,25 +1710,29 @@ void CPlayer::BatteryChange()
 void CPlayer::Attack()
 {
 	list<CObj*> *EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
-	for (auto& iter : *EnemyList)
+	if (!EnemyList->empty())
 	{
-		if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_AttackCollide, iter->Get_Collide()))
+		for (auto& iter : *EnemyList)
 		{
-			if (iter->Get_State() != HURT && iter->Get_State() != HURTGROUND)
+			if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_AttackCollide, iter->Get_Collide()))
 			{
-				iter->Set_State(HURT);
-				iter->Set_AttackAngle(m_fAttackAngle);
-				if (iter->Get_Info()->fX < m_tInfo.fX)
-					iter->Set_FrontAngle(0);
-				else
-					iter->Set_FrontAngle(PI);
+				if (iter->Get_State() != HURT && iter->Get_State() != HURTGROUND)
+				{
+					iter->Set_State(HURT);
+					iter->Set_AttackAngle(m_fAttackAngle);
+					if (iter->Get_Info()->fX < m_tInfo.fX)
+						iter->Set_FrontAngle(0);
+					else
+						iter->Set_FrontAngle(PI);
 
-				CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
+					CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
+				}
+
 			}
-			
+
 		}
-			
 	}
+	
 }
 
 void CPlayer::Parring()
@@ -1810,6 +1814,22 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 			}
 		}
 	}
+	else if (targetType == BOSS)
+	{
+		if (_target->Get_State() == BOSS_DASH)
+		{
+			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL) //구를때 무적
+			{
+				m_State = HURTFLY;
+				if (_dir == LEFT)
+					m_fFrontAngle = PI;
+				else if (_dir == RIGHT)
+					m_fFrontAngle = 0;
+				PlayerPlaySound(L"playerdie.wav");
+			}
+		}
+	}
+	
 
 	return 0;
 }
@@ -1867,6 +1887,7 @@ int CPlayer::OnCollision(CObj* _target, DIR _dir)
 				m_WallJump = true;
 		}
 	}
+	
 
 	return 0;
 }

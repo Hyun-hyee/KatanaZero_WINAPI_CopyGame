@@ -39,11 +39,11 @@ void CMementoMgr::Render(HDC hDC)
 {
 	WCHAR text[100];
 	_stprintf_s(text, L"[Memento] %d ", m_ReverseOn);
-	TextOutW(hDC, 0, 60, text, lstrlen(text));
+	TextOutW(hDC, 0, 80, text, lstrlen(text));
 	if (!m_pMementoList[PLAYER].empty())
 	{
 		_stprintf_s(text, L"[Memento] %f ", m_pMementoList[PLAYER].back()->Get_Info()->fX);
-		TextOutW(hDC, 0, 80, text, lstrlen(text));
+		TextOutW(hDC, 0, 100, text, lstrlen(text));
 	}
 
 }

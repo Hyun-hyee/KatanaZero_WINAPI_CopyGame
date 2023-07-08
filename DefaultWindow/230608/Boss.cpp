@@ -14,7 +14,7 @@
 
 CBoss::CBoss()
 {
-	m_Type = ENEMY;
+	m_Type = BOSS;
 	m_Collider_type = RECTANGLE;
 }
 
@@ -26,10 +26,12 @@ CBoss::~CBoss()
 void CBoss::Initialize(void)
 {
 	InitImage();
+	InitPatternList();
+
 	m_State = BOSS_IDLE;
 
 	m_fFrontAngle = PI;
-	m_fSpeed = 1.f;
+	m_fSpeed = 12.f;
 	m_fAccel = 0.1f;
 	m_CheckCWidth = 150.f;
 	m_bFollow = false;
@@ -45,12 +47,19 @@ void CBoss::Initialize(void)
 	m_WallJump = false;
 	m_Laser = nullptr;
 	m_Laser90 = false;
+	m_PatternOn = false;
+	m_PatternIndex = 0;
+	m_Levitation = false;
+
+	m_Life = 1;
 
 	m_Target = CObjMgr::Get_Instance()->Get_Player();
 }
 
 void CBoss::Update(void)
 {
+	if(g_BossStart)
+		PatternChange();
 	StateUpdate();
 
 	if (g_SlowMotion)
@@ -59,8 +68,11 @@ void CBoss::Update(void)
 		m_SlowTime = 5000;
 	}
 	else
+	{
 		m_SlowTime = 0;
-
+		m_fSpeed = 12.f;
+	}
+		
 	Jump();
 	//RECT,Collide,FrontCollide 업데이트
 	__super::Update_Rect();
@@ -82,8 +94,8 @@ void CBoss::Render(HDC hDC)
 {
 	CObj::FrameRender(hDC);
 
-	CObj::CollideRender(hDC);
-	CObj::CollideRender(hDC, m_CheckCollide);
+	//CObj::CollideRender(hDC);
+	//CObj::CollideRender(hDC, m_CheckCollide);
 }
 
 void CBoss::Release(void)
@@ -110,9 +122,11 @@ void CBoss::InitImage()
 
 	//DEAD 
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_dead_19x2.bmp",	 L"BOSS_DEAD");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_diefly_4x2.bmp",	 L"BOSS_DIEFLY");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_diefly_4x2.png",	 L"BOSS_DIEFLY");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_dieground_8x2.bmp",	 L"BOSS_DIEGROUND");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_nohead_6x2.bmp", L"BOSS_NOHEAD");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_nohead_stop_1x2.png", L"BOSS_NOHEAD_STOP");
+
 	//CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_headfly_8x2.bmp", L"BOSS_HEADFLY");
 	//CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_headground_8x2.bmp", L"BOSS_HEADGROUND");
 
@@ -197,7 +211,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 6;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 100;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 118;
 	TempFrame.iFrameSizeY = 86;
@@ -220,7 +234,7 @@ void CBoss::InitImage()
 	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 102;
-	TempFrame.iFrameSizeY = 100;
+	TempFrame.iFrameSizeY = 50;
 	m_FrameMap.insert({ BOSS_DASH, TempFrame });
 
 	TempFrame.AnimKey = L"BOSS_DASHEND";//
@@ -237,7 +251,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 18;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 112;
 	TempFrame.iFrameSizeY = 42;
@@ -247,7 +261,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 82;
 	TempFrame.iFrameSizeY = 52;
@@ -270,9 +284,19 @@ void CBoss::InitImage()
 	TempFrame.iMotion = 0;
 	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
-	TempFrame.iFrameSizeX = 144;
+	TempFrame.iFrameSizeX = 120;
 	TempFrame.iFrameSizeY = 44;
 	m_FrameMap.insert({ BOSS_NOHEAD, TempFrame });
+
+	TempFrame.AnimKey = L"BOSS_NOHEAD_STOP";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 0;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 120;
+	TempFrame.iFrameSizeY = 44;
+	m_FrameMap.insert({ BOSS_NOHEAD_STOP, TempFrame });
 	
 	TempFrame.AnimKey = L"BOSS_AIM_MOVE"; //
 	TempFrame.iFrameStart = 0;
@@ -288,7 +312,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 0;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 78;
 	TempFrame.iFrameSizeY = 104;
@@ -298,7 +322,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 7;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 70;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 76;
 	TempFrame.iFrameSizeY = 86;
@@ -329,7 +353,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 70;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 72;
 	TempFrame.iFrameSizeY = 62;
@@ -339,7 +363,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 70;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 72;
 	TempFrame.iFrameSizeY = 62;
@@ -390,7 +414,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 6;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 94;
 	TempFrame.iFrameSizeY = 86;
@@ -431,7 +455,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 7;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 90;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 82;
 	TempFrame.iFrameSizeY = 70;
@@ -452,7 +476,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 2;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 80;
+	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 60;
 	TempFrame.iFrameSizeY = 86;
@@ -462,7 +486,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 6;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 110;
+	TempFrame.dwSpeed = 80;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 108;
 	TempFrame.iFrameSizeY = 124;
@@ -532,10 +556,6 @@ void CBoss::StateUpdate()
 	switch (m_State)
 	{
 	case BOSS_IDLE :  //IDLE
-		if (g_BossStart)
-		{
-			Set_State(BOSS_DRAWGUN); //스타트존 진입시 조준 시작 (임시)
-		}
 
 		break;
 
@@ -544,6 +564,7 @@ void CBoss::StateUpdate()
 		{
 			Set_State(BOSS_JUMP);
 			m_bJump = true;
+			m_fSpeed_Vertical = 15.f;
 		}
 		break;
 
@@ -559,15 +580,14 @@ void CBoss::StateUpdate()
 			else
 			{
 				m_fFrontAngle = 0;
-				m_tInfo.fX += 24.f;
+				m_tInfo.fX += m_fSpeed * 2;
 			}
 		}
 		
 		if(m_fFrontAngle == 0)
-			m_tInfo.fX += 12.f * cos(PI);
+			m_tInfo.fX += m_fSpeed * cos(PI);
 		else
-			m_tInfo.fX += 12.f * cos(0.f);
-		m_fSpeed_Vertical = 6.5f;
+			m_tInfo.fX += m_fSpeed * cos(0.f);
 
 		break;
 
@@ -578,38 +598,105 @@ void CBoss::StateUpdate()
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 			Set_State(BOSS_PREJUMP);
 
-		m_tInfo.fX += 8.f * cos(m_fFrontAngle);
+		m_tInfo.fX += m_fSpeed * cos(m_fFrontAngle);
 		break;
 
 	case BOSS_PREDASH : //Idle -> 대쉬 전 착지 자세 모션(준비자세?)
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		{
+			Set_State(BOSS_DASH);
+		}
 		break;
 
 	case BOSS_DASH : //대시 한장짜리
+		if(m_tInfo.fX < 290.f || m_tInfo.fX > WINCX - 290.f)
+			Set_State(BOSS_DASHEND);
+		
+		if(!g_SlowMotion)
+			m_tInfo.fX += cos(m_fFrontAngle) * (50.f);
+		else
+			m_tInfo.fX += cos(m_fFrontAngle) * (10.f);
 		break;
 
 	case BOSS_DASHEND : //대시하면서 칼 공격내려치고 idle
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			Set_State(BOSS_PATTERN_OUT);
 		break;
 
 	case BOSS_DEAD : //바닥 기어감
+		
+		if (m_fFrontAngle == 0)
+		{
+			if (!m_DirCheck[LEFT])
+				m_tInfo.fX += 0.3f;
+		}
+		else if (m_fFrontAngle == PI)
+		{
+			if (!m_DirCheck[RIGHT])
+				m_tInfo.fX -= 0.3f;
+		}
+		if (CheckHurt())
+			Set_State(BOSS_NOHEAD);
 		break;
 
 	case BOSS_DIEFLY : //마지막 날라갈때?
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			Set_State(BOSS_DIEGROUND);
+
+		
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX += 3.f;
+			}
+			else if (m_fFrontAngle == PI)
+			{
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX -= 3.f;
+			}
+		
 		break;
+
 	case BOSS_DIEGROUND : //마지막 날아가서 떨어질때
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		{
+			Set_State(BOSS_DEAD);
+			m_tInfo.fY += 30.f;
+			m_Levitation = true;
+		}
+			
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX += 3.f;
+			}
+			else if (m_fFrontAngle == PI)
+			{
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX -= 3.f;
+			}
+		
 		break;
 	case BOSS_NOHEAD : //머리 잘린 몸통
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			Set_State(BOSS_NOHEAD_STOP);
 		break;
+
+	case BOSS_NOHEAD_STOP: //머리 잘린 몸통 정지
+		break;
+
+
 	case BOSS_AIM_MOVE : //레이저 아래 -> 옆 -> 위 조준
 		break;
 	case BOSS_AIM_STOP : //레이저 옆으로 조준 한장짜리
-		if (dynamic_cast<CLaser*>(m_Laser)->GetLaserAttack() && m_LaserTime + 1000 < GetTickCount64())
+		if (dynamic_cast<CLaser*>(m_Laser)->GetLaserAttack() && m_LaserTime + 300 < GetTickCount64())
 		{
 			m_FrameReverse = true;
 			m_LaserTime = 0;
 			Set_State(BOSS_DRAWGUN);
 			dynamic_cast<CLaser*>(m_Laser)->SetLaserAttack(false);
 		}
-		else if (!dynamic_cast<CLaser*>(m_Laser)->GetLaserAttack() && m_LaserTime + 1000 < GetTickCount64())
+		else if (!dynamic_cast<CLaser*>(m_Laser)->GetLaserAttack() && m_LaserTime + 600 < GetTickCount64())
 		{
 			dynamic_cast<CLaser*>(m_Laser)->SetLaserAttack(true);
 			m_LaserTime = GetTickCount64();
@@ -636,16 +723,38 @@ void CBoss::StateUpdate()
 		break;
 	case BOSS_HURTRECOVER : //맞고 날아서 바닥 착지
 		break;
+
 	case BOSS_HURTRECOVER_FADE :  //맞고 날아서 바닥 착지 후 은신
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+			Pattern_Laser180();
+
+		if (m_bJump)
+		{
+			if (m_fFrontAngle == 0)
+			{
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 5.f;
+			}
+			else if (m_fFrontAngle == PI)
+			{
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 5.f;
+			}
+		}
+
 		break;
 	case BOSS_PATTERN_IN : // 은신->착지 자세로 나타남
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		{
+			if (m_PatternOn)
+				m_PatternOn = false;
+		}
 		break;
 	case BOSS_PATTERN_OUT : //착지 자세-> 은신
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		{
-			Set_State(BOSS_SWEEP_FADE);
-			Set_Pos(WINCX * 0.5f, 220.f);
-			m_fFrontAngle = 0;
+			if (m_PatternOn)
+				m_PatternOn = false;
 		}
 		break;
 
@@ -659,17 +768,9 @@ void CBoss::StateUpdate()
 		
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		{
-			if (!m_Laser90)
-			{
-				Set_State(BOSS_TELEPORT_IN);
-				SetfX(300.f);
-			}
-			else
-			{
-				SetfX(WINCX - 300.f);
-				m_fFrontAngle = PI;
-			}
-
+			if (m_PatternOn)
+				m_PatternOn = false;
+			m_Levitation = false;
 		}
 		
 		if (m_fFrontAngle == PI)
@@ -736,15 +837,9 @@ void CBoss::StateUpdate()
 			}
 		}
 		
-
-		
-		
-		
-		
-
-		
-
 		break;
+
+
 	case BOSS_TAKEOUTGUN : //바닥 서서 옷에서 총꺼내서 조준(지뢰)
 		break;
 	case BOSS_SHOOT : //옆 조준 -> 지뢰 조준
@@ -771,19 +866,9 @@ void CBoss::StateUpdate()
 	case BOSS_TELEPORT_OUT : //위->아래 레이저 -> 은신(끝)
 		if (m_FrameMap[m_State].iFrameStart == m_FrameMap[m_State].iFrameEnd)
 		{
-			if (m_tInfo.fX != WINCX - 300.f)
-			{
-				Set_State(BOSS_TELEPORT_IN);
-				SetfX(WINCX - 300.f);
-			}
-			else
-			{
-				m_Laser90 = true;
-				Set_State(BOSS_SWEEP_FADE);
-				SetfX(300.f);
-				m_fFrontAngle = 0;
-			}
-				
+			if (m_PatternOn)
+				m_PatternOn = false;
+			m_Levitation = false;
 		}
 		break;
 	case BOSS_WALLGRAB : //벽잡기
@@ -793,18 +878,18 @@ void CBoss::StateUpdate()
 			m_bJump = true;
 			m_fSpeed_Vertical = 10.f;
 			Flip_FrontAngle();
-			m_fAttackAngle = PI;
+			m_fAttackAngle = m_fFrontAngle;
 			m_BulletTime = GetTickCount64();
 			Attack();
 		}
 			
 		break;
 	case BOSS_WALLJUMP ://180도 총쏘면서 벽점프 
-		m_tInfo.fX += 12.f * cos(m_fFrontAngle);
+		m_tInfo.fX += m_fSpeed * cos(m_fFrontAngle);
 		if (m_BulletTime + 40 < GetTickCount64())
 		{
-			m_fAttackAngle += PI / 14.f;
 			Attack();
+			m_fAttackAngle -= cos(m_fFrontAngle) * PI / 14.f;
 			m_BulletTime = GetTickCount64();
 		}
 
@@ -817,7 +902,7 @@ void CBoss::StateUpdate()
 		break;
 
 	case BOSS_WALLJUMP_FALL:
-		m_tInfo.fX += 12.f * cos(m_fFrontAngle);
+		m_tInfo.fX += m_fSpeed * cos(m_fFrontAngle);
 		
 
 		if (!m_bJump)
@@ -845,7 +930,7 @@ void CBoss::Jump()
 
 	bool bLineCol = CLineMgr::Get_Instance()->CollisionLine(m_tInfo, &fY);
 
-	if (!m_WallJump)
+	if (!m_WallJump && !m_Levitation)
 	{
 		if (0.f < fY - m_tInfo.fY)
 			m_bJump = true;
@@ -896,7 +981,7 @@ void CBoss::Jump()
 
 		}
 	}
-	else if (bLineCol && !m_WallJump)
+	else if (bLineCol && !m_WallJump && !m_Levitation)
 	{
 		m_tInfo.fY = fY;
 		m_fSpeed_Vertical = 0.f;
@@ -939,39 +1024,22 @@ int CBoss::InCollision(CObj* _target, DIR _dir)
 		m_WallJump = true;
 		m_DirCheck[_dir] = true;
 	}
-	/*
-	if (targetType == ITEM)
-	{
-		if (m_State != HURT && m_State != HURTGROUND)
-		{
-			if (dynamic_cast<CItem*> (_target)->GetThrow())
-				m_State = HURT;
-		}
-	}
-	else if (targetType == GRABWALL || targetType == WALL)
-	{
-		m_DirCheck[_dir] = true;
-		if (_dir == TOP)
-			m_fSpeed_Vertical *= (-0.2f);
-	}
 	else if (targetType == BULLET)
 	{
 		if (m_State != HURT && m_State != HURTGROUND)
 		{
 			if (_target->GetOwner() != this && _target->GetOwner()->Get_Type() != ENEMY)
 			{
-				m_State = HURT;
+				m_State = BOSS_HURTRECOVER_FADE;
 				if (_dir == LEFT)
 					m_fFrontAngle = 0;
 				else if (_dir == RIGHT)
 					m_fFrontAngle = PI;
-				m_BulletHurt = true;
 				_target->Set_State(DEAD);
 				CSoundMgr::Get_Instance()->PlaySound(L"death_bullet.wav", SOUND_EFFECT, SOUND_VOL3);
-
 			}
 		}
-	}*/
+	}
 
 	return OBJ_NOEVENT;
 }
@@ -984,6 +1052,7 @@ int CBoss::OutCollision(CObj* _target)
 	{
 		for (int i = 0; i < DIR_END; ++i)
 			m_DirCheck[i] = false;
+		m_WallJump = false;
 	}
 
 	return OBJ_NOEVENT;
@@ -995,3 +1064,205 @@ int CBoss::OnCollision(CObj* _target, DIR _dir)
 }
 
 
+
+/*****************************************************************/
+//                           PATTERN                             //
+/*****************************************************************/
+
+void CBoss::InitPatternList()
+{
+	if (m_Phase == 1) //페이즈 1
+	{
+	}
+	else if (m_Phase == 2) //페이즈 2
+	{
+
+	}
+
+
+	m_PatternList.push_back(&CBoss::Pattern_Dash);
+	m_PatternList.push_back(&CBoss::Pattern_LeftLaser90);
+
+
+
+	m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+	m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+	m_PatternList.push_back(&CBoss::Pattern_RightLaser90);
+	m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+	m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+	m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+	m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+	m_PatternList.push_back(&CBoss::Pattern_Laser180);
+}
+
+void CBoss::PatternChange()
+{
+	if (m_PatternIndex < m_PatternList.size())
+	{
+		if (!m_PatternOn)
+		{
+			(this->*m_PatternList[m_PatternIndex])();
+			m_PatternOn = true;
+			++m_PatternIndex;
+		}
+		else
+		{
+			if (m_State != BOSS_HURTRECOVER && m_State != BOSS_HURTRECOVER_FADE)
+			{
+				if (CheckHurt())
+				{
+					--m_Life;
+					if (m_Life > 0)
+					{
+						Set_State(BOSS_HURTRECOVER_FADE);
+						m_bJump = true;
+						m_Levitation = false;
+						m_fSpeed_Vertical = 4.f;
+
+						
+					}
+					else if (m_Life == 0)
+					{
+						Set_State(BOSS_DIEFLY);
+					}
+					
+					if (m_Laser != nullptr)
+					{
+						m_Laser->Set_State(DEAD);
+						m_Laser = nullptr;
+					}
+
+				}
+			}
+			
+		}
+	}
+	else
+	{
+		m_PatternIndex = 0;
+		Pattern_Move_RightBottom();
+	}
+	
+
+
+}
+
+bool CBoss::CheckHurt()
+{
+	CObj* Player = CObjMgr::Get_Instance()->Get_Player();
+	if (Player->Get_State() == ATTACK)
+	{
+		RECT* PlayerAttackCollide = Player->Get_AttackCollide();
+		DIR dir = CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_Collide, PlayerAttackCollide);
+		if (DIR_NONE != dir)
+		{
+			if (m_Life > 0)
+			{
+				if (dir == LEFT)
+					m_fFrontAngle = 0;
+				else
+					if (dir == RIGHT)
+						m_fFrontAngle = PI;
+			}
+
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+		return false;
+}
+
+void CBoss::Pattern_GroundLaser()
+{
+	m_Levitation = false;
+	Set_State(BOSS_DRAWGUN);
+}
+
+void CBoss::Pattern_Laser180()
+{
+	m_Laser90 = false;
+	m_bJump = false;
+	m_Levitation = true;
+	Set_Pos(WINCX * 0.5f, 220.f);
+	Set_State(BOSS_SWEEP_FADE);
+}
+
+void CBoss::Pattern_LeftLaser90()
+{
+	Set_Pos(300.f , 220.f);
+
+	m_Laser90 = true;	
+	m_bJump = false;
+	m_Levitation = true;
+	Set_State(BOSS_SWEEP_FADE);
+}
+
+void CBoss::Pattern_RightLaser90()
+{
+	Set_Pos(WINCX - 300.f, 220.f);
+
+	m_Laser90 = true;
+	m_bJump = false;
+	m_Levitation = true;
+	Set_State(BOSS_SWEEP_FADE);
+}
+
+void CBoss::Pattern_LaserBottom_1()
+{
+	m_bJump = false;
+	m_Levitation = true;
+	Set_Pos(300.f, 220.f);
+	Set_State(BOSS_TELEPORT_IN);
+}
+
+void CBoss::Pattern_LaserBottom_2()
+{
+	m_bJump = false;
+	m_Levitation = true;
+	Set_Pos(600.f , 220.f);
+	Set_State(BOSS_TELEPORT_IN);
+}
+
+void CBoss::Pattern_LaserBottom_3()
+{
+	m_bJump = false;
+	m_Levitation = true;
+	Set_Pos(WINCX - 600.f, 220.f);
+	Set_State(BOSS_TELEPORT_IN);
+}
+
+void CBoss::Pattern_LaserBottom_4()
+{
+	m_bJump = false;
+	m_Levitation = true;
+	Set_Pos(WINCX - 300.f, 220.f);
+	Set_State(BOSS_TELEPORT_IN);
+}
+
+void CBoss::Pattern_Dash()
+{
+	if (m_tInfo.fX > WINCX * 0.5f)
+		m_fFrontAngle = PI;
+	else
+		m_fFrontAngle = 0;
+
+	Set_State(BOSS_PREDASH);
+}
+
+
+
+void CBoss::Pattern_Move_LeftBottom()
+{
+	m_fFrontAngle = 0;
+	Set_Pos(300.f, 560.f);
+	Set_State(BOSS_PATTERN_IN);
+}
+
+void CBoss::Pattern_Move_RightBottom()
+{
+	m_fFrontAngle = PI;
+	Set_Pos(WINCX - 300.f, 560.f);
+	Set_State(BOSS_PATTERN_IN);
+}

@@ -64,7 +64,7 @@ void CBossStage::Initialize()
 
 	////Àû
 	//CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(600, 250, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CBoss>::Create(1000, 560, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(BOSS, CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72));
 
 	//BGM
 	CSoundMgr::Get_Instance()->PlayBGM(L"song_ending.ogg", SOUND_VOL1);

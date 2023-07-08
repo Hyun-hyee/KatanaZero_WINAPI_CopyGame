@@ -38,7 +38,16 @@ public:
 
 	bool	GetLaserAttack() { return m_LaserAttack; }
 	void	Update_Info();
+	void	Update_LaserCollide();
 
 	void	RotateAxis(float _Addx, float _y);
+
+private:
+	vector<RECT> m_LaserCollideList;
+
+public:
+	vector<RECT>* Get_LaserCollide() { return &m_LaserCollideList; }
+	void		  CheckAttackOn();
+
 };
 
