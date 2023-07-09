@@ -14,6 +14,9 @@
 #include "MementoMgr.h"
 #include "BossStage.h"
 #include "BossStage_1.h"
+#include "FirstStage.h"
+#include "StartMenu.h"
+#include "SecondStage.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -59,12 +62,22 @@ void CSceneManager::Initialize()
 
 	//캐릭터 생성
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
+	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
 
 	//Scene 생성
-	SceneList.push_back(new CBossStage_1);
+	SceneList.push_back(new CStartMenu);
 	SceneList.back()->Initialize();
 	SceneList.back()->Set_SceneOn(true);
 	m_PlayScene = SceneList.back();
+
+	SceneList.push_back(new CFirstStage);
+	SceneList.back()->Set_SceneOn(false);
+
+	SceneList.push_back(new CSecondStage);
+	SceneList.back()->Set_SceneOn(false);
+
+	SceneList.push_back(new CBossStage_1);
+	SceneList.back()->Set_SceneOn(false);
 
 	SceneList.push_back(new CBossStage);
 	SceneList.back()->Set_SceneOn(false);
@@ -74,7 +87,13 @@ void CSceneManager::Initialize()
 
 	SceneList[0]->Set_NextScene(SceneList[1]);
 	SceneList[1]->Set_NextScene(SceneList[2]);
+	SceneList[2]->Set_NextScene(SceneList[3]);
+	SceneList[3]->Set_NextScene(SceneList[4]);
+	SceneList[4]->Set_NextScene(SceneList[5]);
 
+	SceneList[5]->Set_PrevScene(SceneList[4]);
+	SceneList[4]->Set_PrevScene(SceneList[3]);
+	SceneList[3]->Set_PrevScene(SceneList[2]);
 	SceneList[2]->Set_PrevScene(SceneList[1]);
 	SceneList[1]->Set_PrevScene(SceneList[0]);
 }
@@ -92,6 +111,9 @@ void CSceneManager::Update()
 		if ((*iter)->Get_SceneOn())
 			(*iter)->Update();
 	}
+
+	if ((m_pPlayer->Get_Info()->fX > BackSize.x + 40 || m_pPlayer->Get_Info()->fY > BackSize.y + 100 ) && !SceneList[0]->Get_SceneOn())
+		ToNextScene();
 }
 
 void CSceneManager::LateUpdate()
@@ -112,8 +134,8 @@ void CSceneManager::Render()
 		if ((*iter)->Get_SceneOn())
 			(*iter)->Render(_hdcBack);
 	}
-	CUIMgr::Get_Instance()->Render(_hdcBack);
 	CLineMgr::Get_Instance()->Render(_hdcBack);
+	
 	// Double Buffering
 	::BitBlt(_hdc, 0, 0, _rect.right, _rect.bottom, _hdcBack, 0, 0, SRCCOPY); // 비트 블릿 : 고속 복사
 	::PatBlt(_hdcBack, 0, 0, _rect.right, _rect.bottom, WHITENESS);

@@ -13,6 +13,7 @@ WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 HWND	g_hWnd;
 DWORD   g_FrameLimit = 10;
+int g_ReverseOn = 0;
 
 // 이 코드 모듈에 들어 있는 함수의 정방향 선언입니다.
 ATOM                MyRegisterClass(HINSTANCE hInstance);		// 창 스타일을 제어하는 기능의 함수
@@ -46,13 +47,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
     MSG msg;
 	msg.message = WM_NULL;
 
-    //////////////////////////
-	//CMainGame		MainGame;
-	//MainGame.Initialize();
-    //////////////////////////
-     //CScrollGame     ScrollGame;
-     //ScrollGame.Initialize();
-    ///////////////////////////
+  
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     CSceneManager::Get_Instance()->Initialize();
 
@@ -64,6 +59,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
 	ULONGLONG	dwTime = GetTickCount64();	// 30
     ULONGLONG	dwTime2 = GetTickCount64();
     int SelectScene = 1;
+
     while (true)
     {
 		// PeekMessage : 메세지를 읽어오면 TRUE, 읽을 메세지가 없으면 FALSE를 반환
@@ -84,6 +80,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
 		}
 		else
 		{
+            
 			if (dwTime + 10 < GetTickCount64())
 			{
                 {
@@ -91,7 +88,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,		   // 현재 프로그램의 고유 식별
                     //MainGame.LateUpdate();
                     //MainGame.Render();
                     
-                    if (dwTime2 + g_FrameLimit < GetTickCount64())
+                    if (dwTime2 + g_FrameLimit + g_ReverseOn < GetTickCount64())
                     {
                         CSceneManager::Get_Instance()->Update();
                         CSceneManager::Get_Instance()->LateUpdate();

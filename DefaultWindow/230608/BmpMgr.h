@@ -16,6 +16,8 @@ public:
 	Gdiplus::Bitmap*  Find_Img(const TCHAR* pImgKey);
 	CBitMap* Find_CBitMap(const TCHAR* pImaKey);
 
+	void AlphaBlending(Gdiplus::Bitmap* bitmap);
+
 public:
 	static CBmpMgr* Get_Instance()
 	{

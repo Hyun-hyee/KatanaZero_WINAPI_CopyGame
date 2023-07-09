@@ -15,7 +15,7 @@
 #include "ArmEnemy.h"
 #include "GunEnemy.h"
 #include "MementoMgr.h"
-
+#include "UIMgr.h"
 
 CHJS1::CHJS1()
 {
@@ -29,9 +29,9 @@ CHJS1::~CHJS1()
 void CHJS1::Initialize()
 {
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render.bmp", L"FirstScene");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render.bmp", L"TestScene");
 	CSceneManager::Get_Instance()->Set_BackSize({1344, 784});
-	Set_BackGroundKey(L"FirstScene");
+	Set_BackGroundKey(L"TestScene");
 	
 	//라인
 	CLineMgr::Get_Instance()->Add_Line({ -500,575 }, { WINCX + 500,575 });
@@ -83,6 +83,7 @@ void CHJS1::Render(HDC _hDC)
 
 	CObjMgr::Get_Instance()->Render(_hDC);
 	CMementoMgr::Get_Instance()->Render(_hDC);
+	CUIMgr::Get_Instance()->Render(_hDC);
 }
 
 void CHJS1::Release()

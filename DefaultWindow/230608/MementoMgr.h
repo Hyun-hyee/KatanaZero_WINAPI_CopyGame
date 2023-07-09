@@ -45,15 +45,13 @@ private:
 	list<CObj*>*	 m_pObjList[OBJ_TYPE_END];
 
 	vector <CObj*>		m_pMementoList[OBJ_TYPE_END];
-	vector<CPlayer*>    m_MPlayerList;
-	vector<CArmEnemy*>    m_MEnemyAList;
-	vector<CGunEnemy*>    m_MEnemyGList;
-	vector<CBullet*>    m_MBulletList;
-	vector<CItem*>    m_MItemList;
 
 	vector<fPOINT>	 m_CameraList;
 	vector <int>	m_BulletSize;
 	vector <int>	m_ItemSize;
+	vector <int>	m_LaserSize;
+	vector <int>	m_EnemySize;
+	bool			m_EnemyChange;
 
 	bool		m_ReverseOn;
 	int			m_ReverseSpeed;

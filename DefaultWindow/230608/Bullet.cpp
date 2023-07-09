@@ -29,7 +29,7 @@ void CBullet::Update()
 	else if (m_fFrontAngle == PI)
 		m_OneImgKey = L"Bullet_L";*/
 
-	if (g_SlowMotion)
+	if (g_SlowMotion || g_BossDead)
 	{
 		m_fSpeed = 0.8f;
 	}

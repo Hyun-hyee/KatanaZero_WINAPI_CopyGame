@@ -18,13 +18,13 @@ CUIMgr::~CUIMgr()
 
 void CUIMgr::Render(HDC hDC)
 {
-	//SetBattery(L"3");
-	//SetInven(L"OILBOTTLE");
-	MouseRender(hDC);
-	UIRender(L"TOP_UI",hDC);
-	UIRender(m_Battery, hDC);
-	UIRender(m_Inven, hDC);
-
+	if (!g_BossDead)
+	{
+		MouseRender(hDC);
+		UIRender(L"TOP_UI", hDC);
+		UIRender(m_Battery, hDC);
+		UIRender(m_Inven, hDC);
+	}
 }
 
 void CUIMgr::Release()

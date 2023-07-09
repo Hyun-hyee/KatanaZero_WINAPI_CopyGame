@@ -109,6 +109,33 @@
     <Filter Include="00.SceneManager\BossStage_1">
       <UniqueIdentifier>{16d3281b-b67a-4885-940b-b917b7826145}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Obj\00.Character\01.Enemy\Boss\BossHead">
+      <UniqueIdentifier>{6ebcf45a-b86d-4393-a15c-e465bd071e09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.SceneManager\01.FirstStage">
+      <UniqueIdentifier>{f8fac6b2-f514-4791-8b5f-dfbd97179bba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\06.Fan">
+      <UniqueIdentifier>{151df7c5-0176-40c5-bb60-9c4cd59561a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.SceneManager\00.StartMenu">
+      <UniqueIdentifier>{30c443c2-7814-4ebf-afc1-e0490962ce44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.SceneManager\02.SecondStage">
+      <UniqueIdentifier>{ab6e390d-1074-4a23-ab1b-6a79db51e3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\07.Effect">
+      <UniqueIdentifier>{af9f70b5-c3be-4e57-a0e9-5f6f7e01aa65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\07.Effect\BloodEffect">
+      <UniqueIdentifier>{476b14c2-098f-4e1a-b39b-e523f71ff009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\07.Effect\PlayerEffect">
+      <UniqueIdentifier>{0ee01e84-4df9-4109-8264-7f602e0fbc8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\07.Effect\PlayerShadow">
+      <UniqueIdentifier>{32dfa959-ca33-4f0a-a5ec-db67a226af0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -228,6 +255,30 @@
     <ClInclude Include="BossStage_1.h">
       <Filter>00.SceneManager\BossStage_1</Filter>
     </ClInclude>
+    <ClInclude Include="BossHead.h">
+      <Filter>01. Obj\00.Character\01.Enemy\Boss\BossHead</Filter>
+    </ClInclude>
+    <ClInclude Include="FirstStage.h">
+      <Filter>00.SceneManager\01.FirstStage</Filter>
+    </ClInclude>
+    <ClInclude Include="Fan.h">
+      <Filter>01. Obj\06.Fan</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenu.h">
+      <Filter>00.SceneManager\00.StartMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="SecondStage.h">
+      <Filter>00.SceneManager\02.SecondStage</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerShadow.h">
+      <Filter>01. Obj\07.Effect\PlayerShadow</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerEffect.h">
+      <Filter>01. Obj\07.Effect\PlayerEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="BloodEffect.h">
+      <Filter>01. Obj\07.Effect\BloodEffect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -322,6 +373,30 @@
     </ClCompile>
     <ClCompile Include="BossStage_1.cpp">
       <Filter>00.SceneManager\BossStage_1</Filter>
+    </ClCompile>
+    <ClCompile Include="BossHead.cpp">
+      <Filter>01. Obj\00.Character\01.Enemy\Boss\BossHead</Filter>
+    </ClCompile>
+    <ClCompile Include="FirstStage.cpp">
+      <Filter>00.SceneManager\01.FirstStage</Filter>
+    </ClCompile>
+    <ClCompile Include="Fan.cpp">
+      <Filter>01. Obj\06.Fan</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenu.cpp">
+      <Filter>00.SceneManager\00.StartMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="SecondStage.cpp">
+      <Filter>00.SceneManager\02.SecondStage</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerShadow.cpp">
+      <Filter>01. Obj\07.Effect\PlayerShadow</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerEffect.cpp">
+      <Filter>01. Obj\07.Effect\PlayerEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="BloodEffect.cpp">
+      <Filter>01. Obj\07.Effect\BloodEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

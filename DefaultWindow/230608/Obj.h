@@ -95,10 +95,14 @@ protected:
 
 	void BasicRender(HDC hDC);
 	void FrameRender(HDC hDC);
+	void FrameRender_OriginSize(HDC hDC);
 	void RotateRender(HDC hDC, float _angle);
-	void RotateFrameRender_Vertical(HDC hDC, float _angle);
+	void RotateFrameRender(HDC hDC, float _angle, float _resizeX, float _resizeY); 
+	void RotateFrameRender_Vertical(HDC hDC, float _angle, float _resizeX, float _resizeY);
 	void CollideRender(HDC hDC);
 	void CollideRender(HDC hDC, RECT _collide);
+	void FrameRenderToBlackWhite(HDC hDC);
+	
 	void Move_Frame();
 
 
@@ -154,10 +158,16 @@ public:
 public:
 	void SlowMotionUpdate();
 
+	void ConvertToGrayScale(Gdiplus:: Bitmap* bitmap);
+	Gdiplus::Bitmap* CloneBitmap(Gdiplus::Bitmap* sourceBitmap);
+
 protected:
 	//æ∆¿Ã≈€
 	bool		 bThrow;
 	ITEM_TYPE	 m_ItemType;
-	
+
+public :
+	void		Set_FrameStart(OBJSTATE _state, int _frame) { m_FrameMap[_state].iFrameStart = _frame; }
+
 };
 

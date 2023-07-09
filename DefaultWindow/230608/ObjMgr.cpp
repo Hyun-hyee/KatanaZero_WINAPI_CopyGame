@@ -30,7 +30,8 @@ void CObjMgr::Initialize()
 	m_CheckPairMap.insert({ ITEM, WALL });
 	m_CheckPairMap.insert({ BULLET, WALL });
 	m_CheckPairMap.insert({ PLAYER, ITEM });
-
+	m_CheckPairMap.insert({ PLAYER, FAN });
+	m_CheckPairMap.insert({ HEAD, WALL });
 }
 
 void CObjMgr::Update()

@@ -47,5 +47,7 @@ public:
 	bool			CheckTargetFront();
 	void			SetTarget(CObj* _target) { m_Target = _target; }
 	void			Attack();
+
+	void			StateChangeEffect();
 };
 

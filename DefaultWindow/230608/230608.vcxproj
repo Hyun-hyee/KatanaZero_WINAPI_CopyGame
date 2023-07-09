@@ -161,8 +161,10 @@
     <ClInclude Include="230608.h" />
     <ClInclude Include="BehaviorTree.h" />
     <ClInclude Include="BitMap.h" />
+    <ClInclude Include="BloodEffect.h" />
     <ClInclude Include="BmpMgr.h" />
     <ClInclude Include="Boss.h" />
+    <ClInclude Include="BossHead.h" />
     <ClInclude Include="BossStage.h" />
     <ClInclude Include="BossStage_1.h" />
     <ClInclude Include="CameraComponent.h" />
@@ -170,6 +172,8 @@
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Enum.h" />
+    <ClInclude Include="Fan.h" />
+    <ClInclude Include="FirstStage.h" />
     <ClInclude Include="Functor.h" />
     <ClInclude Include="GrabWall.h" />
     <ClInclude Include="GunEnemy.h" />
@@ -186,11 +190,15 @@
     <ClInclude Include="Define.h" />
     <ClInclude Include="Obj.h" />
     <ClInclude Include="ObjMgr.h" />
+    <ClInclude Include="PlayerEffect.h" />
+    <ClInclude Include="PlayerShadow.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="SecondStage.h" />
     <ClInclude Include="SoundMgr.h" />
+    <ClInclude Include="StartMenu.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
@@ -201,14 +209,18 @@
     <ClCompile Include="230608.cpp" />
     <ClCompile Include="BehaviorTree.cpp" />
     <ClCompile Include="BitMap.cpp" />
+    <ClCompile Include="BloodEffect.cpp" />
     <ClCompile Include="BmpMgr.cpp" />
     <ClCompile Include="Boss.cpp" />
+    <ClCompile Include="BossHead.cpp" />
     <ClCompile Include="BossStage.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="BossStage_1.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Fan.cpp" />
+    <ClCompile Include="FirstStage.cpp" />
     <ClCompile Include="GrabWall.cpp" />
     <ClCompile Include="GunEnemy.cpp" />
     <ClCompile Include="HJS1.cpp" />
@@ -216,6 +228,8 @@
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Laser.cpp" />
     <ClCompile Include="MementoMgr.cpp" />
+    <ClCompile Include="PlayerEffect.cpp" />
+    <ClCompile Include="PlayerShadow.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Line.cpp" />
@@ -225,7 +239,9 @@
     <ClCompile Include="Obj.cpp" />
     <ClCompile Include="ObjMgr.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="SecondStage.cpp" />
     <ClCompile Include="SoundMgr.cpp" />
+    <ClCompile Include="StartMenu.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

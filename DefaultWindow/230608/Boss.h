@@ -29,23 +29,11 @@ public:
 
 	void			Jump();
 
-	void			Update_CheckCollide();
-	void			SetCheckCWidth(float _width) { m_CheckCWidth = _width; }
 private:
 	CObj*			m_Target;
-	RECT			m_CheckCollide;
-	float			m_CheckCWidth;
-	bool			m_bFollow;
-	bool			m_HurtOn;
-	bool			m_AttackOn;
-	bool			m_BulletOn;
-	DWORD			m_WalkTime;
-	DWORD			m_AttackTime;
 	DWORD			m_SlowTime;
-	bool			m_BulletHurt;
 
 public:
-	bool			CheckTargetFront();
 	void			SetTarget(CObj* _target) { m_Target = _target; }
 	void			Attack();
 	void			LaserAttack(LASERTYPE _type,float _x, float _y);
@@ -77,6 +65,7 @@ private:
 	bool					m_PatternOn;
 	vector<pFunction>		m_PatternList;
 	int						m_PatternIndex;
+	list<CObj*>*			m_EnemyList;
 
 public:
 	void			InitPatternList();
@@ -92,16 +81,23 @@ public:
 	void			Pattern_LaserBottom_3();
 	void			Pattern_LaserBottom_4();
 	void			Pattern_Dash();
+	void			Pattern_MakeEnemy_1();
+	void			Pattern_MakeEnemy_2();
+	void			Pattern_MakeEnemy_3();
 
 	void			Pattern_Move_LeftBottom();
 	void			Pattern_Move_RightBottom();
 
-	void			Set_Phase(int _phase) 
+	void			Set_Phase(int _phase)
 	{
 		m_Phase = _phase;
 		InitPatternList();
 	}
+	int				Get_Phase() { return m_Phase; }
+
 	void			Set_Life(int _life) { m_Life = _life;}
+
+	void			StateChangeEffect();
 
 };
 

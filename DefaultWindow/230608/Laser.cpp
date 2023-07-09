@@ -42,7 +42,7 @@ void CLaser::Initialize()
 
 void CLaser::Update()
 {
-	if (g_SlowMotion)
+	if (g_SlowMotion || g_BossDead)
 	{
 		m_fSpeed = 0.8f;
 	}
@@ -72,10 +72,10 @@ void CLaser::Render(HDC hdc)
 {
 	CObj::CollideRender(hdc);
 	
-	for (auto& iter : m_LaserCollideList)
-		CObj::CollideRender(hdc,iter);
+//	for (auto& iter : m_LaserCollideList)
+//		CObj::CollideRender(hdc,iter);
 
-	CObj::RotateFrameRender_Vertical(hdc, m_fAttackAngle * (180.f / PI));
+	CObj::RotateFrameRender_Vertical(hdc, m_fAttackAngle * (180.f / PI), 1.f , 0.5f);
 }
 
 void CLaser::Release(void)
@@ -99,7 +99,7 @@ void CLaser::InitImage()
 	TempFrame.iMotion = 0;
 	TempFrame.dwSpeed = 60;
 	TempFrame.dwTime = GetTickCount64();
-	TempFrame.iFrameSizeX = 1000;
+	TempFrame.iFrameSizeX = 2000;
 	TempFrame.iFrameSizeY = 50;
 	m_FrameMap.insert({ LASER_AIM, TempFrame });
 
@@ -108,7 +108,7 @@ void CLaser::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 9;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 20;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 1500;
 	TempFrame.iFrameSizeY = 36;
@@ -118,7 +118,7 @@ void CLaser::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 4;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 20;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 2000;
 	TempFrame.iFrameSizeY = 50;
@@ -220,7 +220,19 @@ void CLaser::Update_AttackAngle()
 {
 	INFO* PlayerInfo = CObjMgr::Get_Instance()->Get_Player()->Get_Info();
 	
-	m_fAttackAngle = ( atan2(PlayerInfo->fY - (m_Axis.y), PlayerInfo->fX - m_Axis.x ));
+
+	if (m_fFrontAngle == 0)
+	{
+		if (PlayerInfo->fX >= m_tInfo.fX)
+			m_fAttackAngle = (atan2(PlayerInfo->fY - (m_Axis.y), PlayerInfo->fX - m_Axis.x));
+
+	}
+	else
+	{
+		if (PlayerInfo->fX <= m_tInfo.fX)
+			m_fAttackAngle = (atan2(PlayerInfo->fY - (m_Axis.y), PlayerInfo->fX - m_Axis.x));
+
+	}
 }
 
 void CLaser::Update_Info()

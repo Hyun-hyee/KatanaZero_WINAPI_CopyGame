@@ -16,7 +16,9 @@
 #include "MementoMgr.h"
 #include "CollisionMgr.h"
 #include "Boss.h"
+#include "UIMgr.h"
 
+bool g_BossPhaseOff = false;
 
 CBossStage_1::CBossStage_1()
 {
@@ -30,6 +32,9 @@ CBossStage_1::~CBossStage_1()
 void CBossStage_1::Initialize()
 {
 	g_BossStart = false;
+	g_BossPhaseOff = false;
+	m_ExplosionTime = 0;
+	m_ExplosionOn = false;
 
 	m_StartCollide = { 500,0, 700, WINCY };
 
@@ -48,8 +53,11 @@ void CBossStage_1::Initialize()
 	//CLineMgr::Get_Instance()->Add_Line({ 500,425 }, { 800,425 });
 
 	//벽
-	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::CreateRECT(0, 100, 155, 570));
-	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::CreateRECT(1185, 100, 1345, 650));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::CreateRECT(0, 100, 155, 385));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CGrabWall>::CreateRECT(1185, 100, 1345, 385));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(-500, 0, 0, 1345));
+	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(WINCX, 0, WINCX + 500, 1345));
+
 	//CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(0, 0, 1345, 190));
 
 	////아이템
@@ -61,16 +69,27 @@ void CBossStage_1::Initialize()
 	//dynamic_cast<CItem*>(Temp)->SetITemType(OILBOTTLE);
 	//CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
 
-	////적
-	//CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(600, 250, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(BOSS, CObjFactory<CBoss>::Create(WINCX - 300, 500, 60, 72));
+	//적
+	CObj* BossTemp = CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72);
+	dynamic_cast<CBoss*> (BossTemp)->Set_Phase(1);
+	CObjMgr::Get_Instance()->Add_Object(BOSS, BossTemp);
 
-	//BGM
-	CSoundMgr::Get_Instance()->PlayBGM(L"song_ending.ogg", SOUND_VOL1);
 }
 
 void CBossStage_1::Update()
 {
+	if (g_BossPhaseOff && !m_ExplosionOn)
+	{
+		m_ExplosionOn = true;
+		m_ExplosionTime = GetTickCount64();
+	}
+
+	if (m_ExplosionTime != 0 && m_ExplosionTime + 2000 < GetTickCount64())
+	{
+		Set_BackGroundKey(L"BossScene_1_Explosion");
+		CLineMgr::Get_Instance()->Change_Scene();
+	}
+		
 	//특정 위치 들어와야 보스 스테이지 시작 
 	if (!g_BossStart)
 		CheckStart();
@@ -95,6 +114,7 @@ void CBossStage_1::Render(HDC _hDC)
 
 	CObjMgr::Get_Instance()->Render(_hDC);
 	CMementoMgr::Get_Instance()->Render(_hDC);
+	CUIMgr::Get_Instance()->Render(_hDC);
 }
 
 void CBossStage_1::Release()
@@ -104,5 +124,9 @@ void CBossStage_1::Release()
 void CBossStage_1::CheckStart()
 {
 	if (CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_StartCollide, CObjMgr::Get_Instance()->Get_Player()->Get_Collide()))
+	{
 		g_BossStart = true;
+		//BGM
+		CSoundMgr::Get_Instance()->PlayBGM(L"song_bossbattle.ogg", SOUND_VOL1);
+	}
 }

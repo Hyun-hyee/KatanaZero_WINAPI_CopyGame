@@ -9,6 +9,8 @@
 #include "Item.h"
 #include "KeyMgr.h"
 #include "Bullet.h"
+#include "SceneManager.h"
+#include "BloodEffect.h"
 
 CGunEnemy::CGunEnemy()
 {
@@ -157,25 +159,56 @@ void CGunEnemy::Attack()
 
 }
 
+void CGunEnemy::StateChangeEffect()
+{
+	if (m_State == HURT)
+	{
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			dynamic_cast<CBloodEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_ONE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			dynamic_cast<CBloodEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_MOVE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+
+}
+
 void CGunEnemy::StateUpdate()
 {
 	INFO* fTargetInfo = m_Target->Get_Info();
 	float fTargetX = fTargetInfo->fX;
 
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
-
 	if (m_PrevState != m_State)
 	{
 		m_FrameMap[m_State].iFrameStart = 0;
 		m_FrameMap[m_State].dwTime = GetTickCount64();
-
+		
+		StateChangeEffect();
 		m_PrevState = m_State;
 	}
 	switch (m_State)
@@ -234,44 +267,38 @@ void CGunEnemy::StateUpdate()
 		}
 		else
 		{
+			if (!m_bJump)
+			{
+				m_tInfo.fX += cos(m_fFrontAngle) * m_fSpeed;
+			}
+
 			if (m_bJump || m_DirCheck[RIGHT] || m_DirCheck[LEFT])
 			{
 				m_tInfo.fX -= cos(m_fFrontAngle) * (m_fSpeed * 10.f);
 				m_bFollow = false;
+
 				if (m_fFrontAngle == 0)
 					m_fFrontAngle = PI;
 				else if (m_fFrontAngle == PI)
 					m_fFrontAngle = 0;
+
+
 			}
-			else if (m_WalkTime + 4000 < GetTickCount64())
+			if (m_WalkTime + 4000 < GetTickCount64())
 			{
 				m_State = IDLE;
 				m_WalkTime = GetTickCount64();
 			}
-			else if (m_fFrontAngle == 0)//go right
-			{
-				if (!m_bJump)
-				{
-					m_tInfo.fX += m_fSpeed;
-				}
-				else
-					m_fFrontAngle = PI;
-			}
-			else if (m_fFrontAngle == PI)//go left
-			{
-				if (!m_bJump)
-				{
-					m_tInfo.fX -= m_fSpeed;
-				}
-				else
-					m_fFrontAngle = 0;
-			}
-
-			
-
 			
 		}
 
+		if (m_tInfo.fX >= CSceneManager::Get_Instance()->Get_BackSize().x - 100 || m_tInfo.fX <= 100)
+		{
+			if (m_fFrontAngle == 0)//go right
+				m_fFrontAngle = PI;
+			else if (m_fFrontAngle == PI)//go left
+				m_fFrontAngle = 0;
+		}
 
 		break;
 
@@ -404,7 +431,7 @@ void CGunEnemy::StateUpdate()
 			}
 		}
 
-		if (CKeyMgr::Get_Instance()->Key_Pressing('Q'))
+		if (CKeyMgr::Get_Instance()->Key_Pressing('M'))
 		{
 			m_State = IDLE; 
 			m_bFollow = false;
@@ -414,6 +441,16 @@ void CGunEnemy::StateUpdate()
 			m_BulletOn = false;
 			m_BulletHurt = false;
 		}
+		break;
+	}
+
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
 	}
 
 }

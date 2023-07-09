@@ -11,6 +11,10 @@
 #include "Bullet.h"
 #include "Laser.h"
 #include "ObjFactory.h"
+#include "GunEnemy.h"
+#include "ArmEnemy.h"
+#include "BossHead.h"
+#include "BloodEffect.h"
 
 CBoss::CBoss()
 {
@@ -32,15 +36,7 @@ void CBoss::Initialize(void)
 	m_fFrontAngle = PI;
 	m_fSpeed = 12.f;
 	m_fAccel = 0.1f;
-	m_CheckCWidth = 150.f;
-	m_bFollow = false;
-	m_HurtOn = false;
-	m_WalkTime = GetTickCount64();
-	m_fFrontCWidth = 450.f;
-	m_AttackOn = false;
-	m_BulletOn = false;
-	m_BulletHurt = false;
-
+	
 	m_LaserTime = 0;
 	m_BulletTime = 0; //안쓰면 지우기
 	m_WallJump = false;
@@ -49,6 +45,8 @@ void CBoss::Initialize(void)
 	m_PatternOn = false;
 	m_PatternIndex = 0;
 	m_Levitation = false;
+
+	m_EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
 
 	/////////////////////////////
 	//라이프 , 페이즈 임시 설정//
@@ -67,7 +65,7 @@ void CBoss::Update(void)
 		PatternChange();
 	StateUpdate();
 
-	if (g_SlowMotion)
+	if (g_SlowMotion || g_BossDead)
 	{
 		m_fSpeed = 0.5f;
 		m_SlowTime = 5000;
@@ -81,7 +79,6 @@ void CBoss::Update(void)
 	Jump();
 	//RECT,Collide,FrontCollide 업데이트
 	__super::Update_Rect();
-	Update_CheckCollide();
 
 	CObj::Move_Frame();
 }
@@ -97,7 +94,10 @@ void CBoss::LateUpdate(void)
 
 void CBoss::Render(HDC hDC)
 {
-	CObj::FrameRender(hDC);
+	if (g_BossDead)
+		CObj::FrameRenderToBlackWhite(hDC);
+	else
+		CObj::FrameRender(hDC);
 
 	CObj::CollideRender(hDC);
 }
@@ -169,6 +169,9 @@ void CBoss::InitImage()
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_wallgrab_3x2.bmp", L"BOSS_WALLGRAB");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_walljump_7x2.bmp", L"BOSS_WALLJUMP");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_walljump_fall_7x2.png", L"BOSS_WALLJUMP_FALL");
+
+	//CLOAKING
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_headhunter_cloaking_1x2.png", L"BOSS_CLOAKING");
 
 	FRAME TempFrame;
 	TempFrame.AnimKey = L"BOSS_IDLE";//
@@ -255,7 +258,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 18;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 200;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 112;
 	TempFrame.iFrameSizeY = 42;
@@ -265,7 +268,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 200;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 82;
 	TempFrame.iFrameSizeY = 52;
@@ -276,7 +279,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 7;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 200;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 116;
 	TempFrame.iFrameSizeY = 82;
@@ -439,7 +442,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 30;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 56;
 	TempFrame.iFrameSizeY = 90;
@@ -449,7 +452,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 7;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 30;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 56;
 	TempFrame.iFrameSizeY = 90;
@@ -469,7 +472,7 @@ void CBoss::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 3;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 30;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 56;
 	TempFrame.iFrameSizeY = 90;
@@ -506,6 +509,16 @@ void CBoss::InitImage()
 	TempFrame.iFrameSizeY = 124;
 	m_FrameMap.insert({ BOSS_WALLJUMP_FALL, TempFrame });
 
+	TempFrame.AnimKey = L"BOSS_CLOAKING";//
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 0;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 60;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 78;
+	TempFrame.iFrameSizeY = 104;
+	m_FrameMap.insert({ BOSS_CLOAKING, TempFrame });
+
 }
 
 void CBoss::Attack()
@@ -530,14 +543,55 @@ void CBoss::LaserAttack(LASERTYPE _type, float _x, float _y)
 	dynamic_cast<CLaser*>(m_Laser)->SetLaserType(_type);
 	dynamic_cast<CLaser*>(m_Laser)->SetAxis(_x,_y);
 	m_Laser->Set_AttackAngle(m_fAttackAngle);
+	m_Laser->Set_FrontAngle(m_fFrontAngle);
 	CObjMgr::Get_Instance()->Add_Object(LASER, m_Laser);
 
 }
+
+
+void CBoss::StateChangeEffect()
+{
+	if (m_State == BOSS_NOHEAD || m_State == BOSS_HURTRECOVER_FADE )
+	{
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_ONE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_MOVE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+
+}
+
 
 void CBoss::StateUpdate()
 {
 	INFO* fTargetInfo = m_Target->Get_Info();
 	float fTargetX = fTargetInfo->fX;
+	bool  bCheckAllDead = true;
 
 	if (m_fFrontAngle == 0)
 	{
@@ -552,7 +606,8 @@ void CBoss::StateUpdate()
 	{
 		m_FrameMap[m_State].iFrameStart = 0;
 		m_FrameMap[m_State].dwTime = GetTickCount64();
-
+		
+		StateChangeEffect();
 		m_PrevState = m_State;
 	}
 	
@@ -624,10 +679,10 @@ void CBoss::StateUpdate()
 				Set_State(BOSS_DASHEND);
 		}
 		
-		if(!g_SlowMotion)
-			m_tInfo.fX += cos(m_fFrontAngle) * (50.f);
-		else
+		if(g_SlowMotion)
 			m_tInfo.fX += cos(m_fFrontAngle) * (10.f);
+		else
+			m_tInfo.fX += cos(m_fFrontAngle) * (50.f);
 		break;
 
 	case BOSS_DASHEND : //대시하면서 칼 공격내려치고 idle
@@ -639,16 +694,26 @@ void CBoss::StateUpdate()
 		
 		if (m_fFrontAngle == 0)
 		{
-			if (!m_DirCheck[LEFT])
-				m_tInfo.fX += 0.3f;
+			if (!m_DirCheck[RIGHT])
+				m_tInfo.fX += 0.1f;
+			else
+				Flip_FrontAngle();
 		}
 		else if (m_fFrontAngle == PI)
 		{
-			if (!m_DirCheck[RIGHT])
-				m_tInfo.fX -= 0.3f;
+			if (!m_DirCheck[LEFT])
+				m_tInfo.fX -= 0.1f;
+			else
+				Flip_FrontAngle();
 		}
 		if (CheckHurt())
+		{
 			Set_State(BOSS_NOHEAD);
+			CObj* Head = CObjFactory<CBossHead>::Create();
+			Head->Set_Pos(m_tInfo.fX, m_tInfo.fY - 30.f);
+			Head->Set_FrontAngle(m_fFrontAngle);
+			CObjMgr::Get_Instance()->Add_Object(HEAD, Head);
+		}
 		break;
 
 	case BOSS_DIEFLY : //마지막 날라갈때?
@@ -658,13 +723,17 @@ void CBoss::StateUpdate()
 		
 			if (m_fFrontAngle == 0)
 			{
-				if (!m_DirCheck[LEFT])
-					m_tInfo.fX += 3.f;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 0.5f;
+				else
+					Flip_FrontAngle();
 			}
 			else if (m_fFrontAngle == PI)
 			{
-				if (!m_DirCheck[RIGHT])
-					m_tInfo.fX -= 3.f;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 0.5f;
+				else
+					Flip_FrontAngle();
 			}
 		
 		break;
@@ -675,17 +744,22 @@ void CBoss::StateUpdate()
 			Set_State(BOSS_DEAD);
 			m_tInfo.fY += 30.f;
 			m_Levitation = true;
+			g_BossDead = false;
 		}
 			
 			if (m_fFrontAngle == 0)
 			{
-				if (!m_DirCheck[LEFT])
-					m_tInfo.fX += 3.f;
+				if (!m_DirCheck[RIGHT])
+					m_tInfo.fX += 0.5f;
+				else
+					Flip_FrontAngle();
 			}
 			else if (m_fFrontAngle == PI)
 			{
-				if (!m_DirCheck[RIGHT])
-					m_tInfo.fX -= 3.f;
+				if (!m_DirCheck[LEFT])
+					m_tInfo.fX -= 0.5f;
+				else
+					Flip_FrontAngle();
 			}
 		
 		break;
@@ -737,20 +811,26 @@ void CBoss::StateUpdate()
 		break;
 
 	case BOSS_HURTRECOVER_FADE :  //맞고 날아서 바닥 착지 후 은신
-		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd && g_BossPhaseOff && m_Phase == 1)
+			Set_State(BOSS_CLOAKING);
+		else if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd )
 			Pattern_Laser180();
 
 		if (m_bJump)
 		{
 			if (m_fFrontAngle == 0)
 			{
-				if (!m_DirCheck[LEFT])
+				if (!m_DirCheck[RIGHT])
 					m_tInfo.fX -= 5.f;
+				else
+					Flip_FrontAngle();
 			}
 			else if (m_fFrontAngle == PI)
 			{
-				if (!m_DirCheck[RIGHT])
+				if (!m_DirCheck[LEFT])
 					m_tInfo.fX += 5.f;
+				else
+					Flip_FrontAngle();
 			}
 		}
 
@@ -923,6 +1003,22 @@ void CBoss::StateUpdate()
 			Set_State(BOSS_PATTERN_OUT);
 		}
 		break;
+
+	case BOSS_CLOAKING:
+		if (!g_BossPhaseOff)
+		{
+			for (const auto iter : *m_EnemyList)
+			{
+				if (iter->Get_State() != HURTGROUND)
+					bCheckAllDead = false;
+			}
+
+			if (bCheckAllDead)
+				m_PatternOn = false;
+		}
+
+		break;
+		
 	}
 
 	if (m_fFrontAngle == 0)
@@ -960,7 +1056,7 @@ void CBoss::Jump()
 		}
 		else
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 			{
 				if (g_SlowJumpTime + 80 < GetTickCount64())
 				{
@@ -1003,29 +1099,7 @@ void CBoss::Jump()
 
 }
 
-void CBoss::Update_CheckCollide()
-{
-	if (m_fFrontAngle == PI)
-	{
-		m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth;
-		m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth * 0.8;
-	}
-	else
-	{
-		m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth;
-		m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth * 0.8;
-	}
-	m_CheckCollide.top = m_FrontCollide.top - 60.f;
-	m_CheckCollide.bottom = m_FrontCollide.bottom;
-}
 
-bool CBoss::CheckTargetFront()
-{
-	if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_CheckCollide, m_Target->Get_Collide()))
-		return true;
-	else
-		return false;
-}
 
 int CBoss::InCollision(CObj* _target, DIR _dir)
 {
@@ -1088,6 +1162,25 @@ void CBoss::InitPatternList()
 
 	if (m_Phase == 1) //페이즈 1
 	{
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+		m_PatternList.push_back(&CBoss::Pattern_MakeEnemy_1);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+		m_PatternList.push_back(&CBoss::Pattern_Dash);
+		m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_MakeEnemy_2);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+		m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+		m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+		m_PatternList.push_back(&CBoss::Pattern_Dash);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+		m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+		m_PatternList.push_back(&CBoss::Pattern_MakeEnemy_3);
+		m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
 	}
 	else if (m_Phase == 2) //페이즈 2
 	{
@@ -1141,13 +1234,21 @@ void CBoss::PatternChange()
 						Set_State(BOSS_HURTRECOVER_FADE);
 						m_bJump = true;
 						m_Levitation = false;
-						m_fSpeed_Vertical = 4.f;
-
-						
-					}
-					else if (m_Life == 0)
+						m_fSpeed_Vertical = 4.f;						
+					}			
+					else if (m_Life == 0 && m_Phase == 2)
 					{
 						Set_State(BOSS_DIEFLY);
+						g_BossDead = true;
+					
+					}
+					else if (m_Life == 0 && m_Phase == 1)
+					{
+						Set_State(BOSS_HURTRECOVER_FADE);
+						m_bJump = true;
+						m_Levitation = false;
+						m_fSpeed_Vertical = 4.f;
+						g_BossPhaseOff = true;
 					}
 					
 					if (m_Laser != nullptr)
@@ -1156,9 +1257,46 @@ void CBoss::PatternChange()
 						m_Laser = nullptr;
 					}
 
+					if (m_Life == 2 && m_Phase == 2)
+					{
+						m_PatternList.clear();
+						m_PatternIndex = 0;
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+						m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+						m_PatternList.push_back(&CBoss::Pattern_Dash);
+						m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+						m_PatternList.push_back(&CBoss::Pattern_Dash);
+						m_PatternList.push_back(&CBoss::Pattern_RightLaser90);
+						m_PatternList.push_back(&CBoss::Pattern_LeftLaser90);
+						m_PatternList.push_back(&CBoss::Pattern_Laser180);
+						m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+						m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+						m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+						m_PatternList.push_back(&CBoss::Pattern_GroundLaser);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_3);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_2);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_4);
+						m_PatternList.push_back(&CBoss::Pattern_LaserBottom_1);
+						m_PatternList.push_back(&CBoss::Pattern_Move_LeftBottom);
+						m_PatternList.push_back(&CBoss::Pattern_Dash);
+						m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
+						m_PatternList.push_back(&CBoss::Pattern_Dash);
+					}
+
 				}
 			}
-			
+									
 		}
 	}
 	else
@@ -1178,15 +1316,14 @@ bool CBoss::CheckHurt()
 	{
 		RECT* PlayerAttackCollide = Player->Get_AttackCollide();
 		DIR dir = CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_Collide, PlayerAttackCollide);
-		if (DIR_NONE != dir)
+		if (DIR_NONE != dir && m_State != BOSS_CLOAKING)
 		{
 			if (m_Life > 0)
 			{
 				if (dir == LEFT)
 					m_fFrontAngle = 0;
-				else
-					if (dir == RIGHT)
-						m_fFrontAngle = PI;
+				else if (dir == RIGHT)
+					m_fFrontAngle = PI;
 			}
 
 			return true;
@@ -1275,18 +1412,45 @@ void CBoss::Pattern_Dash()
 	Set_State(BOSS_PREDASH);
 }
 
+void CBoss::Pattern_MakeEnemy_1()
+{
+	Set_State(BOSS_CLOAKING);
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(225, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(510, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(860, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(1120, 500, 60, 72));
+}
+
+void CBoss::Pattern_MakeEnemy_2()
+{
+	Set_State(BOSS_CLOAKING);
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(225, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(510, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(860, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(1120, 500, 60, 72));
+}
+
+void CBoss::Pattern_MakeEnemy_3()
+{
+	Set_State(BOSS_CLOAKING);
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(510, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(225, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(1120, 500, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(860, 500, 60, 72));
+}
+
 
 
 void CBoss::Pattern_Move_LeftBottom()
 {
 	m_fFrontAngle = 0;
-	Set_Pos(200.f, 560.f);
+	Set_Pos(300.f, 560.f);
 	Set_State(BOSS_PATTERN_IN);
 }
 
 void CBoss::Pattern_Move_RightBottom()
 {
 	m_fFrontAngle = PI;
-	Set_Pos(WINCX - 200.f, 560.f);
+	Set_Pos(WINCX - 300.f, 560.f);
 	Set_State(BOSS_PATTERN_IN);
 }

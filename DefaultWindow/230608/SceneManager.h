@@ -7,6 +7,7 @@
 
 
 class CScene;
+class CObj;
 
 class CSceneManager
 {
@@ -55,6 +56,7 @@ private:
 
 private:
 	vector <CScene*> SceneList;
+	CObj* m_pPlayer;
 
 
 public:

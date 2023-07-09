@@ -18,7 +18,7 @@ public:
 	virtual void		Render(HDC _hDC)	PURE;
 	virtual void		Release()			PURE;
 
-private:
+protected:
 	bool	m_bSceneOn;
 	CScene* PrevScene;
 	CScene* NextScene;

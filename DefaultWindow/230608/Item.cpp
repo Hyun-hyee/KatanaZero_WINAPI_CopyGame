@@ -3,6 +3,7 @@
 #include "KeyMgr.h"
 #include "BmpMgr.h"
 #include "SoundMgr.h"
+#include "LineMgr.h"
 
 CItem::CItem()
 {
@@ -32,7 +33,8 @@ void CItem::Update()
 	if (bThrow)
 	{
 		m_tInfo.fX += cos(m_fAttackAngle) * m_fSpeed;
-		m_tInfo.fY -= sin(m_fAttackAngle) * m_fSpeed;
+		m_tInfo.fY -= sin(m_fAttackAngle) * m_fSpeed; 
+		
 	}
 }
 

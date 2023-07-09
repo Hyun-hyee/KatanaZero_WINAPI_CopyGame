@@ -21,6 +21,9 @@ extern bool		g_SlowMotion;
 extern DWORD	g_SlowJumpTime;
 extern float	g_fSound;
 extern bool		g_BossStart;
+extern bool		g_BossDead;
+extern bool		g_BossPhaseOff;
+extern int		g_ReverseOn;
 
 #define		SOUND_VOL1	 1.f
 #define		SOUND_VOL2	 0.8f

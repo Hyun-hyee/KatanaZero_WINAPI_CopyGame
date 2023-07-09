@@ -14,7 +14,10 @@
 #include "UIMgr.h"
 #include "SoundMgr.h"
 #include "Bullet.h"
-
+#include "Fan.h"
+#include "PlayerEffect.h"
+#include "PlayerShadow.h"
+#include "BloodEffect.h"
 
 CPlayer::CPlayer()
 {
@@ -53,6 +56,8 @@ void CPlayer::Initialize(void)
 	m_BatteryCount = 9;
 	m_BatteryTime = 0;
 	m_HurtOn = false;
+	m_Levitation = false;
+	m_DustEffectOn = false;
 	
 	m_AttackCInfo = { m_tInfo.fX, m_tInfo.fY, 70.f, 70.f };
 	m_AttackCDistance = 50.f;
@@ -82,6 +87,7 @@ void CPlayer::Update(void)
 
 		//상태 업데이트 (애니메이션 전환)
 		StateUpdate();
+		ShadowEffect();
 	}
 	
 	//AttackAngle 업데이트
@@ -102,8 +108,12 @@ void CPlayer::Render(HDC hDC)
 {
 	//모든 캐릭터,스킬에 필요
 	CCharacter::Render(hDC);
-	CObj::FrameRender(hDC);
 
+	if (g_BossDead)
+		CObj::FrameRenderToBlackWhite(hDC);
+	else
+		CObj::FrameRender(hDC);
+	
 	CObj::CollideRender(hDC);
 
 	//플레이어만 필요
@@ -338,15 +348,15 @@ void CPlayer::Key_Input(void)
 		}
 		else if (CKeyMgr::Get_Instance()->Key_Up(VK_SHIFT))
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 			{
 				CSoundMgr::Get_Instance()->StopSound(SOUND_SLOW);
 				CSoundMgr::Get_Instance()->PlaySound(L"Slowmo_Exit.wav", SOUND_SLOW, SOUND_VOL2);
 			}
 			g_SlowMotion = false;
-			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_FOOTSTEP, 2.f);
+			/*CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_FOOTSTEP, 2.f);
 			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER, 2.f);
-			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER2, 2.f);
+			CSoundMgr::Get_Instance()->SetChannelFrequency(SOUND_PLAYER2, 2.f);*/
 			m_SlowRun = 100;
 		}
 	}
@@ -406,7 +416,7 @@ void CPlayer::Jump()
 
 	bool bLineCol = CLineMgr::Get_Instance()->CollisionLine(m_tInfo, &fY);
 
-	if (0.f < fY - m_tInfo.fY)
+	if (0.f < fY - m_tInfo.fY && !m_Levitation)
 		m_bJump = true;
 
 
@@ -421,7 +431,7 @@ void CPlayer::Jump()
 		}
 		else
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 			{
 				if (g_SlowJumpTime + 80 < GetTickCount64())
 				{
@@ -477,7 +487,7 @@ void CPlayer::Jump()
 			
 		}
 	}
-	else if (bLineCol)
+	else if (bLineCol && !m_Levitation)
 	{
 		m_tInfo.fY = fY;
 		m_fSpeed_Vertical = 0.f;
@@ -505,6 +515,10 @@ void CPlayer::StateUpdate()
 	{
 		m_FrameMap[m_State].iFrameStart = 0;
 		m_FrameMap[m_State].dwTime = GetTickCount64();
+		
+		//이펙트 생성
+		StateChangeEffect();
+		m_PrevFrame = -1;
 
 		m_PrevState = m_State;
 	}
@@ -517,6 +531,7 @@ void CPlayer::StateUpdate()
 			m_State = IDLE_TO_RUN;
 
 			PlayerPlaySound(L"player_prerun.wav");
+			m_DustEffectOn = false;
 		}
 
 		if (CKeyMgr::Get_Instance()->Key_Pressing('S'))
@@ -525,7 +540,17 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			//JumpEffect
+			{
+				CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+				Temp->Set_State(PLAER_EFFECT_JUMPDUST);
+				Temp->Set_AttackAngle(0);
+				Temp->Set_FrontAngle(m_fFrontAngle);
+				Temp->Set_Pos(m_tInfo.fX, m_tInfo.fY - 25.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -578,6 +603,26 @@ void CPlayer::StateUpdate()
 
 	case IDLE_TO_RUN:
 		
+		//RunEffect
+		if(m_FrameMap[m_State].iFrameStart == 0 && !m_DustEffectOn)
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_RUNDUST);
+			Temp->Set_AttackAngle(0);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 20.f, m_tInfo.fY + 5.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_DustEffectOn = true;
+		}
+		else if (m_FrameMap[m_State].iFrameStart == 1 && m_DustEffectOn)
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_RUNDUST);
+			Temp->Set_AttackAngle(0);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY + 10.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_DustEffectOn = false;
+		}
+
 		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
 		{
 			if (!m_DirCheck[LEFT])
@@ -620,7 +665,18 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			//JumpEffect
+			{
+				CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+				Temp->Set_State(PLAER_EFFECT_JUMPDUST);
+				Temp->Set_AttackAngle(0);
+				Temp->Set_FrontAngle(m_fFrontAngle);
+				Temp->Set_Pos(m_tInfo.fX, m_tInfo.fY - 25.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+
+
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -714,7 +770,18 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			//JumpEffect
+			{
+				CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+				Temp->Set_State(PLAER_EFFECT_JUMPDUST);
+				Temp->Set_AttackAngle(0);
+				Temp->Set_FrontAngle(m_fFrontAngle);
+				Temp->Set_Pos(m_tInfo.fX, m_tInfo.fY - 25.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+
+
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -806,7 +873,17 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			//JumpEffect
+			{
+				CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+				Temp->Set_State(PLAER_EFFECT_JUMPDUST);
+				Temp->Set_AttackAngle(0);
+				Temp->Set_FrontAngle(m_fFrontAngle);
+				Temp->Set_Pos(m_tInfo.fX, m_tInfo.fY - 25.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -862,6 +939,7 @@ void CPlayer::StateUpdate()
 
 		Parring();
 		Attack();
+		
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		{
 			if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
@@ -915,7 +993,7 @@ void CPlayer::StateUpdate()
 		break;
 
 	case ATTACK_WALL:
-
+		
 		if (m_WallJump)
 		{
 			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
@@ -957,7 +1035,7 @@ void CPlayer::StateUpdate()
 		break;
 
 	case JUMP:
-
+		
    		if (CKeyMgr::Get_Instance()->Key_Pressing('A') || CKeyMgr::Get_Instance()->Key_Down('A'))
 		{
 			if (!m_DirCheck[LEFT])
@@ -985,7 +1063,7 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -1004,7 +1082,7 @@ void CPlayer::StateUpdate()
 
 					PlayerPlaySound(L"player_jump.wav");
 				}
-			}
+			}			
 		}
 
 		if (m_fSpeed_Vertical < 0)
@@ -1076,6 +1154,7 @@ void CPlayer::StateUpdate()
 		break;
 
 	case FALL_ATTACK:
+
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_LBUTTON))
 		{
 			m_State = ATTACK;
@@ -1147,7 +1226,7 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -1240,6 +1319,26 @@ void CPlayer::StateUpdate()
 		
 		CSoundMgr::Get_Instance()->PlaySound(L"wallslide.wav", SOUND_FOOTSTEP, SOUND_VOL3);
 		CSoundMgr::Get_Instance()->SetChannelVolume(SOUND_FOOTSTEP,abs( 0.3f * m_fSpeed_Vertical ));
+		
+		//RunEffect
+		if (m_FrameMap[m_State].iFrameStart == 0 && !m_DustEffectOn && abs(m_fSpeed_Vertical) >= 0.8f)
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_RUNDUST);
+			Temp->Set_AttackAngle(0);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) - 20.f, m_tInfo.fY + 10.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_DustEffectOn = true;
+		}
+		else if (m_FrameMap[m_State].iFrameStart == 3 && m_DustEffectOn && abs(m_fSpeed_Vertical) >= 0.8f)
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_RUNDUST);
+			Temp->Set_AttackAngle(0);
+			Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * 10.f, m_tInfo.fY + 15.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_DustEffectOn = false;
+		}
 
 		if (!m_bJump)
 		{
@@ -1255,7 +1354,7 @@ void CPlayer::StateUpdate()
 		
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -1491,7 +1590,7 @@ void CPlayer::StateUpdate()
 
 		if (CKeyMgr::Get_Instance()->Key_Down(VK_SPACE))
 		{
-			if (g_SlowMotion)
+			if (g_SlowMotion || g_BossDead)
 				g_SlowJumpTime = GetTickCount64();
 			else
 				g_SlowJumpTime = 0;
@@ -1554,6 +1653,9 @@ void CPlayer::StateUpdate()
 
 
 	case HURTFLY:
+		
+		m_WallJump = false;
+
 		if (!m_HurtOn)
 		{
 			m_bJump = true;
@@ -1578,20 +1680,37 @@ void CPlayer::StateUpdate()
 		{
 			m_State = HURTGROUND;
 			m_HurtOn = false;
+			m_Levitation = true;
+			m_tInfo.fY += 30.f;
 		}
 		break;
 
 	case HURTGROUND:
-		m_tInfo.fY += 15.f;
+
+		m_WallJump = false;
+
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 			m_FrameMap[m_State].iFrameStart = m_FrameMap[m_State].iFrameEnd - 1;
 			
 		if (CKeyMgr::Get_Instance()->Key_Pressing('Q'))
+		{
 			m_State = IDLE;
+			m_Levitation = false;
+			m_tInfo.fY -= 30.f;
+		}
 		break;
 
 	case DOORBREAK:
 		break;
+	}
+
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
 	}
 
 	if(m_State != JUMP_WALL && m_State != FALL_WALL)
@@ -1726,6 +1845,13 @@ void CPlayer::Attack()
 						iter->Set_FrontAngle(PI);
 
 					CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
+
+					CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+					Temp->Set_State(PLAYER_EFFECT_HIT);
+					Temp->Set_AttackAngle(m_fAttackAngle);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
 				}
 
 			}
@@ -1763,6 +1889,17 @@ void CPlayer::Parring()
 				iter->Set_State(DEAD);
 				CObjMgr::Get_Instance()->Add_Object(BULLET, Temp);
 				PlayerPlaySound(L"slash_bullet.wav");
+
+				//ReflectEffect
+				{
+					CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+					Temp->Set_State(PLAYER_EFFECT_REFLECT);
+					Temp->Set_AttackAngle(m_fAttackAngle);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					dynamic_cast<CPlayerEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+				}
 			}
 		}
 	}
@@ -1777,6 +1914,108 @@ void CPlayer::CameraReMake()
 	}
 }
 
+void CPlayer::StateChangeEffect()
+{
+	if (m_State == ATTACK || m_State == ATTACK_WALL)
+	{
+		//AttackEffect
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_SLASH);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			dynamic_cast<CPlayerEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+	else if (m_State == JUMP_WALL)
+	{
+		//JumpEffect
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAER_EFFECT_JUMPDUST);
+			Temp->Set_AttackAngle(m_fFrontAngle - PI / 2.f);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 50.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+	else if (m_State == RUN && (m_PrevState == FALL || m_PrevState == FALL_WALL))
+	{
+		//LandEffect
+		{
+			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+			Temp->Set_State(PLAYER_EFFECT_LANDDUST);
+			Temp->Set_AttackAngle(0);
+			Temp->Set_Pos(m_tInfo.fX - 25.f, m_tInfo.fY + 10.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+	else if (m_State == HURTFLY)
+	{
+		float FlipFrontAngle;
+		if (m_fFrontAngle == PI)
+			FlipFrontAngle = 0;
+		else
+			FlipFrontAngle = PI;
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+			Temp->Set_AttackAngle(FlipFrontAngle);
+			Temp->Set_FrontAngle(FlipFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_ONE);
+			Temp->Set_AttackAngle(FlipFrontAngle);
+			Temp->Set_FrontAngle(FlipFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+
+		//BloodEffect
+		{
+			CObj* Temp = CObjFactory<CBloodEffect>::Create();
+			Temp->Set_State(BLOOD_EFFECT_MOVE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+}
+
+void CPlayer::ShadowEffect()
+{
+	float Distance;
+	if (m_fFrontAngle == 0)
+		Distance = 30.f;
+	else
+		Distance = 5.f;
+
+	if (m_State == ATTACK || m_State == JUMP_WALL || m_State == FALL || m_State == ROLL || m_State == RUN)
+	{
+		if (m_PrevFrame != m_FrameMap[m_State].iFrameStart)
+		{
+			CObj* Temp = CObjFactory<CPlayerShadow>::Create();
+			Temp->Set_State(m_State);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 20.f);
+			Temp->Set_FrameStart(m_State, m_FrameMap[m_State].iFrameStart);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_PrevFrame = m_FrameMap[m_State].iFrameStart;
+		}
+	}
+	
+}
+
 
 
 
@@ -1786,16 +2025,21 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 
 	if (targetType == GRABWALL)
 	{
-		m_WallJump = true;
+		if(_dir == LEFT || _dir == RIGHT)
+			m_WallJump = true;
 		m_DirCheck[_dir] = true;
 		if (_dir == TOP)
 			m_fSpeed_Vertical *= (-0.2f);
+		if (_dir == BOTTOM)
+			m_tInfo.fY -= 10.f;
 	}
 	else if (targetType == WALL)
 	{
 		m_DirCheck[_dir] = true;
 		if (_dir == TOP)
 			m_fSpeed_Vertical *= (-0.2f);
+		if (_dir == BOTTOM)
+			m_tInfo.fY -= 10.f;
 	}
 	else if (targetType == BULLET)
 	{
@@ -1825,6 +2069,27 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 					m_fFrontAngle = PI;
 				else if (_dir == RIGHT)
 					m_fFrontAngle = 0;
+				PlayerPlaySound(L"playerdie.wav");
+			}
+		}
+	}
+	else if (targetType == FAN)
+	{
+		if (dynamic_cast<CFan*>(_target)->GetAttackOn())
+		{
+			if (m_State != HURTFLY && m_State != HURTGROUND) //구를때 무적
+			{
+				m_State = HURTFLY;
+				m_fFrontAngle = 0;
+				PlayerPlaySound(L"playerdie.wav");
+			}
+		}
+		else
+		{
+			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL) //구를때 무적
+			{
+				m_State = HURTFLY;
+				m_fFrontAngle = 0;
 				PlayerPlaySound(L"playerdie.wav");
 			}
 		}

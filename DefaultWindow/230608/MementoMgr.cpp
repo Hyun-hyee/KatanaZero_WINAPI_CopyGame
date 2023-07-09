@@ -11,6 +11,7 @@
 #include "Item.h"
 #include "UIMgr.h"
 #include "Boss.h"
+#include "Laser.h"
 
 CMementoMgr* CMementoMgr::m_pInstance = nullptr;
 
@@ -18,6 +19,7 @@ CMementoMgr::CMementoMgr()
 {
 	m_ReverseOn = false;
 	m_ReverseSpeed = 0;
+	m_EnemyChange = false;
 }
 
 CMementoMgr::~CMementoMgr()
@@ -32,6 +34,8 @@ void CMementoMgr::Initialize()
 	m_pObjList[EFFECT] = CObjMgr::Get_Instance()->Get_ObjList(EFFECT);
 	m_pObjList[ENEMY] = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
 	m_pObjList[ITEM] = CObjMgr::Get_Instance()->Get_ObjList(ITEM);
+	m_pObjList[BOSS] = CObjMgr::Get_Instance()->Get_ObjList(BOSS);
+	m_pObjList[LASER] = CObjMgr::Get_Instance()->Get_ObjList(LASER);
 	
 }
 
@@ -54,9 +58,12 @@ void CMementoMgr::Release()
 	{
 		for (auto& iter : m_pMementoList[i])
 		{
-			if (typeid(*iter) == typeid(CPlayer))
-				dynamic_cast<CPlayer*>(iter)->CameraReMake();
-			Safe_Delete<CObj*>(iter);
+			if (iter != nullptr)
+			{
+				if (typeid(*iter) == typeid(CPlayer))
+					dynamic_cast<CPlayer*>(iter)->CameraReMake();
+				Safe_Delete<CObj*>(iter);
+			}
 		}
 		m_pMementoList[i].clear();
 	}
@@ -66,6 +73,19 @@ void CMementoMgr::Update()
 {
 	if(CKeyMgr::Get_Instance()->Key_Down('L'))
 		m_ReverseOn = !m_ReverseOn;
+
+	if (m_ReverseOn)
+		g_ReverseOn = -10;
+	else
+		g_ReverseOn = 0;
+
+	if (!m_pObjList[BOSS]->empty())
+	{
+		if (dynamic_cast<CBoss*>(m_pObjList[BOSS]->front())->Get_Phase() == 1)
+			m_EnemyChange = true;
+		else
+			m_EnemyChange = false;
+	}
 }
 
 void CMementoMgr::LateUpdate()
@@ -93,7 +113,8 @@ void CMementoMgr::SaveMemento()
 	m_pMementoList[PLAYER].push_back(pTempP);
 	
 	//적
-
+	if (m_EnemyChange)
+		m_EnemySize.push_back(m_pObjList[ENEMY]->size());
 	for (auto& iter : *m_pObjList[ENEMY])
 	{
 		if (typeid(*iter) == typeid(CArmEnemy))
@@ -108,11 +129,16 @@ void CMementoMgr::SaveMemento()
 			*pTempEG = *(dynamic_cast<CGunEnemy*> (iter));
 			m_pMementoList[ENEMY].push_back(pTempEG);
 		}
-		else if (typeid(*iter) == typeid(CBoss))
+	}
+
+	//보스
+	for (auto& iter : *m_pObjList[BOSS])
+	{
+		if (typeid(*iter) == typeid(CBoss))
 		{
 			CBoss* pTempEB = new CBoss;
 			*pTempEB = *(dynamic_cast<CBoss*> (iter));
-			m_pMementoList[ENEMY].push_back(pTempEB);
+			m_pMementoList[BOSS].push_back(pTempEB);
 		}
 	}
 
@@ -125,6 +151,18 @@ void CMementoMgr::SaveMemento()
 			CBullet* pTempB = new CBullet;
 			*pTempB = *(dynamic_cast<CBullet*> (iter));
 			m_pMementoList[BULLET].push_back(pTempB);
+		}
+	}
+
+	//레이저
+	m_LaserSize.push_back(m_pObjList[LASER]->size());
+	if (!m_pObjList[LASER]->empty())
+	{
+		for (auto& iter : *m_pObjList[LASER])
+		{
+			CLaser* pTempL = new CLaser;
+			*pTempL = *(dynamic_cast<CLaser*> (iter));
+			m_pMementoList[LASER].push_back(pTempL);
 		}
 	}
 
@@ -158,30 +196,66 @@ void CMementoMgr::RestoreMemento()
 		m_pMementoList[PLAYER].pop_back();
 
 		//적 
-		if (!m_pMementoList[ENEMY].empty())
+		if (!m_EnemyChange)
 		{
-			list<CObj*>::reverse_iterator riter((*m_pObjList[ENEMY]).rbegin());
-			for (; riter != (*m_pObjList[ENEMY]).rend(); ++riter)
+			if (!m_pMementoList[ENEMY].empty())
 			{
-				if (typeid(**riter) == typeid(CArmEnemy))
+				list<CObj*>::reverse_iterator riter((*m_pObjList[ENEMY]).rbegin());
+				for (; riter != (*m_pObjList[ENEMY]).rend(); ++riter)
 				{
-					*dynamic_cast<CArmEnemy*>(*(riter)) = (*dynamic_cast<CArmEnemy*>(m_pMementoList[ENEMY].back()));
-					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
-					m_pMementoList[ENEMY].pop_back();
+					if (typeid(**riter) == typeid(CArmEnemy))
+					{
+						*dynamic_cast<CArmEnemy*>(*(riter)) = (*dynamic_cast<CArmEnemy*>(m_pMementoList[ENEMY].back()));
+						Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
+						m_pMementoList[ENEMY].pop_back();
+					}
+					else if (typeid(**riter) == typeid(CGunEnemy))
+					{
+						*dynamic_cast<CGunEnemy*>(*(riter)) = (*dynamic_cast<CGunEnemy*>(m_pMementoList[ENEMY].back()));
+						Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
+						m_pMementoList[ENEMY].pop_back();
+					}
 				}
-				else if (typeid(**riter) == typeid(CGunEnemy))
+			}
+		}
+		else
+		{
+			if (!m_EnemySize.empty())
+			{
+				if (!m_pObjList[ENEMY]->empty())
 				{
-					*dynamic_cast<CGunEnemy*>(*(riter)) = (*dynamic_cast<CGunEnemy*>(m_pMementoList[ENEMY].back()));
-					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
-					m_pMementoList[ENEMY].pop_back();
+					for (auto& iter : *m_pObjList[ENEMY])
+						Safe_Delete<CObj*>(iter);
+					m_pObjList[ENEMY]->clear();
 				}
-				else if (typeid(**riter) == typeid(CBoss))
+				if (m_EnemySize.back() != 0)
 				{
-					*dynamic_cast<CBoss*>(*(riter)) = (*dynamic_cast<CBoss*>(m_pMementoList[ENEMY].back()));
-					Safe_Delete<CObj*>(m_pMementoList[ENEMY].back());
-					m_pMementoList[ENEMY].pop_back();
+					for (int i = 0; i < m_EnemySize.back(); ++i)
+					{
+						m_pObjList[ENEMY]->push_back((m_pMementoList[ENEMY].back()));
+						m_pMementoList[ENEMY].pop_back();
+					}
 				}
-				
+				m_EnemySize.pop_back();
+			}
+		}
+		
+		
+		
+		
+
+		//보스
+		if (!m_pMementoList[BOSS].empty())
+		{
+			list<CObj*>::reverse_iterator riter((*m_pObjList[BOSS]).rbegin());
+			for (; riter != (*m_pObjList[BOSS]).rend(); ++riter)
+			{
+				if (typeid(**riter) == typeid(CBoss))
+				{
+					*dynamic_cast<CBoss*>(*(riter)) = (*dynamic_cast<CBoss*>(m_pMementoList[BOSS].back()));
+					Safe_Delete<CObj*>(m_pMementoList[BOSS].back());
+					m_pMementoList[BOSS].pop_back();
+				}
 			}
 		}
 
@@ -206,7 +280,27 @@ void CMementoMgr::RestoreMemento()
 				m_BulletSize.pop_back();
 			}
 		
-		
+		//레이저
+		//m_LaserSize가 끝나는게 모든 프레임 돌아간것이므로 조건 조심
+		if (!m_LaserSize.empty())
+		{
+			if (!m_pObjList[LASER]->empty())
+			{
+				for (auto& iter : *m_pObjList[LASER])
+					Safe_Delete<CObj*>(iter);
+				m_pObjList[LASER]->clear();
+			}
+			if (m_LaserSize.back() != 0)
+			{
+				for (int i = 0; i < m_LaserSize.back(); ++i)
+				{
+					m_pObjList[LASER]->push_back((m_pMementoList[LASER].back()));
+					m_pMementoList[LASER].pop_back();
+				}
+			}
+			m_LaserSize.pop_back();
+		}
+
 
 		//아이템
 		//m_ItemSize가 끝나는게 모든 프레임 돌아간것이므로 조건 조심
@@ -229,6 +323,7 @@ void CMementoMgr::RestoreMemento()
 				m_ItemSize.pop_back();
 			}
 	
+		
 
 
 		//카메라

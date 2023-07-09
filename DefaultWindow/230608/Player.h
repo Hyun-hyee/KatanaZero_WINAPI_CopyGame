@@ -60,10 +60,17 @@ private:
 	int					m_BatteryCount;
 	DWORD				m_BatteryTime;
 	bool				m_HurtOn;
+	bool				m_Levitation;
+	bool				m_DustEffectOn;
+
+	int					m_PrevFrame;
 
 public:
 	ITEM_TYPE			GetItemState() { return m_ItemState; }
 	int					GetBatteryCount() { return m_BatteryCount; }
 	void				CameraReMake();
+
+	void				StateChangeEffect();
+	void				ShadowEffect();
 };
 
