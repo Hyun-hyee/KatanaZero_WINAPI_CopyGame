@@ -23,41 +23,15 @@ void CPlayerShadow::Initialize()
 }
 
 void CPlayerShadow::Update()
-{
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
-
-	if (m_Owner != nullptr)
-	{
-		INFO* OwnerInfo = m_Owner->Get_Info();
-		m_tInfo.fX = OwnerInfo->fX + cos(m_fFrontAngle) * m_DistanceX;
-		m_tInfo.fY = OwnerInfo->fY + m_DistanceY;
-	}
-
-	CObj::Update_Rect();
-
+{	
 	if (m_FrameMap[m_State].iFrameEnd != 0)
 	{
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 			Set_State(DEAD);
 	}
-	else
-	{
-		if (m_EffectTime + 200 < GetTickCount64())
-			Set_State(DEAD);
-		if (m_State == PLAYER_EFFECT_HIT)
-		{
-			m_tInfo.fX += cos(m_fAttackAngle) * 10.f;
-			m_tInfo.fY -= sin(m_fAttackAngle) * 10.f;
-		}
-	}
 
+
+	CObj::Update_Rect();
 	CObj::Move_Frame();
 }
 
@@ -67,8 +41,18 @@ void CPlayerShadow::LateUpdate(void)
 
 void CPlayerShadow::Render(HDC hdc)
 {
-	CObj::FrameRender(hdc);
-	CObj::CollideRender(hdc);
+	if (m_Owner->Get_FrontAngle() == 0)
+	{
+		m_fFrontAngle = 0;
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else
+	{
+		m_fFrontAngle = PI;
+		m_FrameMap[m_State].iMotion = 1;
+	}
+	if(!g_BossDead)
+		CObj::FrameRender(hdc);
 }
 
 void CPlayerShadow::Release(void)

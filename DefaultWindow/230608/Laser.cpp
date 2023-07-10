@@ -70,10 +70,13 @@ void CLaser::LateUpdate(void)
 
 void CLaser::Render(HDC hdc)
 {
-	CObj::CollideRender(hdc);
+	if (g_CollideCheck)
+	{
+		CObj::CollideRender(hdc);
+		for (auto& iter : m_LaserCollideList)
+			CObj::CollideRender(hdc,iter);
+	}
 	
-//	for (auto& iter : m_LaserCollideList)
-//		CObj::CollideRender(hdc,iter);
 
 	CObj::RotateFrameRender_Vertical(hdc, m_fAttackAngle * (180.f / PI), 1.f , 0.5f);
 }

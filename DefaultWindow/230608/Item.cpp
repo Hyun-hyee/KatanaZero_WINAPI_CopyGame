@@ -20,6 +20,8 @@ CItem::~CItem()
 
 void CItem::Initialize()
 {
+	m_fAttackAngle = 0.f;
+	m_fRotateAngle = m_fAttackAngle;
 	m_fSpeed = 30.f;
 	SetCollideSize(40.f);
 	InitImage();
@@ -34,8 +36,9 @@ void CItem::Update()
 	{
 		m_tInfo.fX += cos(m_fAttackAngle) * m_fSpeed;
 		m_tInfo.fY -= sin(m_fAttackAngle) * m_fSpeed; 
-		
+		m_fRotateAngle += 0.1f;
 	}
+
 }
 
 void CItem::LateUpdate(void)
@@ -44,9 +47,10 @@ void CItem::LateUpdate(void)
 
 void CItem::Render(HDC hdc)
 {
-	CollideRender(hdc);
+	if (g_CollideCheck)
+		CollideRender(hdc);
 	if(m_ItemType != ITEM_NONE)
-		CObj::BasicRender(hdc);
+		CObj::RotateRender(hdc, m_fRotateAngle * (180.f / PI));
 }
 
 void CItem::Release(void)
@@ -73,20 +77,27 @@ int CItem::InCollision(CObj* _target, DIR _dir)
 			{
 				if (targetType == ENEMY)
 				{
-					if (_target->Get_State() != HURT && _target->Get_State() != HURTGROUND)
+					if (_target->Get_State() != HURTGROUND)
+					{
 						Set_State(DEAD);
+						CSoundMgr::Get_Instance()->PlaySound(L"swordcrash.wav", SOUND_EFFECT, SOUND_VOL3);
+					}
+
 				}
 				else
 				{
 					bThrow = false;
 					SetCollideSize(40.f);
+					CSoundMgr::Get_Instance()->PlaySound(L"swordcrash.wav", SOUND_EFFECT, SOUND_VOL3);
 				}
-				CSoundMgr::Get_Instance()->PlaySound(L"swordcrash.wav", SOUND_EFFECT, SOUND_VOL3);
 			}
 			else if (m_ItemType == OILBOTTLE)
 			{
-				CSoundMgr::Get_Instance()->PlaySound(L"glass1.wav", SOUND_EFFECT, SOUND_VOL3);
-				Set_State(DEAD);
+				if (_target->Get_State() != HURTGROUND)
+				{
+					Set_State(DEAD);
+					CSoundMgr::Get_Instance()->PlaySound(L"glass1.wav", SOUND_EFFECT, SOUND_VOL3);
+				}
 			}
 		}
 

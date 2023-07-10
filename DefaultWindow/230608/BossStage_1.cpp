@@ -44,6 +44,7 @@ void CBossStage_1::Initialize()
 
 	//배경 이미지 경로
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render.png", L"BossScene_1_Default");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render_slow.png", L"BossScene_1_Default_slow");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render_explosion.png", L"BossScene_1_Explosion");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1344, 784 });
 	Set_BackGroundKey(L"BossScene_1_Default");
@@ -58,26 +59,25 @@ void CBossStage_1::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(-500, 0, 0, 1345));
 	CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(WINCX, 0, WINCX + 500, 1345));
 
-	//CObjMgr::Get_Instance()->Add_Object(WALL, CObjFactory<CWall>::CreateRECT(0, 0, 1345, 190));
-
-	////아이템
-	//CObj* Temp = CObjFactory<CItem>::Create(800, 550, 30, 30);
-	//dynamic_cast<CItem*>(Temp)->SetITemType(SWORD);
-	//CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
-
-	//Temp = CObjFactory<CItem>::Create(500, 550, 30, 30);
-	//dynamic_cast<CItem*>(Temp)->SetITemType(OILBOTTLE);
-	//CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
-
 	//적
 	CObj* BossTemp = CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72);
 	dynamic_cast<CBoss*> (BossTemp)->Set_Phase(1);
+	dynamic_cast<CBoss*> (BossTemp)->Set_Life(3);
 	CObjMgr::Get_Instance()->Add_Object(BOSS, BossTemp);
+
+	//BGM
+	CSoundMgr::Get_Instance()->StopAll();
 
 }
 
 void CBossStage_1::Update()
 {
+	if(!g_SlowMotion)
+		Set_BackGroundKey(L"BossScene_1_Default");
+	else
+		Set_BackGroundKey(L"BossScene_1_Default_slow");
+
+
 	if (g_BossPhaseOff && !m_ExplosionOn)
 	{
 		m_ExplosionOn = true;
@@ -94,7 +94,7 @@ void CBossStage_1::Update()
 	if (!g_BossStart)
 		CheckStart();
 
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
 
 	CMementoMgr::Get_Instance()->Update();
@@ -102,10 +102,13 @@ void CBossStage_1::Update()
 
 void CBossStage_1::LateUpdate()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->LateUpdate();
 
 	CMementoMgr::Get_Instance()->LateUpdate();
+
+	if (CSceneManager::Get_Instance()->GetClearStage())
+		CSceneManager::Get_Instance()->ToNextScene();
 }
 
 void CBossStage_1::Render(HDC _hDC)

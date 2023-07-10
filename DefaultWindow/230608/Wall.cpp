@@ -29,7 +29,8 @@ void CWall::LateUpdate(void)
 
 void CWall::Render(HDC hDC)
 {
-	CObj::CollideRender(hDC);
+	if (g_CollideCheck)
+		CObj::CollideRender(hDC);
 }
 
 void CWall::Release(void)

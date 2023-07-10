@@ -55,10 +55,11 @@ void CBloodEffect::Render(HDC hdc)
 		if (m_State == BLOOD_EFFECT_ONE)
 			CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 5.f, 5.f);
 		else
-			CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 2.f, 2.f);
-
-		CObj::CollideRender(hdc);
+			CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 1.5f, 1.5f);
 	}
+
+	if(g_CollideCheck)
+		CObj::CollideRender(hdc);
 }
 
 void CBloodEffect::Release(void)
@@ -78,7 +79,7 @@ void CBloodEffect::InitImage()
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/blood/8.png", L"BLOOD_EFFECT_8");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/blood/bloodone.png", L"BLOOD_EFFECT_ONE");
 
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/blood/bloodMove_7x1.png", L"BLOOD_EFFECT_MOVE");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/blood/bloodMove_2_7x1.png", L"BLOOD_EFFECT_MOVE");
 
 
 	FRAME TempFrame;
@@ -188,7 +189,7 @@ void CBloodEffect::InitImage()
 	TempFrame.iFrameStart = 0;
 	TempFrame.iFrameEnd = 6;
 	TempFrame.iMotion = 0;
-	TempFrame.dwSpeed = 60;
+	TempFrame.dwSpeed = 100;
 	TempFrame.dwTime = GetTickCount64();
 	TempFrame.iFrameSizeX = 32;
 	TempFrame.iFrameSizeY = 31;

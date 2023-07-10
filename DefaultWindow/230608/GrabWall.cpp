@@ -27,7 +27,8 @@ void CGrabWall::LateUpdate(void)
 
 void CGrabWall::Render(HDC hDC)
 {
-	CObj::CollideRender(hDC);
+	if (g_CollideCheck)
+		CObj::CollideRender(hDC);
 }
 
 void CGrabWall::Release(void)

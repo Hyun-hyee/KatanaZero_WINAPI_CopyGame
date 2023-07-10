@@ -44,13 +44,14 @@ public:
 private:
 	list<CObj*>*	 m_pObjList[OBJ_TYPE_END];
 
-	vector <CObj*>		m_pMementoList[OBJ_TYPE_END];
+	deque <CObj*>		m_pMementoList[OBJ_TYPE_END];
 
-	vector<fPOINT>	 m_CameraList;
-	vector <int>	m_BulletSize;
-	vector <int>	m_ItemSize;
-	vector <int>	m_LaserSize;
-	vector <int>	m_EnemySize;
+	deque <fPOINT>	 m_CameraList;
+	deque  <int>	m_BulletSize;
+	deque  <int>	m_ItemSize;
+	deque  <int>	m_LaserSize;
+	deque  <int>	m_EnemySize;
+	deque  <int>	m_EffectSize;
 	bool			m_EnemyChange;
 
 	bool		m_ReverseOn;
@@ -58,8 +59,10 @@ private:
 public:
 	void		SaveMemento();
 	void		RestoreMemento();
-	bool		GetReverseOn() { return m_ReverseOn; }
+	void		ClearReverse();//리플레이
 
+	bool		GetReverseOn() { return m_ReverseOn; }
+	
 	void		ChangeScene();
 
 };

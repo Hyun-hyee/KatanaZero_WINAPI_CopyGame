@@ -41,7 +41,9 @@ void CFan::LateUpdate(void)
 void CFan::Render(HDC hDC)
 {
 	CObj::FrameRender_OriginSize(hDC);
-	CObj::CollideRender(hDC);
+	
+	if (g_CollideCheck)
+		CObj::CollideRender(hDC);
 }
 
 void CFan::Release(void)

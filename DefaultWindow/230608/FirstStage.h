@@ -14,6 +14,7 @@ public:
 	void		Render(HDC _hDC);
 	void		Release();
 
+	void		ReplayAndNext();
 
 };
 

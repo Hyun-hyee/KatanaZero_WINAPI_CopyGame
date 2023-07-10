@@ -5,7 +5,6 @@
 #include "Struct.h"
 #include "Functor.h"
 
-
 class CScene;
 class CObj;
 
@@ -66,21 +65,28 @@ public:
 
 private:
 	fPOINT _cameraPos = { WINCX, WINCY };
+	/*
+	DWORD  m_TransTime;
+	int	   m_TransPos;
+	bool   m_TransOn;*/
 
 public:
 	void		ToNextScene();
 	void		ToPrevScene();
-
+//	void		Transition();
+	
 private:
 	CScene*		m_PlayScene;
 
 
 private:
 	fPOINT BackSize;
+	bool	m_bClearStage;
 
 public:
 	void Set_BackSize(fPOINT point) { BackSize.x = point.x; BackSize.y = point.y; }
 	fPOINT Get_BackSize() { return BackSize; }
+	bool	GetClearStage() { return m_bClearStage; }
 
 public:
 	void AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom);

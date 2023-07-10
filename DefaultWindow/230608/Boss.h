@@ -60,6 +60,8 @@ private:
 	int				m_Phase;
 	int				m_Life;
 
+	int				m_BossSoundCh;
+
 	typedef void (CBoss ::* pFunction)();
 
 	bool					m_PatternOn;
@@ -98,6 +100,10 @@ public:
 	void			Set_Life(int _life) { m_Life = _life;}
 
 	void			StateChangeEffect();
+	void			StateChangeSound();
+
+	void			BossPlaySound(TCHAR* _name);
+
 
 };
 

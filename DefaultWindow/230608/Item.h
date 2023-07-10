@@ -20,10 +20,11 @@ public:
 	virtual	int	 OnCollision(CObj* _target, DIR _dir)					override;
 
 private:
-	/*
-	bool		 bThrow;
-	ITEM_TYPE	 m_ItemType;
-	*/
+	
+//	bool		 bThrow;
+//	ITEM_TYPE	 m_ItemType;
+	float		m_fRotateAngle;
+
 public:
 	bool		 GetThrow() { return bThrow; }
 	void		 SetThrow(bool _check) { bThrow = _check; SetCollideSize(5.f/2.f);}

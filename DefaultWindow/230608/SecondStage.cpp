@@ -30,9 +30,19 @@ CSecondStage::~CSecondStage()
 void CSecondStage::Initialize()
 {
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2_bg_render.png", L"SecondStage");
+	//CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2_bg_render.png", L"SecondStage");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2_bg_render_gray.png", L"SecondStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_01.png", L"SecondStage1");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_02.png", L"SecondStage2");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_03.png", L"SecondStage3");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_04.png", L"SecondStage4");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_01_slow.png", L"SecondStage1_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_02_slow.png", L"SecondStage2_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_03_slow.png", L"SecondStage3_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_04_slow.png", L"SecondStage4_slow");
+		
 	CSceneManager::Get_Instance()->Set_BackSize({ 4288, 900 });
-	Set_BackGroundKey(L"SecondStage");
+	Set_BackGroundKey(L"SecondStage_gray");
 
 	//라인
 	CLineMgr::Get_Instance()->Add_Line({ -500,788-10}, { 1956,788-10 });
@@ -85,15 +95,16 @@ void CSecondStage::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(3400, 704, 60, 72));
 
 	//BGM
-	CSoundMgr::Get_Instance()->PlayBGM(L"song_killyourtv.ogg", SOUND_VOL1);
+	//CSoundMgr::Get_Instance()->PlayBGM(L"song_killyourtv.ogg", SOUND_VOL1);
 
 	//플레이어 START 위치
-	CObjMgr::Get_Instance()->Get_Player()->Set_Pos(0, 760);
+	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
+	m_pPlayer->Set_Pos(0, 760);
 }
 
 void CSecondStage::Update()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
 
 	CMementoMgr::Get_Instance()->Update();
@@ -101,15 +112,87 @@ void CSecondStage::Update()
 
 void CSecondStage::LateUpdate()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->LateUpdate();
 
 	CMementoMgr::Get_Instance()->LateUpdate();
+	
+	ReplayAndNext();
 }
 
 void CSecondStage::Render(HDC _hDC)
 {
-	BackGroundRender(_hDC);
+	INFO* Pos = m_pPlayer->Get_Info();
+
+	if (!g_ClearReverse)
+	{
+		if (!g_SlowMotion)
+		{
+			if (Pos->fX + WINCX * 0.5f < 2120)
+			{
+				BackGroundRender(_hDC, 0, 0, L"SecondStage1");
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 2120 && Pos->fX + WINCX * 0.5f < 2120 + 300)
+			{
+				BackGroundRender(_hDC, 0, 0, L"SecondStage1");
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 2120 + 300 && Pos->fX + WINCX * 0.5f < 3400)
+			{
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 3400 && Pos->fX + WINCX * 0.5f < 3400 + 300)
+			{
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3");
+				BackGroundRender(_hDC, 1020 + 1100 + 1280, 0, L"SecondStage4");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 3400 + 300)
+			{
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3");
+				BackGroundRender(_hDC, 1020 + 1100 + 1280, 0, L"SecondStage4");
+			}
+		}
+		else
+		{
+
+			if (Pos->fX + WINCX * 0.5f < 2120)
+			{
+				BackGroundRender(_hDC, 0, 0, L"SecondStage1_slow");
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2_slow");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 2120 && Pos->fX + WINCX * 0.5f < 2120 + 300)
+			{
+				BackGroundRender(_hDC, 0, 0, L"SecondStage1_slow");
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2_slow");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3_slow");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 2120 + 300 && Pos->fX + WINCX * 0.5f < 3400)
+			{
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2_slow");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3_slow");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 3400 && Pos->fX + WINCX * 0.5f < 3400 + 300)
+			{
+				BackGroundRender(_hDC, 1020, 0, L"SecondStage2_slow");
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3_slow");
+				BackGroundRender(_hDC, 1020 + 1100 + 1280, 0, L"SecondStage4_slow");
+			}
+			else if (Pos->fX + WINCX * 0.5f >= 3400 + 300)
+			{
+				BackGroundRender(_hDC, 1020 + 1100, 0, L"SecondStage3_slow");
+				BackGroundRender(_hDC, 1020 + 1100 + 1280, 0, L"SecondStage4_slow");
+			}
+		}
+	}
+	else
+		BackGroundRender(_hDC);
+	
+	
+	
 
 	CObjMgr::Get_Instance()->Render(_hDC);
 	CMementoMgr::Get_Instance()->Render(_hDC);
@@ -120,6 +203,19 @@ void CSecondStage::Release()
 {
 }
 
+void CSecondStage::ReplayAndNext()
+{
+	if (CSceneManager::Get_Instance()->GetClearStage() && !m_ReplayOn)
+	{
+		g_ClearReverse = true;
+		m_ReplayOn = true;
+	}
 
+	if (m_ReplayOn && !g_ClearReverse)
+	{
+		CSceneManager::Get_Instance()->ToNextScene();
+		m_ReplayOn = false;
+	}
+}
 
 

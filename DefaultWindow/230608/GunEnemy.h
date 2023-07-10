@@ -49,5 +49,6 @@ public:
 	void			Attack();
 
 	void			StateChangeEffect();
+	void			StateChangeSound();
 };
 

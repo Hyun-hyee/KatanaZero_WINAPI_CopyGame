@@ -18,6 +18,7 @@ CStartMenu::~CStartMenu()
 void CStartMenu::Initialize()
 {
 	//BGM
+	CSoundMgr::Get_Instance()->StopAll();
 	CSoundMgr::Get_Instance()->PlayBGM(L"song_rainonbrick.ogg", SOUND_VOL1);
 
 	//배경 이미지 경로

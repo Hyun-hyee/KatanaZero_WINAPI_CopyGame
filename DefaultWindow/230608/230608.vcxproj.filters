@@ -136,6 +136,12 @@
     <Filter Include="01. Obj\07.Effect\PlayerShadow">
       <UniqueIdentifier>{32dfa959-ca33-4f0a-a5ec-db67a226af0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01. Obj\Transition">
+      <UniqueIdentifier>{9f7ec963-a5e8-4b96-9b85-60a9ac61d591}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01. Obj\LaserObject">
+      <UniqueIdentifier>{b9a799fe-4596-4300-be56-370b6e2d7272}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -279,6 +285,12 @@
     <ClInclude Include="BloodEffect.h">
       <Filter>01. Obj\07.Effect\BloodEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Transition.h">
+      <Filter>01. Obj\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserObject.h">
+      <Filter>01. Obj\LaserObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -397,6 +409,12 @@
     </ClCompile>
     <ClCompile Include="BloodEffect.cpp">
       <Filter>01. Obj\07.Effect\BloodEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Transition.cpp">
+      <Filter>01. Obj\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserObject.cpp">
+      <Filter>01. Obj\LaserObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

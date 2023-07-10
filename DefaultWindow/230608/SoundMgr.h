@@ -35,6 +35,7 @@ public:
 	void PlayBGM(TCHAR* pSoundKey, float fVolume);
 	void StopSound(CHANNELID eID);
 	void StopAll();
+	void StopBGM();
 	void SetChannelVolume(CHANNELID eID, float fVolume);
 
 	FMOD_BOOL IsChannelPlaying(CHANNELID eID);

@@ -39,10 +39,11 @@ void CBossStage::Initialize()
 	m_StartCollide = {500,0, 700, WINCY };
 
 	//플레이어 위치 조정
-	CObjMgr::Get_Instance()->Get_Player()->SetfX(230);
+	CObjMgr::Get_Instance()->Get_Player()->Set_Pos(230,0);
 
 	//배경 이미지 경로
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render.bmp", L"BossScene_2");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render_slow.bmp", L"BossScene_2_slow");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage5_bg_render_blackWhite.png", L"BossScene_2_BlackWhite");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1344, 784 });
 	Set_BackGroundKey(L"BossScene_2");
@@ -57,12 +58,16 @@ void CBossStage::Initialize()
 	//적
 	CObj* BossTemp = CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72);
 	dynamic_cast<CBoss*> (BossTemp)->Set_Phase(2);
+	dynamic_cast<CBoss*> (BossTemp)->Set_Life(6);
 	CObjMgr::Get_Instance()->Add_Object(BOSS, BossTemp);
 
+	//BGM
+	CSoundMgr::Get_Instance()->StopAll();
 }
 
 void CBossStage::Update()
 {
+
 	//특정 위치 들어와야 보스 스테이지 시작 
 	if (!g_BossStart)
 		CheckStart();
@@ -70,13 +75,18 @@ void CBossStage::Update()
 	//배경 흑백 전환
 	if (g_BossDead)
 	{
-		CSoundMgr::Get_Instance()->StopAll();
+		CSoundMgr::Get_Instance()->StopBGM();
 		Set_BackGroundKey(L"BossScene_2_BlackWhite");
 	}
 	else
-		Set_BackGroundKey(L"BossScene_2");
+	{
+		if (!g_SlowMotion)
+			Set_BackGroundKey(L"BossScene_2");
+		else
+			Set_BackGroundKey(L"BossScene_2_slow");
+	}
 		
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
 
 	CMementoMgr::Get_Instance()->Update();
@@ -87,10 +97,11 @@ void CBossStage::Update()
 
 void CBossStage::LateUpdate()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->LateUpdate();
 
 	CMementoMgr::Get_Instance()->LateUpdate();
+
 }
 
 void CBossStage::Render(HDC _hDC)

@@ -49,8 +49,9 @@ void CBossHead::LateUpdate(void)
 void CBossHead::Render(HDC hdc)
 {
 	CObj::FrameRender(hdc);
-
-	CObj::CollideRender(hdc);
+	
+	if (g_CollideCheck)
+		CObj::CollideRender(hdc);
 }
 
 void CBossHead::Release(void)

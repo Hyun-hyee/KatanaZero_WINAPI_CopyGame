@@ -102,6 +102,11 @@ void CSoundMgr::StopAll()
 		FMOD_Channel_Stop(m_pChannelArr[i]);
 }
 
+void CSoundMgr::StopBGM()
+{
+	FMOD_Channel_Stop(m_pChannelArr[SOUND_BGM]);
+}
+
 void CSoundMgr::SetChannelVolume(CHANNELID eID, float fVolume)
 {
 	FMOD_Channel_SetVolume(m_pChannelArr[eID], fVolume);

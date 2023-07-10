@@ -24,9 +24,11 @@ extern bool		g_BossStart;
 extern bool		g_BossDead;
 extern bool		g_BossPhaseOff;
 extern int		g_ReverseOn;
+extern bool		g_CollideCheck;
+extern bool		g_ClearReverse;
 
 #define		SOUND_VOL1	 1.f
-#define		SOUND_VOL2	 0.8f
+#define		SOUND_VOL2	 0.9f
 #define		SOUND_VOL3	 0.6f
 #define		SOUND_VOL4	 0.4f
 

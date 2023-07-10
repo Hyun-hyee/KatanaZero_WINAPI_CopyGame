@@ -65,8 +65,8 @@ void CPlayerEffect::Render(HDC hdc)
 	else
 		CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 1.f, 1.f);
 
-	
-	CObj::CollideRender(hdc);
+
+	//	CObj::CollideRender(hdc);
 }
 
 void CPlayerEffect::Release(void)

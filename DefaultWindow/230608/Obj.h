@@ -96,6 +96,7 @@ protected:
 	void BasicRender(HDC hDC);
 	void FrameRender(HDC hDC);
 	void FrameRender_OriginSize(HDC hDC);
+	void FrameRender_OriginSize(HDC hDC, int _y); //레이저 오브젝트용
 	void RotateRender(HDC hDC, float _angle);
 	void RotateFrameRender(HDC hDC, float _angle, float _resizeX, float _resizeY); 
 	void RotateFrameRender_Vertical(HDC hDC, float _angle, float _resizeX, float _resizeY);
@@ -158,7 +159,8 @@ public:
 public:
 	void SlowMotionUpdate();
 
-	void ConvertToGrayScale(Gdiplus:: Bitmap* bitmap);
+	void ConvertToBlackWhite(Gdiplus:: Bitmap* bitmap);
+	void ConvertToGrayScale(Gdiplus::Bitmap* bitmap);
 	Gdiplus::Bitmap* CloneBitmap(Gdiplus::Bitmap* sourceBitmap);
 
 protected:

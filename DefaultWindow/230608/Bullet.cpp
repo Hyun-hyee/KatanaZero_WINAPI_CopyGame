@@ -50,9 +50,10 @@ void CBullet::LateUpdate(void)
 
 void CBullet::Render(HDC hdc)
 {
-	CollideRender(hdc);
-	//CObj::BasicRender(hdc);
-   	CObj::RotateRender(hdc,180.f - m_fAttackAngle * (180.f / PI));
+	if (g_CollideCheck)
+		CollideRender(hdc);
+	
+	CObj::RotateRender(hdc,180.f - m_fAttackAngle * (180.f / PI));
 }
 
 void CBullet::Release(void)

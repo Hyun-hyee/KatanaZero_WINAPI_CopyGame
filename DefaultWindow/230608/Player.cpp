@@ -113,8 +113,9 @@ void CPlayer::Render(HDC hDC)
 		CObj::FrameRenderToBlackWhite(hDC);
 	else
 		CObj::FrameRender(hDC);
-	
-	CObj::CollideRender(hDC);
+
+	if (g_CollideCheck)
+		CObj::CollideRender(hDC);
 
 	//플레이어만 필요
 	if (EDITMODE)
@@ -1768,9 +1769,13 @@ void CPlayer::PlayerPlaySound(TCHAR* _name)
 		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER2, SOUND_VOL3);
 	else if (m_PlayerSoundCh == 2)
 		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER3, SOUND_VOL3);
+	else if (m_PlayerSoundCh == 3)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER4, SOUND_VOL3);
+	else if (m_PlayerSoundCh == 4)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_PLAYER5, SOUND_VOL3);
 
 	++m_PlayerSoundCh;
-	if (m_PlayerSoundCh == 3)
+	if (m_PlayerSoundCh == 5)
 		m_PlayerSoundCh = 0;
 }
 
@@ -1986,8 +1991,9 @@ void CPlayer::StateChangeEffect()
 			Temp->Set_State(BLOOD_EFFECT_MOVE);
 			Temp->Set_AttackAngle(m_fAttackAngle);
 			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->SetOwner(this);
 			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
 		}
 	}
 }
@@ -1995,10 +2001,12 @@ void CPlayer::StateChangeEffect()
 void CPlayer::ShadowEffect()
 {
 	float Distance;
+
 	if (m_fFrontAngle == 0)
-		Distance = 30.f;
+		Distance = 20.f;
 	else
-		Distance = 5.f;
+		Distance = -20.f;
+
 
 	if (m_State == ATTACK || m_State == JUMP_WALL || m_State == FALL || m_State == ROLL || m_State == RUN)
 	{
@@ -2006,10 +2014,20 @@ void CPlayer::ShadowEffect()
 		{
 			CObj* Temp = CObjFactory<CPlayerShadow>::Create();
 			Temp->Set_State(m_State);
+			Temp->SetOwner(this);
 			Temp->Set_FrontAngle(m_fFrontAngle);
-			Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 20.f);
 			Temp->Set_FrameStart(m_State, m_FrameMap[m_State].iFrameStart);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			if (!g_SlowMotion)
+			{
+				Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 30.f );
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+			else
+			{
+				Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 30.f );
+				CObjMgr::Get_Instance()->Add_Object(EFFECT2, Temp);
+			}
+
 			m_PrevFrame = m_FrameMap[m_State].iFrameStart;
 		}
 	}
@@ -2077,7 +2095,7 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 	{
 		if (dynamic_cast<CFan*>(_target)->GetAttackOn())
 		{
-			if (m_State != HURTFLY && m_State != HURTGROUND) //구를때 무적
+			if (m_State != HURTFLY && m_State != HURTGROUND) 
 			{
 				m_State = HURTFLY;
 				m_fFrontAngle = 0;
@@ -2093,6 +2111,14 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 				PlayerPlaySound(L"playerdie.wav");
 			}
 		}
+	}
+	else if (targetType == LASEROBJECT)
+	{
+		if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL && m_State != JUMP_WALL ) //구를때 무적
+		{
+			m_State = HURTFLY;
+			PlayerPlaySound(L"playerdie.wav");
+		}		
 	}
 	
 

@@ -61,8 +61,12 @@ void CArmEnemy::Render(HDC hDC)
 {
 	CObj::FrameRender(hDC);
 
-	CObj::CollideRender(hDC);
-	CObj::CollideRender(hDC,m_CheckCollide);
+
+	if (g_CollideCheck)
+	{
+		CObj::CollideRender(hDC);
+		CObj::CollideRender(hDC, m_CheckCollide);
+	}
 }
 
 void CArmEnemy::Release(void)
@@ -158,6 +162,15 @@ void CArmEnemy::Attack()
 	}
 }
 
+
+void CArmEnemy::StateChangeSound()
+{
+	if (m_State == HURT)
+		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_blood_squirt_2.wav", SOUND_ARMENEMY, SOUND_VOL3);
+	else if (m_State == ATTACK)
+		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_punch.wav", SOUND_ARMENEMY2, SOUND_VOL4);
+}
+
 void CArmEnemy::StateChangeEffect()
 {
 	if (m_State == HURT)
@@ -190,8 +203,9 @@ void CArmEnemy::StateChangeEffect()
 			Temp->Set_State(BLOOD_EFFECT_MOVE);
 			Temp->Set_AttackAngle(m_fAttackAngle);
 			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->SetOwner(this);
 			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
 		}
 	}
 
@@ -206,7 +220,7 @@ void CArmEnemy::StateUpdate()
 	{
 		m_FrameMap[m_State].iFrameStart = 0;
 		m_FrameMap[m_State].dwTime = GetTickCount64();
-		
+		StateChangeSound();
 		StateChangeEffect();
 		m_PrevState = m_State;
 	}
@@ -529,36 +543,47 @@ int CArmEnemy::InCollision(CObj* _target, DIR _dir)
 {
 	OBJ_TYPE targetType = _target->Get_Type();
 	
-	if (targetType == ITEM)
-	{
-		if (m_State != HURT && m_State != HURTGROUND)
-		{
-			if (dynamic_cast<CItem*> (_target)->GetThrow())
-				m_State = HURT;
-		}
-	}
-	else if (targetType == GRABWALL || targetType == WALL)
+	
+	if (targetType == GRABWALL || targetType == WALL)
 	{
 		m_DirCheck[_dir] = true;
 		if (_dir == TOP)
 			m_fSpeed_Vertical *= (-0.2f);
 	}
-	else if (targetType == BULLET)
+	else if (targetType == BULLET || targetType == ITEM || targetType == LASEROBJECT)
 	{
 		if (m_State != HURT && m_State != HURTGROUND)
 		{
-			if (_target->GetOwner() != this && _target->GetOwner()->Get_Type() != ENEMY)
+			if (targetType == ITEM)
 			{
+				if (dynamic_cast<CItem*> (_target)->GetThrow())
+					m_State = HURT;				
+			}
+			else if (targetType == BULLET)
+			{
+				if (_target->GetOwner() != this && _target->GetOwner()->Get_Type() != ENEMY)
+				{
+					m_State = HURT;					
+					m_BulletHurt = true;
+					_target->Set_State(DEAD);
+					CSoundMgr::Get_Instance()->PlaySound(L"death_bullet.wav", SOUND_EFFECT, SOUND_VOL3);
+				}
+			}
+			else if (targetType == LASEROBJECT)
 				m_State = HURT;
+
+			if (m_State == HURT)
+			{
 				if (_dir == LEFT)
 					m_fFrontAngle = 0;
 				else if (_dir == RIGHT)
 					m_fFrontAngle = PI;
-				m_BulletHurt = true;
-				_target->Set_State(DEAD);
-				CSoundMgr::Get_Instance()->PlaySound(L"death_bullet.wav", SOUND_EFFECT, SOUND_VOL3);
 			}
+
+
 		}
+		
+		
 	}
 	
 	return OBJ_NOEVENT;

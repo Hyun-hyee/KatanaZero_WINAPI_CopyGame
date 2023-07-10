@@ -16,7 +16,7 @@
 #include "MementoMgr.h"
 #include "Fan.h"
 #include "UIMgr.h"
-
+#include "LaserObject.h"
 
 CFirstStage::CFirstStage()
 {
@@ -31,6 +31,8 @@ void CFirstStage::Initialize()
 {
 	//배경 이미지 경로
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg.bmp", L"FirstStage");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg_gray.bmp", L"FirstStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg_slow.bmp", L"FirstStage_slow");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1950, 1400 });
 	Set_BackGroundKey(L"FirstStage");
 
@@ -47,23 +49,23 @@ void CFirstStage::Initialize()
 
 	//오브젝트
 	CObjMgr::Get_Instance()->Add_Object(FAN, CObjFactory<CFan>::CreateRECT(1580, 404, 1620, 548));
-
-
-	//아이템
-	//CObj* Temp = CObjFactory<CItem>::Create(800, 550, 30, 30);
-	//dynamic_cast<CItem*>(Temp)->SetITemType(SWORD);
-	//CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
-
-	//Temp = CObjFactory<CItem>::Create(500, 550, 30, 30);
-	//dynamic_cast<CItem*>(Temp)->SetITemType(OILBOTTLE);
-	//CObjMgr::Get_Instance()->Add_Object(ITEM, Temp);
+	
+	CObj* Temp = CObjFactory<CLaserObject>::Create();
+	Temp->Set_Pos(1127, 618);
+	dynamic_cast<CLaserObject*>(Temp)->SetHeight(445);
+	CObjMgr::Get_Instance()->Add_Object(LASEROBJECT, Temp);
 
 	////적
 	//CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(600, 200, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(680, 750, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CArmEnemy>::Create(880, 750, 60, 72));
+	Temp = CObjFactory<CArmEnemy>::Create(680, 750, 60, 72);
+	Temp->Set_FrontAngle(PI);
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, Temp);
+	Temp = CObjFactory<CArmEnemy>::Create(880, 750, 60, 72);
+	Temp->Set_FrontAngle(PI);
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, Temp);
 
 	//BGM
+	CSoundMgr::Get_Instance()->StopAll();
 	CSoundMgr::Get_Instance()->PlayBGM(L"song_killyourtv.ogg", SOUND_VOL1);
 
 	//플레이어 START 위치
@@ -72,7 +74,17 @@ void CFirstStage::Initialize()
 
 void CFirstStage::Update()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!g_ClearReverse)
+	{
+		if (!g_SlowMotion)
+			Set_BackGroundKey(L"FirstStage");
+		else
+			Set_BackGroundKey(L"FirstStage_slow");
+	}
+	else
+		Set_BackGroundKey(L"FirstStage_gray");
+
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse )
 		CObjMgr::Get_Instance()->Update();
 
 	CMementoMgr::Get_Instance()->Update();
@@ -80,10 +92,11 @@ void CFirstStage::Update()
 
 void CFirstStage::LateUpdate()
 {
-	if (!CMementoMgr::Get_Instance()->GetReverseOn())
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse )
 		CObjMgr::Get_Instance()->LateUpdate();
 
 	CMementoMgr::Get_Instance()->LateUpdate();
+	ReplayAndNext();
 }
 
 void CFirstStage::Render(HDC _hDC)
@@ -97,6 +110,21 @@ void CFirstStage::Render(HDC _hDC)
 
 void CFirstStage::Release()
 {
+}
+
+void CFirstStage::ReplayAndNext()
+{
+	if (CSceneManager::Get_Instance()->GetClearStage()&& !m_ReplayOn)
+	{
+		g_ClearReverse = true;
+		m_ReplayOn = true;
+	}
+
+	if (m_ReplayOn && !g_ClearReverse)
+	{
+		CSceneManager::Get_Instance()->ToNextScene();
+		m_ReplayOn = false;
+	}
 }
 
 

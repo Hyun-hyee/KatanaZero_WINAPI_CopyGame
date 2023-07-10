@@ -17,10 +17,12 @@
 #include "FirstStage.h"
 #include "StartMenu.h"
 #include "SecondStage.h"
+#include "Transition.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
 bool g_SlowMotion = false;
+bool g_CollideCheck = false;
 DWORD g_SlowJumpTime = 0;
 
 CSceneManager::CSceneManager()
@@ -64,6 +66,7 @@ void CSceneManager::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
 	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
 
+	
 	//Scene 생성
 	SceneList.push_back(new CStartMenu);
 	SceneList.back()->Initialize();
@@ -103,8 +106,12 @@ void CSceneManager::Update()
 	if (CKeyMgr::Get_Instance()->Key_Down('9'))
 		ToPrevScene();
 
-	if (CKeyMgr::Get_Instance()->Key_Down('0'))
+	else if (CKeyMgr::Get_Instance()->Key_Down('0'))
 		ToNextScene();
+
+	else if (CKeyMgr::Get_Instance()->Key_Down('C'))
+		g_CollideCheck = !g_CollideCheck;
+
 
 	for (auto iter = SceneList.begin(); iter != SceneList.end(); ++iter)
 	{
@@ -112,8 +119,8 @@ void CSceneManager::Update()
 			(*iter)->Update();
 	}
 
-	if ((m_pPlayer->Get_Info()->fX > BackSize.x + 40 || m_pPlayer->Get_Info()->fY > BackSize.y + 100 ) && !SceneList[0]->Get_SceneOn())
-		ToNextScene();
+	if ((m_pPlayer->Get_Info()->fX > BackSize.x + 40 || m_pPlayer->Get_Info()->fY > BackSize.y + 100) && !SceneList[0]->Get_SceneOn())
+		m_bClearStage = true;
 }
 
 void CSceneManager::LateUpdate()
@@ -134,7 +141,9 @@ void CSceneManager::Render()
 		if ((*iter)->Get_SceneOn())
 			(*iter)->Render(_hdcBack);
 	}
-	CLineMgr::Get_Instance()->Render(_hdcBack);
+
+	if(g_CollideCheck)
+		CLineMgr::Get_Instance()->Render(_hdcBack);
 	
 	// Double Buffering
 	::BitBlt(_hdc, 0, 0, _rect.right, _rect.bottom, _hdcBack, 0, 0, SRCCOPY); // 비트 블릿 : 고속 복사
@@ -151,9 +160,9 @@ void CSceneManager::ToNextScene()
 		CObjMgr::Get_Instance()->Change_Scene();
 		CLineMgr::Get_Instance()->Change_Scene();
 		CMementoMgr::Get_Instance()->ChangeScene();
-		CSoundMgr::Get_Instance()->StopAll();
 		CObjMgr::Get_Instance()->Get_Player()->Initialize();
 
+		m_bClearStage = false;
 		pNextScene->Initialize();
 		m_PlayScene = pNextScene;
 	}
@@ -169,13 +178,39 @@ void CSceneManager::ToPrevScene()
 		CObjMgr::Get_Instance()->Change_Scene();
 		CLineMgr::Get_Instance()->Change_Scene();
 		CMementoMgr::Get_Instance()->ChangeScene();
-		CSoundMgr::Get_Instance()->StopAll();
 		CObjMgr::Get_Instance()->Get_Player()->Initialize();
-		
+
+		m_bClearStage = false;
 		pPrevScene->Initialize();
 		m_PlayScene = pPrevScene;
 	}
 }
+
+//void CSceneManager::Transition() //dksTj tq
+//{
+//	if (m_TransOn)
+//	{
+//		if (m_TransTime + 60 < GetTickCount64())
+//		{
+//			CObj* Temp = CObjFactory<CTransition>::Create();
+//			Temp->Set_Pos(WINCX - 16 * m_TransPos, WINCY * 0.5f);
+//			CObjMgr::Get_Instance()->Add_Object(TRANSITION, Temp);
+//
+//			++m_TransPos;
+//			m_TransTime = GetTickCount64();
+//
+//			if (WINCX - 16 * m_TransPos < 0)
+//				m_TransOn = false;
+//		}
+//	}
+//	else
+//	{
+//		m_TransTime = 0;
+//		m_TransPos = 0;
+//	}
+//}
+
+
 
 void CSceneManager::AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom)
 {

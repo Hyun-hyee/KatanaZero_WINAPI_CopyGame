@@ -47,12 +47,13 @@ void CBoss::Initialize(void)
 	m_Levitation = false;
 
 	m_EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
-
+	
+	m_BossSoundCh = 0;
 	/////////////////////////////
 	//라이프 , 페이즈 임시 설정//
-	m_Life = 4;
-	m_Phase = 2;
-	InitPatternList();
+	//m_Life = 4;
+	//m_Phase = 2;
+	//InitPatternList();
 	/////////////////////////////
 
 
@@ -98,8 +99,9 @@ void CBoss::Render(HDC hDC)
 		CObj::FrameRenderToBlackWhite(hDC);
 	else
 		CObj::FrameRender(hDC);
-
-	CObj::CollideRender(hDC);
+	
+	if (g_CollideCheck)
+		CObj::CollideRender(hDC);
 }
 
 void CBoss::Release(void)
@@ -579,11 +581,80 @@ void CBoss::StateChangeEffect()
 			Temp->Set_State(BLOOD_EFFECT_MOVE);
 			Temp->Set_AttackAngle(m_fAttackAngle);
 			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->SetOwner(this);
 			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
 		}
 	}
 
+}
+
+void CBoss::StateChangeSound()
+{
+	if (m_State == BOSS_NOHEAD)
+		BossPlaySound(L"sound_head_bloodspurt.wav");
+	else if(m_State == BOSS_AIM_STOP || m_State == BOSS_TELEPORT_IN)
+		BossPlaySound(L"sound_boss_huntresslaser_lockon_01.wav");
+	else if (m_State == BOSS_TELEPORT)
+		BossPlaySound(L"sound_boss_huntresslaser_vertical_1.wav");
+	else if (m_State == BOSS_AIM_MOVE)
+		BossPlaySound(L"sound_boss_huntresslaser_swipe_01.wav");
+	else if (m_State == BOSS_HURTRECOVER_FADE)
+	{
+		BossPlaySound(L"sound_voiceboss_huntress_hurt_1.wav");
+		BossPlaySound(L"sound_enemy_blood_squirt_3.wav");
+	}
+	else if (m_State == BOSS_JUMP)
+		BossPlaySound(L"sound_boss_huntress_jump_01.wav");
+	else if (m_State == BOSS_DASH)
+	{
+		BossPlaySound(L"sound_boss_huntress_dash_01.wav");
+		BossPlaySound(L"sound_boss_huntressknife_prep_01.wav");
+	}
+	else if (m_State == BOSS_PREJUMP)
+		BossPlaySound(L"sound_boss_huntressgun_prep_01.wav");
+	else if (m_State == BOSS_DIEFLY)
+	{
+		BossPlaySound(L"sound_enemy_bloodsplat_1.wav");
+		BossPlaySound(L"sound_boss_huntress_vanish_01.wav");
+	}
+	else if (m_State == BOSS_DIEGROUND)
+		BossPlaySound(L"sound_boss_huntress_floorhit_01.wav");
+	else if (m_State == BOSS_WALLJUMP)
+	{
+		BossPlaySound(L"sound_voiceboss_huntress_walljump_1.wav");
+		BossPlaySound(L"sound_boss_huntress_gatling_01.wav");
+	}
+	else if (m_State == BOSS_WALLGRAB)
+		BossPlaySound(L"sound_boss_huntress_wallslam_01.wav");
+	else if (m_State == BOSS_PATTERN_IN )
+		BossPlaySound(L"sound_boss_huntress_appear_3.wav");
+	else if (m_State == BOSS_PATTERN_OUT)
+		BossPlaySound(L"sound_boss_huntress_appear_2.wav");
+
+
+}
+
+void CBoss::BossPlaySound(TCHAR* _name)
+{
+	if (m_BossSoundCh == 0)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS, SOUND_VOL2);
+	else if (m_BossSoundCh == 1)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS2, SOUND_VOL2);
+	else if (m_BossSoundCh == 2)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS3, SOUND_VOL2);
+	else if (m_BossSoundCh == 3)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS4, SOUND_VOL2);
+	else if (m_BossSoundCh == 4)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS5, SOUND_VOL2);
+	else if (m_BossSoundCh == 5)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS6, SOUND_VOL2);
+	else if (m_BossSoundCh == 6)
+		CSoundMgr::Get_Instance()->PlaySound(_name, SOUND_BOSS7, SOUND_VOL2);
+
+	++m_BossSoundCh;
+	if (m_BossSoundCh == 7)
+		m_BossSoundCh = 0;
 }
 
 
@@ -608,6 +679,7 @@ void CBoss::StateUpdate()
 		m_FrameMap[m_State].dwTime = GetTickCount64();
 		
 		StateChangeEffect();
+		StateChangeSound();
 		m_PrevState = m_State;
 	}
 	
@@ -717,21 +789,20 @@ void CBoss::StateUpdate()
 		break;
 
 	case BOSS_DIEFLY : //마지막 날라갈때?
-		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+		if (m_FrameMap[m_State].iFrameStart == m_FrameMap[m_State].iFrameEnd)
 			Set_State(BOSS_DIEGROUND);
-
-		
+				
 			if (m_fFrontAngle == 0)
 			{
 				if (!m_DirCheck[RIGHT])
-					m_tInfo.fX += 0.5f;
+					m_tInfo.fX += 4.f;
 				else
 					Flip_FrontAngle();
 			}
 			else if (m_fFrontAngle == PI)
 			{
 				if (!m_DirCheck[LEFT])
-					m_tInfo.fX -= 0.5f;
+					m_tInfo.fX -= 4.f;
 				else
 					Flip_FrontAngle();
 			}
@@ -786,6 +857,7 @@ void CBoss::StateUpdate()
 		{
 			dynamic_cast<CLaser*>(m_Laser)->SetLaserAttack(true);
 			m_LaserTime = GetTickCount64();
+			BossPlaySound(L"sound_boss_huntresslaser_swipe_01.wav");
 		}
 		break;
 
@@ -820,14 +892,14 @@ void CBoss::StateUpdate()
 		{
 			if (m_fFrontAngle == 0)
 			{
-				if (!m_DirCheck[RIGHT])
+				if (!m_DirCheck[LEFT])
 					m_tInfo.fX -= 5.f;
 				else
 					Flip_FrontAngle();
 			}
 			else if (m_fFrontAngle == PI)
 			{
-				if (!m_DirCheck[LEFT])
+				if (!m_DirCheck[RIGHT])
 					m_tInfo.fX += 5.f;
 				else
 					Flip_FrontAngle();
@@ -1348,6 +1420,7 @@ void CBoss::Pattern_Laser180()
 	m_Levitation = true;
 	Set_Pos(WINCX * 0.5f, 220.f);
 	Set_State(BOSS_SWEEP_FADE);
+	BossPlaySound(L"boss_laser_lockon+swipe.wav");
 }
 
 void CBoss::Pattern_LeftLaser90()
@@ -1358,6 +1431,7 @@ void CBoss::Pattern_LeftLaser90()
 	m_bJump = false;
 	m_Levitation = true;
 	Set_State(BOSS_SWEEP_FADE);
+	BossPlaySound(L"boss_laser_lockon+swipe.wav");
 }
 
 void CBoss::Pattern_RightLaser90()
@@ -1368,6 +1442,7 @@ void CBoss::Pattern_RightLaser90()
 	m_bJump = false;
 	m_Levitation = true;
 	Set_State(BOSS_SWEEP_FADE);
+	BossPlaySound(L"boss_laser_lockon+swipe.wav");
 }
 
 void CBoss::Pattern_LaserBottom_1()

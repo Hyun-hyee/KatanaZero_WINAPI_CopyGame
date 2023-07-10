@@ -33,6 +33,7 @@
 #include <tchar.h>
 #include <string>
 #include <typeinfo>
+#include <deque>
 using namespace std;
 
 #include <ole2.h>
