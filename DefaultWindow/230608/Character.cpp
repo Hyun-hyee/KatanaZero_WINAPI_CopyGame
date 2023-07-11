@@ -3,9 +3,10 @@
 #include "Component.h"
 
 
-CCharacter::CCharacter() : 
-  m_bJump(false), m_fJump_Power(0.f), m_fJump_Angle(0.f)
-, m_iAdditionJump_MaxCount(0), m_iAdditionJump_Count(0)
+CCharacter::CCharacter() :
+	m_bJump(false), m_fJump_Power(0.f), m_fJump_Angle(0.f)
+	, m_iAdditionJump_MaxCount(0), m_iAdditionJump_Count(0), m_TimeStop_HurtCount(1.f)
+	, m_TimeStop_HurtOn(false)
 {
 	for (int i = 0; i < DIR_END; ++i)
 		m_DirCheck[i] = false;

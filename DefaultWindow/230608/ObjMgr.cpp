@@ -40,19 +40,24 @@ void CObjMgr::Update()
 {
 
 	for (int i = 0; i < OBJ_TYPE_END; ++i)
-	{
-		for (int r = 0; r < OBJ_TYPE_END; ++r)\
+	{	
+
+		if (!g_TimeStop || i == PLAYER || i == EFFECT)
+		{
+			for (auto iter = m_ObjList[i].begin(); iter != m_ObjList[i].end(); ++iter)
+			{
+				(*iter)->Update();
+			}
+		}
+		
+
+		for (int r = 0; r < OBJ_TYPE_END; ++r)
 		{
 			for (const auto iter : m_CheckPairMap)
 			{
 				if ((i == iter.first && r == iter.second) || (i == iter.second && r == iter.first))
 					CCollisionMgr::Get_Instance()->Update(m_ObjList[i], m_ObjList[r]);
 			}
-		}
-			
-		for (auto iter = m_ObjList[i].begin(); iter != m_ObjList[i].end(); ++iter)
-		{
-			(*iter)->Update();
 		}
 	}
 }
@@ -61,18 +66,23 @@ void CObjMgr::LateUpdate()
 {
 	for (int i = 0; i < OBJ_TYPE_END; ++i)
 	{
-		for (auto iter = m_ObjList[i].begin(); iter != m_ObjList[i].end();)
-		{
-			(*iter)->LateUpdate();
 
-			if ((*iter)->Get_State() == DEAD)
+		if (!g_TimeStop || i == PLAYER || i == EFFECT)
+		{
+			for (auto iter = m_ObjList[i].begin(); iter != m_ObjList[i].end();)
 			{
-				Safe_Delete<CObj*>(*iter);
-				iter = m_ObjList[i].erase(iter);
+				(*iter)->LateUpdate();
+
+				if ((*iter)->Get_State() == DEAD)
+				{
+					Safe_Delete<CObj*>(*iter);
+					iter = m_ObjList[i].erase(iter);
+				}
+				else
+					++iter;
 			}
-			else
-				++iter;
 		}
+		
 	}
 }
 

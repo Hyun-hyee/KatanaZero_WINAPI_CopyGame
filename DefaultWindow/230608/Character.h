@@ -39,5 +39,13 @@ protected:
 public:
 	//vector<Component*> 
 
+
+protected:
+	float			m_TimeStop_HurtCount;
+	bool			m_TimeStop_HurtOn;
+public:
+	void			TimeStop_HurtCountUP() { m_TimeStop_HurtCount += 0.3f; }
+	void			Set_TimeStop_HurtOn(bool _on) { m_TimeStop_HurtOn = _on; }
+
 };
 

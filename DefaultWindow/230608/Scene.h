@@ -8,6 +8,7 @@ public:
 	{
 		m_bSceneOn = false;
 		m_BackGroundKey = L"";
+		m_BGMkey = L"";
 	};
 	virtual ~CScene() {};
 
@@ -40,6 +41,9 @@ public:
 	void 	BackGroundRender(HDC hDC, int _x, int _y, TCHAR* _BackKey);
 	void	Set_BackGroundKey(TCHAR* _key) { m_BackGroundKey = _key; }
 
-
+protected:
+	TCHAR* m_BGMkey;
+public:
+	void ReplaySceneBGM();
 };
 

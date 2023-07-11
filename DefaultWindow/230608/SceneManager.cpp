@@ -18,6 +18,8 @@
 #include "StartMenu.h"
 #include "SecondStage.h"
 #include "Transition.h"
+#include "PlayerEffect.h"
+#include "ThirdStage.h"
 
 CSceneManager* CSceneManager::m_pInstance = nullptr;
 
@@ -65,8 +67,7 @@ void CSceneManager::Initialize()
 	//某腐磐 积己
 	CObjMgr::Get_Instance()->Add_Object(PLAYER, CObjFactory<CPlayer>::Create());
 	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
-
-	
+		
 	//Scene 积己
 	SceneList.push_back(new CStartMenu);
 	SceneList.back()->Initialize();
@@ -77,6 +78,9 @@ void CSceneManager::Initialize()
 	SceneList.back()->Set_SceneOn(false);
 
 	SceneList.push_back(new CSecondStage);
+	SceneList.back()->Set_SceneOn(false);
+
+	SceneList.push_back(new CThirdStage);
 	SceneList.back()->Set_SceneOn(false);
 
 	SceneList.push_back(new CBossStage_1);
@@ -93,7 +97,10 @@ void CSceneManager::Initialize()
 	SceneList[2]->Set_NextScene(SceneList[3]);
 	SceneList[3]->Set_NextScene(SceneList[4]);
 	SceneList[4]->Set_NextScene(SceneList[5]);
+	SceneList[5]->Set_NextScene(SceneList[6]);
 
+
+	SceneList[6]->Set_PrevScene(SceneList[5]);
 	SceneList[5]->Set_PrevScene(SceneList[4]);
 	SceneList[4]->Set_PrevScene(SceneList[3]);
 	SceneList[3]->Set_PrevScene(SceneList[2]);
@@ -210,6 +217,12 @@ void CSceneManager::ToPrevScene()
 //	}
 //}
 
+
+
+void CSceneManager::ReplayBGM()
+{
+	m_PlayScene->ReplaySceneBGM();
+}
 
 
 void CSceneManager::AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom)

@@ -26,6 +26,7 @@ extern bool		g_BossPhaseOff;
 extern int		g_ReverseOn;
 extern bool		g_CollideCheck;
 extern bool		g_ClearReverse;
+extern bool     g_TimeStop;
 
 #define		SOUND_VOL1	 1.f
 #define		SOUND_VOL2	 0.9f

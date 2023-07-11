@@ -26,7 +26,7 @@ void CStartMenu::Initialize()
 	CSceneManager::Get_Instance()->Set_BackSize({ 1344, 784 });
 	Set_BackGroundKey(L"StartMenu");
 
-	m_BackFrame.AnimKey = L"BOSS_PREJUMP"; //
+	m_BackFrame.AnimKey = L"StartMenu"; //
 	m_BackFrame.iFrameStart = 0;
 	m_BackFrame.iFrameEnd = 11;
 	m_BackFrame.iMotion = 0;

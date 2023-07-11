@@ -171,5 +171,6 @@ protected:
 public :
 	void		Set_FrameStart(OBJSTATE _state, int _frame) { m_FrameMap[_state].iFrameStart = _frame; }
 
+	FRAME*		Get_StateFrame() { return &m_FrameMap[m_State]; }
 };
 

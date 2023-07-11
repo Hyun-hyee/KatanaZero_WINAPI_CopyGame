@@ -21,5 +21,10 @@ public:
 
 public:
 	void CheckRangeOut();
+
+private:
+	CObj*			m_ParringBullet;
+public:
+	void			Set_ParringBullet(CObj* _bullet) { m_ParringBullet = _bullet; }
 };
 

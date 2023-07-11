@@ -28,7 +28,7 @@ void CArmEnemy::Initialize(void)
 	m_State = WALK;
 	m_fSpeed = 1.f;
 	m_fAccel = 0.1f;
-	m_CheckCWidth = 150.f;
+	m_CheckCWidth = 300.f;
 	m_bFollow = false;
 	m_HurtOn = false;
 	m_BulletHurt = false;
@@ -59,6 +59,15 @@ void CArmEnemy::LateUpdate(void)
 
 void CArmEnemy::Render(HDC hDC)
 {
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
+	}
+
 	CObj::FrameRender(hDC);
 
 
@@ -166,7 +175,12 @@ void CArmEnemy::Attack()
 void CArmEnemy::StateChangeSound()
 {
 	if (m_State == HURT)
-		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_blood_squirt_2.wav", SOUND_ARMENEMY, SOUND_VOL3);
+	{
+		if(!m_TimeStop_HurtOn)
+			CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_blood_squirt_2.wav", SOUND_ARMENEMY, SOUND_VOL1 * 3.f);
+		else
+			CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_bloodsplat_3.wav", SOUND_ARMENEMY, SOUND_VOL1 * 3.f);
+	}
 	else if (m_State == ATTACK)
 		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_punch.wav", SOUND_ARMENEMY2, SOUND_VOL4);
 }
@@ -206,6 +220,36 @@ void CArmEnemy::StateChangeEffect()
 			Temp->SetOwner(this);
 			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
 			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
+		}
+		
+		if (m_TimeStop_HurtOn)
+		{
+			for (int i = 0; i < m_TimeStop_HurtCount; ++i)
+			{
+				//BloodEffect
+				{
+					CObj* Temp = CObjFactory<CBloodEffect>::Create();
+					dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+					Temp->Set_AttackAngle(m_fAttackAngle + PI / 10.f * i);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					dynamic_cast<CBloodEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+				}
+
+				//BloodEffect
+				{
+					CObj* Temp = CObjFactory<CBloodEffect>::Create();
+					Temp->Set_State(BLOOD_EFFECT_MOVE);
+					Temp->Set_AttackAngle(m_fAttackAngle + PI / 10.f * i);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					Temp->SetOwner(this);
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
+				}
+
+			}
+
 		}
 	}
 
@@ -385,9 +429,9 @@ void CArmEnemy::StateUpdate()
 				if (!m_DirCheck[LEFT])
 				{
 					if (!m_BulletHurt)
-						m_tInfo.fX += 7.f * cos(m_fAttackAngle);
+						m_tInfo.fX += 7.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 					else
-						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f);
+						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f) * m_TimeStop_HurtCount;
 				}
 
 			}
@@ -396,9 +440,9 @@ void CArmEnemy::StateUpdate()
 				if (!m_DirCheck[RIGHT])
 				{
 					if (!m_BulletHurt)
-						m_tInfo.fX += 7.f * cos(m_fAttackAngle);
+						m_tInfo.fX += 7.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 					else
-						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f);
+						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f) * m_TimeStop_HurtCount;
 				}
 			}
 		}
@@ -420,12 +464,12 @@ void CArmEnemy::StateUpdate()
 			if (m_fFrontAngle == PI)
 			{
 				if (!m_DirCheck[LEFT])
-					m_tInfo.fX += 5.f * cos(m_fAttackAngle);
+					m_tInfo.fX += 5.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 			}
 			else if (m_fFrontAngle == 0)
 			{
 				if (!m_DirCheck[RIGHT])
-					m_tInfo.fX += 5.f * cos(m_fAttackAngle);
+					m_tInfo.fX += 5.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 			}
 		}
 
@@ -440,16 +484,6 @@ void CArmEnemy::StateUpdate()
 		break;
 	}
 
-
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
-	
 }
 
 void CArmEnemy::Jump()
@@ -516,17 +550,20 @@ void CArmEnemy::Jump()
 }
 
 void CArmEnemy::Update_CheckCollide()
-{
+{/*
 	if (m_fFrontAngle == PI)
 	{
 		m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth;
-		m_CheckCollide.right = m_FrontCollide.right +  m_CheckCWidth * 0.8;
+		m_CheckCollide.right = m_FrontCollide.right +  m_CheckCWidth ;
 	}
 	else
 	{
 		m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth;
-		m_CheckCollide.left = m_FrontCollide.left -  m_CheckCWidth * 0.8;
-	}
+		m_CheckCollide.left = m_FrontCollide.left -  m_CheckCWidth;
+	}*/
+	m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth;
+	m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth;
+
 	m_CheckCollide.top = m_FrontCollide.top - 60.f;
 	m_CheckCollide.bottom = m_FrontCollide.bottom;
 }

@@ -17,6 +17,9 @@
 #include "CollisionMgr.h"
 #include "Boss.h"
 #include "UIMgr.h"
+#include "BombEffect.h"
+
+
 
 bool g_BossPhaseOff = false;
 
@@ -35,6 +38,7 @@ void CBossStage_1::Initialize()
 	g_BossPhaseOff = false;
 	m_ExplosionTime = 0;
 	m_ExplosionOn = false;
+	m_ExplosionNum = 1;
 
 	m_StartCollide = { 500,0, 700, WINCY };
 
@@ -67,15 +71,19 @@ void CBossStage_1::Initialize()
 
 	//BGM
 	CSoundMgr::Get_Instance()->StopAll();
+	m_BGMkey = L"song_bossbattle.ogg";
 
 }
 
 void CBossStage_1::Update()
 {
-	if(!g_SlowMotion)
-		Set_BackGroundKey(L"BossScene_1_Default");
-	else
-		Set_BackGroundKey(L"BossScene_1_Default_slow");
+	if (!m_ExplosionOn && !g_TimeStop)
+	{
+		if (!g_SlowMotion)
+			Set_BackGroundKey(L"BossScene_1_Default");
+		else
+			Set_BackGroundKey(L"BossScene_1_Default_slow");
+	}
 
 
 	if (g_BossPhaseOff && !m_ExplosionOn)
@@ -84,11 +92,29 @@ void CBossStage_1::Update()
 		m_ExplosionTime = GetTickCount64();
 	}
 
-	if (m_ExplosionTime != 0 && m_ExplosionTime + 2000 < GetTickCount64())
+	//바닥 폭탄
 	{
-		Set_BackGroundKey(L"BossScene_1_Explosion");
-		CLineMgr::Get_Instance()->Change_Scene();
+		if (m_ExplosionTime != 0 && m_ExplosionTime + 800 + m_ExplosionNum * 100 < GetTickCount64())
+		{
+			CObjMgr::Get_Instance()->Add_Object(EFFECT2, CObjFactory<CBombEffect>::Create(100 * (m_ExplosionNum -1), 520, 50, 50));
+			if(m_ExplosionNum == 10)
+				Set_BackGroundKey(L"BossScene_1_Explosion");
+			
+			if (m_ExplosionNum == 1)
+				CSoundMgr::Get_Instance()->PlaySound(L"explosion_1.wav", SOUND_EXPLOSION, SOUND_VOL2);
+			else if (m_ExplosionNum == 4)
+				CSoundMgr::Get_Instance()->PlaySound(L"explosion_1.wav", SOUND_EXPLOSION2, SOUND_VOL2);
+			else if (m_ExplosionNum == 8)
+				CSoundMgr::Get_Instance()->PlaySound(L"explosion_1.wav", SOUND_EXPLOSION3, SOUND_VOL2);
+			
+			++m_ExplosionNum;
+		}
+		if (m_ExplosionTime != 0 && m_ExplosionTime + 1800 < GetTickCount64())
+		{
+			CLineMgr::Get_Instance()->Change_Scene();
+		}
 	}
+	
 		
 	//특정 위치 들어와야 보스 스테이지 시작 
 	if (!g_BossStart)

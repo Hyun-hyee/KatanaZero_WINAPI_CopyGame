@@ -19,6 +19,8 @@
 #include "PlayerShadow.h"
 #include "BloodEffect.h"
 
+bool	g_TimeStop = false;
+
 CPlayer::CPlayer()
 {
 	////////////////
@@ -59,7 +61,7 @@ void CPlayer::Initialize(void)
 	m_Levitation = false;
 	m_DustEffectOn = false;
 	
-	m_AttackCInfo = { m_tInfo.fX, m_tInfo.fY, 70.f, 70.f };
+	m_AttackCInfo = { m_tInfo.fX, m_tInfo.fY, 100.f, 100.f };
 	m_AttackCDistance = 50.f;
 
 	m_ItemState = ITEM_NONE;
@@ -106,6 +108,15 @@ void CPlayer::LateUpdate(void)
 
 void CPlayer::Render(HDC hDC)
 {
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
+	}
+
 	//모든 캐릭터,스킬에 필요
 	CCharacter::Render(hDC);
 
@@ -402,7 +413,8 @@ void CPlayer::Key_Input(void)
 		}
 	}
 
-	
+	if (CKeyMgr::Get_Instance()->Key_Down('Z'))
+		g_TimeStop = !g_TimeStop;
 
 	/*******************************************************/
 
@@ -938,8 +950,6 @@ void CPlayer::StateUpdate()
 
 	case ATTACK:
 
-		Parring();
-		Attack();
 		
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		{
@@ -1705,14 +1715,6 @@ void CPlayer::StateUpdate()
 		break;
 	}
 
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
 
 	if(m_State != JUMP_WALL && m_State != FALL_WALL)
 		m_fWallSpeed =3.f;
@@ -1849,6 +1851,7 @@ void CPlayer::Attack()
 					else
 						iter->Set_FrontAngle(PI);
 
+
 					CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
 
 					CObj* Temp = CObjFactory<CPlayerEffect>::Create();
@@ -1859,6 +1862,20 @@ void CPlayer::Attack()
 					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
 				}
 
+				if (g_TimeStop)
+				{
+					dynamic_cast<CCharacter*>(iter)->TimeStop_HurtCountUP();
+					dynamic_cast<CCharacter*>(iter)->Set_TimeStop_HurtOn(true);
+					iter->Get_StateFrame()->iFrameStart = 1;
+					CSoundMgr::Get_Instance()->PlaySound(L"death_sword.wav", SOUND_EFFECT, SOUND_VOL3);
+					
+					CObj* Temp = CObjFactory<CPlayerEffect>::Create();
+					Temp->Set_State(PLAYER_EFFECT_HIT);
+					Temp->Set_AttackAngle(m_fAttackAngle);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+				}
 			}
 
 		}
@@ -1892,7 +1909,9 @@ void CPlayer::Parring()
 					TempAngle -= 2.f * PI;
 				Temp->Set_AttackAngle(TempAngle);
 				iter->Set_State(DEAD);
-				CObjMgr::Get_Instance()->Add_Object(BULLET, Temp);
+				
+				dynamic_cast<CBullet*>(iter)->Set_ParringBullet(Temp);
+				//CObjMgr::Get_Instance()->Add_Object(BULLET, Temp);
 				PlayerPlaySound(L"slash_bullet.wav");
 
 				//ReflectEffect
@@ -1923,6 +1942,8 @@ void CPlayer::StateChangeEffect()
 {
 	if (m_State == ATTACK || m_State == ATTACK_WALL)
 	{
+		Parring();
+		Attack();
 		//AttackEffect
 		{
 			CObj* Temp = CObjFactory<CPlayerEffect>::Create();
@@ -2061,7 +2082,7 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 	}
 	else if (targetType == BULLET)
 	{
-		if (_target->GetOwner() != this)
+		if (_target->GetOwner() != this && _target->Get_State() != DEAD)
 		{
 			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL) //구를때 무적
 			{

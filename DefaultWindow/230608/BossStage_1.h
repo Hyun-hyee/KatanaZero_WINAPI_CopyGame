@@ -19,7 +19,7 @@ private:
 	RECT		m_StartCollide;
 	DWORD		m_ExplosionTime;
 	bool		m_ExplosionOn;
-
+	int			m_ExplosionNum;
 public:
 	void		CheckStart();
 };

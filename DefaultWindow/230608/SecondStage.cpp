@@ -95,8 +95,9 @@ void CSecondStage::Initialize()
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(3400, 704, 60, 72));
 
 	//BGM
-	//CSoundMgr::Get_Instance()->PlayBGM(L"song_killyourtv.ogg", SOUND_VOL1);
-
+	CSoundMgr::Get_Instance()->StopAll();
+	CSoundMgr::Get_Instance()->PlayBGM(L"song_nightmare.ogg", SOUND_VOL1);
+	m_BGMkey = L"song_nightmare.ogg";
 	//플레이어 START 위치
 	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
 	m_pPlayer->Set_Pos(0, 760);
@@ -126,7 +127,7 @@ void CSecondStage::Render(HDC _hDC)
 
 	if (!g_ClearReverse)
 	{
-		if (!g_SlowMotion)
+		if (!g_SlowMotion && !g_TimeStop)
 		{
 			if (Pos->fX + WINCX * 0.5f < 2120)
 			{

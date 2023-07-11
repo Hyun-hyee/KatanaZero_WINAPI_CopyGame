@@ -50,5 +50,7 @@ public:
 
 	void			StateChangeEffect();
 	void			StateChangeSound();
+
+
 };
 

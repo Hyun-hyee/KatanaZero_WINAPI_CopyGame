@@ -2,6 +2,7 @@
 #include "Bullet.h"
 #include "BmpMgr.h"
 #include "SceneManager.h"
+#include "ObjMgr.h"
 
 CBullet::CBullet()
 {
@@ -20,6 +21,7 @@ void CBullet::Initialize()
 	m_fSpeed = 20.f;
 	InitImage();
 	m_OneImgKey = L"Bullet_R";
+	m_ParringBullet = nullptr;
 }
 
 void CBullet::Update()
@@ -46,6 +48,8 @@ void CBullet::Update()
 
 void CBullet::LateUpdate(void)
 {
+	if(m_ParringBullet != nullptr)
+		CObjMgr::Get_Instance()->Add_Object(BULLET, m_ParringBullet);
 }
 
 void CBullet::Render(HDC hdc)

@@ -87,7 +87,11 @@ public:
 	void Set_BackSize(fPOINT point) { BackSize.x = point.x; BackSize.y = point.y; }
 	fPOINT Get_BackSize() { return BackSize; }
 	bool	GetClearStage() { return m_bClearStage; }
+	void	SetClearStage(bool _check) { m_bClearStage = _check; }
+	void	ReplayBGM();
 
 public:
 	void AddLineRect(OBJID _walltype, float _left, float _top, float _right, float _bottom);
+	
+
 };

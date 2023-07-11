@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "BmpMgr.h"
 #include "SceneManager.h"
+#include "SoundMgr.h"
 
 void CScene::BackGroundRender(HDC hDC)
 {
@@ -35,6 +36,13 @@ void CScene::BackGroundRender(HDC hDC, int _x, int _y, TCHAR* _BackKey)
 		_x - ((int)cameraPos.x - WINCX / 2), // 복사 받을 위치 X,Y 좌표
 		_y - ((int)cameraPos.y - WINCY / 2)
 	);
+}
+
+void CScene::ReplaySceneBGM()
+{
+	CSoundMgr::Get_Instance()->StopAll();
+	if(m_BGMkey != L"")
+		CSoundMgr::Get_Instance()->PlayBGM(m_BGMkey, SOUND_VOL1);
 }
 
 

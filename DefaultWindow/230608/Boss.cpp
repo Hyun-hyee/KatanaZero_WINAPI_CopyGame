@@ -95,6 +95,15 @@ void CBoss::LateUpdate(void)
 
 void CBoss::Render(HDC hDC)
 {
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
+	}
+
 	if (g_BossDead)
 		CObj::FrameRenderToBlackWhite(hDC);
 	else
@@ -601,8 +610,18 @@ void CBoss::StateChangeSound()
 		BossPlaySound(L"sound_boss_huntresslaser_swipe_01.wav");
 	else if (m_State == BOSS_HURTRECOVER_FADE)
 	{
-		BossPlaySound(L"sound_voiceboss_huntress_hurt_1.wav");
-		BossPlaySound(L"sound_enemy_blood_squirt_3.wav");
+		if (!m_TimeStop_HurtOn)
+		{
+			BossPlaySound(L"sound_voiceboss_huntress_hurt_1.wav");
+			BossPlaySound(L"sound_enemy_blood_squirt_3.wav");
+		}
+		else
+		{
+			BossPlaySound(L"sound_enemy_bloodsplat_3.wav");
+			BossPlaySound(L"sound_voiceboss_huntress_hurt_1.wav");
+			m_TimeStop_HurtOn = false;
+		}
+			
 	}
 	else if (m_State == BOSS_JUMP)
 		BossPlaySound(L"sound_boss_huntress_jump_01.wav");
@@ -1093,14 +1112,6 @@ void CBoss::StateUpdate()
 		
 	}
 
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
 
 }
 

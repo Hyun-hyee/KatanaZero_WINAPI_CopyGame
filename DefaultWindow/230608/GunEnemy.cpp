@@ -11,6 +11,7 @@
 #include "Bullet.h"
 #include "SceneManager.h"
 #include "BloodEffect.h"
+#include "BombEffect.h"
 
 CGunEnemy::CGunEnemy()
 {
@@ -29,7 +30,7 @@ void CGunEnemy::Initialize(void)
 	m_State = WALK;
 	m_fSpeed = 1.f;
 	m_fAccel = 0.1f;
-	m_CheckCWidth = 150.f;
+	m_CheckCWidth = 200.f;
 	m_bFollow = false;
 	m_HurtOn = false;
 	m_WalkTime = GetTickCount64();
@@ -67,6 +68,15 @@ void CGunEnemy::LateUpdate(void)
 
 void CGunEnemy::Render(HDC hDC)
 {
+	if (m_fFrontAngle == 0)
+	{
+		m_FrameMap[m_State].iMotion = 0;
+	}
+	else if (m_fFrontAngle == PI)
+	{
+		m_FrameMap[m_State].iMotion = 1;
+	}
+
 	CObj::FrameRender(hDC);
 
 	if (g_CollideCheck)
@@ -154,7 +164,7 @@ void CGunEnemy::InitImage()
 void CGunEnemy::Attack()
 {
 	CObj* Temp = CObjFactory<CBullet>::Create();
-	Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY - 5.f);
+	Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY - cos(m_fFrontAngle) * 15.f);
 	Temp->Set_FrontAngle(m_fFrontAngle);
 	Temp->Set_AttackAngle(m_fFrontAngle);
 	Temp->SetOwner(this);
@@ -165,7 +175,12 @@ void CGunEnemy::Attack()
 void CGunEnemy::StateChangeSound()
 {
 	if (m_State == HURT)
-		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_blood_squirt_2.wav", SOUND_GUNENEMY, SOUND_VOL3);
+	{
+		if (!m_TimeStop_HurtOn)
+			CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_blood_squirt_2.wav", SOUND_GUNENEMY, SOUND_VOL1 * 3.f);
+		else
+			CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_bloodsplat_3.wav", SOUND_GUNENEMY, SOUND_VOL1 * 3.f);
+	}
 	else if (m_State == ATTACK)
 		CSoundMgr::Get_Instance()->PlaySound(L"sound_enemy_shotgun_reload_01.wav", SOUND_GUNENEMY2, SOUND_VOL3);
 }
@@ -206,7 +221,53 @@ void CGunEnemy::StateChangeEffect()
 			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
 			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
 		}
+
+		if (m_TimeStop_HurtOn)
+		{
+			for (int i = 0; i < m_TimeStop_HurtCount; ++i)
+			{
+				//BloodEffect
+				{
+					CObj* Temp = CObjFactory<CBloodEffect>::Create();
+					dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+					Temp->Set_AttackAngle(m_fAttackAngle + PI/10.f * i);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					dynamic_cast<CBloodEffect*> (Temp)->Set_Distance(50.f * cos(m_fAttackAngle), 50.f * sin(m_fAttackAngle));
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 10.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+				}
+
+				//BloodEffect
+				{
+					CObj* Temp = CObjFactory<CBloodEffect>::Create();
+					Temp->Set_State(BLOOD_EFFECT_MOVE);
+					Temp->Set_AttackAngle(m_fAttackAngle + PI / 10.f * i);
+					Temp->Set_FrontAngle(m_fFrontAngle);
+					Temp->SetOwner(this);
+					Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+					CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
+				}
+
+			}
+			
+		}
 	}
+	if (m_State == ATTACK)
+	{
+		//GUNFIRE
+		{
+			CObj* Temp = CObjFactory<CBombEffect>::Create();
+			Temp->Set_State(GUN_FIRE);
+			Temp->Set_AttackAngle(m_fAttackAngle);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			if(m_fFrontAngle == PI)
+				Temp->Set_Pos(m_tInfo.fX - 80.f, m_tInfo.fY - 45.f);
+			else
+				Temp->Set_Pos(m_tInfo.fX +  10.f, m_tInfo.fY - 45.f);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		}
+	}
+
 
 }
 
@@ -402,9 +463,9 @@ void CGunEnemy::StateUpdate()
 				if (!m_DirCheck[LEFT])
 				{
 					if (!m_BulletHurt)
-						m_tInfo.fX += 7.f * cos(m_fAttackAngle);
+						m_tInfo.fX += 7.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 					else
-						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f);
+						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f) * m_TimeStop_HurtCount;
 				}
 					
 			}
@@ -413,9 +474,9 @@ void CGunEnemy::StateUpdate()
 				if (!m_DirCheck[RIGHT])
 				{
 					if (!m_BulletHurt)
-						m_tInfo.fX += 7.f * cos(m_fAttackAngle);
+						m_tInfo.fX += 7.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 					else
-						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f);
+						m_tInfo.fX += 4.f * cos(m_fFrontAngle + PI / 6.f) * m_TimeStop_HurtCount;
 				}
 			}
 		}
@@ -435,12 +496,12 @@ void CGunEnemy::StateUpdate()
 			if (m_fFrontAngle == PI)
 			{
 				if (!m_DirCheck[LEFT])
-					m_tInfo.fX += 5.f * cos(m_fAttackAngle);
+					m_tInfo.fX += 5.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 			}
 			else if (m_fFrontAngle == 0)
 			{
 				if (!m_DirCheck[RIGHT])
-					m_tInfo.fX += 5.f * cos(m_fAttackAngle);
+					m_tInfo.fX += 5.f * cos(m_fAttackAngle) * m_TimeStop_HurtCount;
 			}
 		}
 
@@ -457,15 +518,7 @@ void CGunEnemy::StateUpdate()
 		break;
 	}
 
-	if (m_fFrontAngle == 0)
-	{
-		m_FrameMap[m_State].iMotion = 0;
-	}
-	else if (m_fFrontAngle == PI)
-	{
-		m_FrameMap[m_State].iMotion = 1;
-	}
-
+	
 }
 
 void CGunEnemy::Jump()
@@ -533,7 +586,7 @@ void CGunEnemy::Jump()
 
 void CGunEnemy::Update_CheckCollide()
 {
-	if (m_fFrontAngle == PI)
+	/*if (m_fFrontAngle == PI)
 	{
 		m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth;
 		m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth * 0.8;
@@ -542,7 +595,10 @@ void CGunEnemy::Update_CheckCollide()
 	{
 		m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth;
 		m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth * 0.8;
-	}
+	}*/
+	m_CheckCollide.right = m_FrontCollide.right + m_CheckCWidth;
+	m_CheckCollide.left = m_FrontCollide.left - m_CheckCWidth;
+
 	m_CheckCollide.top = m_FrontCollide.top - 60.f;
 	m_CheckCollide.bottom = m_FrontCollide.bottom;
 }

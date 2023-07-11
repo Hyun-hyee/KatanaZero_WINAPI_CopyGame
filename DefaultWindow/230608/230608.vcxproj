@@ -163,6 +163,7 @@
     <ClInclude Include="BitMap.h" />
     <ClInclude Include="BloodEffect.h" />
     <ClInclude Include="BmpMgr.h" />
+    <ClInclude Include="BombEffect.h" />
     <ClInclude Include="Boss.h" />
     <ClInclude Include="BossHead.h" />
     <ClInclude Include="BossStage.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="LaserObject.h" />
+    <ClInclude Include="ThirdStage.h" />
     <ClInclude Include="Transition.h" />
     <ClInclude Include="Enum.h" />
     <ClInclude Include="Fan.h" />
@@ -213,6 +215,7 @@
     <ClCompile Include="BitMap.cpp" />
     <ClCompile Include="BloodEffect.cpp" />
     <ClCompile Include="BmpMgr.cpp" />
+    <ClCompile Include="BombEffect.cpp" />
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="BossHead.cpp" />
     <ClCompile Include="BossStage.cpp" />
@@ -222,6 +225,7 @@
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="LaserObject.cpp" />
+    <ClCompile Include="ThirdStage.cpp" />
     <ClCompile Include="Transition.cpp" />
     <ClCompile Include="Fan.cpp" />
     <ClCompile Include="FirstStage.cpp" />

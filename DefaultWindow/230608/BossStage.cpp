@@ -63,6 +63,8 @@ void CBossStage::Initialize()
 
 	//BGM
 	CSoundMgr::Get_Instance()->StopAll();
+
+	m_BGMkey = L"song_monster.ogg";
 }
 
 void CBossStage::Update()
@@ -80,7 +82,7 @@ void CBossStage::Update()
 	}
 	else
 	{
-		if (!g_SlowMotion)
+		if (!g_SlowMotion && !g_TimeStop)
 			Set_BackGroundKey(L"BossScene_2");
 		else
 			Set_BackGroundKey(L"BossScene_2_slow");

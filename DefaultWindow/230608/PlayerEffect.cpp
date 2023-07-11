@@ -33,21 +33,22 @@ void CPlayerEffect::Update()
 
 	CObj::Update_Rect();
 
-	if (m_FrameMap[m_State].iFrameEnd != 0)
-	{
-		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
-			Set_State(DEAD);
-	}
-	else
-	{
-		if (m_EffectTime + 200 < GetTickCount64())
-			Set_State(DEAD);
-		if (m_State == PLAYER_EFFECT_HIT)
+		if (m_FrameMap[m_State].iFrameEnd != 0)
 		{
-			m_tInfo.fX += cos(m_fAttackAngle) * 10.f;
-			m_tInfo.fY -= sin(m_fAttackAngle) * 10.f;
+			if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
+				Set_State(DEAD);
 		}
-	}
+		else
+		{
+			if (m_EffectTime + 200 < GetTickCount64())
+				Set_State(DEAD);
+			if (m_State == PLAYER_EFFECT_HIT)
+			{
+				m_tInfo.fX += cos(m_fAttackAngle) * 10.f;
+				m_tInfo.fY -= sin(m_fAttackAngle) * 10.f;
+			}
+		}
+	
 
 	CObj::Move_Frame();
 }
@@ -58,10 +59,10 @@ void CPlayerEffect::LateUpdate(void)
 
 void CPlayerEffect::Render(HDC hdc)
 {
-	if(m_State == PLAYER_EFFECT_HIT)
-		CObj::RotateFrameRender(hdc, 360.f -  m_fAttackAngle * (180.f / PI),5.f,1.f);
+	if (m_State == PLAYER_EFFECT_HIT)
+		CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 5.f, 1.f);
 	else if (m_State == PLAYER_EFFECT_RUNDUST)
- 		CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 2.f, 2.f);
+		CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 2.f, 2.f);
 	else
 		CObj::RotateFrameRender(hdc, 360.f - m_fAttackAngle * (180.f / PI), 1.f, 1.f);
 
@@ -81,7 +82,7 @@ void CPlayerEffect::InitImage()
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/effect/player_jumpdust_5x1.bmp", L"PLAER_EFFECT_JUMPDUST");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/effect/player_landdust_7x1.png", L"PLAYER_EFFECT_LANDDUST");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/effect/effect_reflect_6x2.bmp", L"PLAYER_EFFECT_REFLECT");
-
+	
 
 	FRAME TempFrame;
 	TempFrame.AnimKey = L"PLAYER_EFFECT_HIT";
@@ -143,7 +144,6 @@ void CPlayerEffect::InitImage()
 	TempFrame.iFrameSizeX = 148;
 	TempFrame.iFrameSizeY = 140;
 	m_FrameMap.insert({ PLAYER_EFFECT_REFLECT, TempFrame });
-
 }
 
 int CPlayerEffect::InCollision(CObj* _target, DIR _dir)

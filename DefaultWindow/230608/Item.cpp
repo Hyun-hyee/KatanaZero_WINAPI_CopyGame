@@ -79,7 +79,7 @@ int CItem::InCollision(CObj* _target, DIR _dir)
 				{
 					if (_target->Get_State() != HURTGROUND)
 					{
-						Set_State(DEAD);
+						//Set_State(DEAD);
 						CSoundMgr::Get_Instance()->PlaySound(L"swordcrash.wav", SOUND_EFFECT, SOUND_VOL3);
 					}
 

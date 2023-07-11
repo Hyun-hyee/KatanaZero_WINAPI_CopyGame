@@ -17,6 +17,7 @@
 #include "Fan.h"
 #include "UIMgr.h"
 #include "LaserObject.h"
+#include "PlayerEffect.h"
 
 CFirstStage::CFirstStage()
 {
@@ -67,16 +68,18 @@ void CFirstStage::Initialize()
 	//BGM
 	CSoundMgr::Get_Instance()->StopAll();
 	CSoundMgr::Get_Instance()->PlayBGM(L"song_killyourtv.ogg", SOUND_VOL1);
+	m_BGMkey = L"song_killyourtv.ogg";
 
 	//플레이어 START 위치
 	CObjMgr::Get_Instance()->Get_Player()->Set_Pos(100, 1200);
+
 }
 
 void CFirstStage::Update()
 {
 	if (!g_ClearReverse)
 	{
-		if (!g_SlowMotion)
+		if (!g_SlowMotion && !g_TimeStop)
 			Set_BackGroundKey(L"FirstStage");
 		else
 			Set_BackGroundKey(L"FirstStage_slow");

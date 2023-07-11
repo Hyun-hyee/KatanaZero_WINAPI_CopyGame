@@ -104,7 +104,6 @@ public:
 
 	void			BossPlaySound(TCHAR* _name);
 
-
 };
 
 

@@ -11,18 +11,18 @@ CTransition::~CTransition()
 }
 
 void CTransition::Initialize()
-{
+{/*
 	m_tInfo.fCX = 32;
 	m_tInfo.fCY = 768;
 	m_State = TRANSITIONSTART;
-	InitImage();
+	InitImage();*/
 }
 
 void CTransition::Update()
-{
+{/*
 	if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 		Set_State(DEAD);
-	CObj::Move_Frame();
+	CObj::Move_Frame();*/
 }
 
 void CTransition::LateUpdate(void)
@@ -41,7 +41,7 @@ void CTransition::Release(void)
 void CTransition::InitImage()
 {
 	//Transtion
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Transition/TransitionALL.png", L"TRANSITIONSTART");
+	/*CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Transition/TransitionALL.png", L"TRANSITIONSTART");
 
 	FRAME Temp;
 	Temp.AnimKey = L"TRANSITIONSTART";
@@ -52,7 +52,7 @@ void CTransition::InitImage()
 	Temp.dwTime = GetTickCount64();
 	Temp.iFrameSizeX = 32;
 	Temp.iFrameSizeY = 768;
-	m_FrameMap.insert({ TRANSITIONSTART, Temp });
+	m_FrameMap.insert({ TRANSITIONSTART, Temp });*/
 }
 
 int CTransition::InCollision(CObj* _target, DIR _dir)

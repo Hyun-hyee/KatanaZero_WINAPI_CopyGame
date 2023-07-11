@@ -17,6 +17,7 @@
 #include "PlayerShadow.h"
 #include "Fan.h"
 #include "LaserObject.h"
+#include "SoundMgr.h"
 
 bool		g_ClearReverse = false;
 
@@ -33,6 +34,7 @@ CMementoMgr::~CMementoMgr()
 {
 	Release();
 }
+
 
 void CMementoMgr::Initialize()
 {
@@ -76,6 +78,13 @@ void CMementoMgr::Release()
 		}
 		m_pMementoList[i].clear();
 	}
+	m_CameraList.clear();
+	m_BulletSize.clear();
+	m_ItemSize.clear();
+	m_LaserSize.clear();
+	m_EnemySize.clear();
+	m_EffectSize.clear();
+
 }
 
 void CMementoMgr::Update()
@@ -94,6 +103,7 @@ void CMementoMgr::Update()
 	}
 }
 
+
 void CMementoMgr::LateUpdate()
 {
 	++m_ReverseSpeed;
@@ -101,7 +111,7 @@ void CMementoMgr::LateUpdate()
 	{
 			SaveMemento();
 	}
-	else if (m_ReverseSpeed == 3)
+	else if (m_ReverseSpeed == 5)
 		m_ReverseSpeed = 0;
 
 	if (m_ReverseOn)
@@ -111,7 +121,14 @@ void CMementoMgr::LateUpdate()
 
 
 	if (CKeyMgr::Get_Instance()->Key_Down('L'))
+	{
 		m_ReverseOn = !m_ReverseOn;
+		if (m_ReverseOn)
+		{
+			CSoundMgr::Get_Instance()->StopAll();
+			CSoundMgr::Get_Instance()->PlaySound(L"Rewind.wav", SOUND_REWIND, SOUND_VOL1);
+		}
+	}
 
 }
 
@@ -365,10 +382,10 @@ void CMementoMgr::RestoreMemento()
 				}
 				if (m_BulletSize.back() != 0)
 				{
-					if (!m_pMementoList[BULLET].empty())
-					{
-						for (int i = 0; i < m_BulletSize.back(); ++i)
-						{					
+					for (int i = 0; i < m_BulletSize.back(); ++i)
+					{					
+						if (!m_pMementoList[BULLET].empty())
+						{
 							m_pObjList[BULLET]->push_back((m_pMementoList[BULLET].back()));
 							m_pMementoList[BULLET].pop_back();
 						}
@@ -390,9 +407,9 @@ void CMementoMgr::RestoreMemento()
 			}
 			if (m_LaserSize.back() != 0)
 			{
-				if (!m_pMementoList[LASER].empty())
+				for (int i = 0; i < m_LaserSize.back(); ++i)
 				{
-					for (int i = 0; i < m_LaserSize.back(); ++i)
+					if (!m_pMementoList[LASER].empty())
 					{
 						m_pObjList[LASER]->push_back((m_pMementoList[LASER].back()));
 						m_pMementoList[LASER].pop_back();
@@ -415,9 +432,9 @@ void CMementoMgr::RestoreMemento()
 				}
 				if (m_ItemSize.back() != 0)
 				{
-					if (!m_pMementoList[ITEM].empty())
+					for (int i = 0; i < m_ItemSize.back(); ++i)
 					{
-						for (int i = 0; i < m_ItemSize.back(); ++i)
+						if (!m_pMementoList[ITEM].empty())
 						{
 							m_pObjList[ITEM]->push_back((m_pMementoList[ITEM].back()));
 							m_pMementoList[ITEM].pop_back();
@@ -439,9 +456,9 @@ void CMementoMgr::RestoreMemento()
 				}
 				if (m_EffectSize.back() != 0)
 				{
-					if (!m_pMementoList[EFFECT].empty())
+					for (int i = 0; i < m_EffectSize.back(); ++i)
 					{
-						for (int i = 0; i < m_EffectSize.back(); ++i)
+						if (!m_pMementoList[EFFECT].empty())
 						{
 							m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].back()));
 							m_pMementoList[EFFECT].pop_back();
@@ -462,7 +479,11 @@ void CMementoMgr::RestoreMemento()
 		
 	}
 	else
+	{
 		m_ReverseOn = false; //플레이어 모든 프레임 카운트 -> 플레이어 끝나면 다끝남
+		Release();
+		CSceneManager::Get_Instance()->ReplayBGM();
+	}
 	
 	
 }
@@ -518,9 +539,13 @@ void CMementoMgr::ClearReverse()
 				{
 					for (int i = 0; i < m_EnemySize.front(); ++i)
 					{
-						m_pObjList[ENEMY]->push_back((m_pMementoList[ENEMY].front()));
-						m_pMementoList[ENEMY].pop_front();
+						if (!m_pMementoList[ENEMY].empty())
+						{
+							m_pObjList[ENEMY]->push_back((m_pMementoList[ENEMY].front()));
+							m_pMementoList[ENEMY].pop_front();
+						}
 					}
+					
 				}
 				m_EnemySize.pop_front();
 			}
@@ -591,8 +616,11 @@ void CMementoMgr::ClearReverse()
 			{
 				for (int i = 0; i < m_BulletSize.front(); ++i)
 				{
-					m_pObjList[BULLET]->push_back((m_pMementoList[BULLET].front()));
-					m_pMementoList[BULLET].pop_front();
+					if (!m_pObjList[BULLET]->empty())
+					{
+						m_pObjList[BULLET]->push_back((m_pMementoList[BULLET].front()));
+						m_pMementoList[BULLET].pop_front();
+					}
 				}
 			}
 			m_BulletSize.pop_front();
@@ -612,8 +640,11 @@ void CMementoMgr::ClearReverse()
 			{
 				for (int i = 0; i < m_LaserSize.front(); ++i)
 				{
-					m_pObjList[LASER]->push_back((m_pMementoList[LASER].front()));
-					m_pMementoList[LASER].pop_front();
+					if (!m_pMementoList[LASER].empty())
+					{
+						m_pObjList[LASER]->push_back((m_pMementoList[LASER].front()));
+						m_pMementoList[LASER].pop_front();
+					}
 				}
 			}
 			m_LaserSize.pop_front();
@@ -634,8 +665,11 @@ void CMementoMgr::ClearReverse()
 			{
 				for (int i = 0; i < m_ItemSize.front(); ++i)
 				{
-					m_pObjList[ITEM]->push_back((m_pMementoList[ITEM].front()));
-					m_pMementoList[ITEM].pop_front();
+					if (!m_pMementoList[ITEM].empty())
+					{
+						m_pObjList[ITEM]->push_back((m_pMementoList[ITEM].front()));
+						m_pMementoList[ITEM].pop_front();
+					}
 				}
 			}
 			m_ItemSize.pop_front();
@@ -652,17 +686,19 @@ void CMementoMgr::ClearReverse()
 				m_pObjList[EFFECT]->clear();
 			}
 			if (m_EffectSize.front() != 0)
-			{
+			{				
 				for (int i = 0; i < m_EffectSize.front(); ++i)
 				{
-					m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].front()));
-					m_pMementoList[EFFECT].pop_front();
+					if (!m_pMementoList[EFFECT].empty())
+					{
+						m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].front()));
+						m_pMementoList[EFFECT].pop_front();
+
+					}
 				}
 			}
 			m_EffectSize.pop_front();
 		}
-
-
 
 		//카메라
 		if (!m_CameraList.empty())
