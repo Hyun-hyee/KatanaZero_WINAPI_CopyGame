@@ -39,6 +39,8 @@ CSceneManager::~CSceneManager()
 
 void CSceneManager::Initialize()
 {
+	m_StopTime = 0;
+
 	ShowCursor(FALSE);
 	srand((unsigned int)time(NULL));
 
@@ -119,6 +121,47 @@ void CSceneManager::Update()
 	else if (CKeyMgr::Get_Instance()->Key_Down('C'))
 		g_CollideCheck = !g_CollideCheck;
 
+	/**********************************************/
+
+
+	if (g_TimeStop)
+	{
+		if (m_StopTime + 2700 < GetTickCount64() && m_StopTime != 0)
+		{
+			switch (g_ColorOverlay)
+			{
+			case MAJENTA1:
+				g_ColorOverlay = MAJENTA2;
+				m_StopTime = GetTickCount64();
+				break;
+			case MAJENTA2:
+				g_ColorOverlay = MAJENTA3;
+				m_StopTime = GetTickCount64();
+				break;
+			case MAJENTA3:
+				g_ColorOverlay = MAJENTA4;
+				m_StopTime = GetTickCount64();
+				break;
+			case MAJENTA4:
+				g_ColorOverlay = MAJENTA5;
+				m_StopTime = GetTickCount64();
+				break;
+			case MAJENTA5:
+				g_ColorOverlay = DEFAULT;
+				g_TimeStop = false;
+				m_StopTime = 0;
+				break;
+
+			}
+		}
+	}
+	else
+	{
+		if(typeid(*m_PlayScene) != typeid(CBossStage))
+			g_ColorOverlay = DEFAULT;
+	}
+	/**********************************************/
+
 
 	for (auto iter = SceneList.begin(); iter != SceneList.end(); ++iter)
 	{
@@ -162,6 +205,7 @@ void CSceneManager::ToNextScene()
 	CScene* pNextScene = m_PlayScene->Get_NextScene();
 	if (pNextScene)
 	{
+		
 		pNextScene->Set_SceneOn(true);
 		m_PlayScene->Set_SceneOn(false);
 		CObjMgr::Get_Instance()->Change_Scene();
@@ -180,6 +224,7 @@ void CSceneManager::ToPrevScene()
 	CScene* pPrevScene = m_PlayScene->Get_PrevScene();
 	if (pPrevScene)
 	{
+		
 		pPrevScene->Set_SceneOn(true);
 		m_PlayScene->Set_SceneOn(false);
 		CObjMgr::Get_Instance()->Change_Scene();

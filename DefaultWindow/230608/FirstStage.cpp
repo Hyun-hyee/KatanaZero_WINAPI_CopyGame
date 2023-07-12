@@ -31,9 +31,9 @@ CFirstStage::~CFirstStage()
 void CFirstStage::Initialize()
 {
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg.bmp", L"FirstStage");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg_gray.bmp", L"FirstStage_gray");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Stage2bg_slow.bmp", L"FirstStage_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/Texture/Stage2bg.bmp", L"FirstStage");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/Texture/Stage2bg_gray.bmp", L"FirstStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/Texture/Stage2bg_slow.bmp", L"FirstStage_slow");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1950, 1400 });
 	Set_BackGroundKey(L"FirstStage");
 

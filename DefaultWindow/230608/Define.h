@@ -27,6 +27,7 @@ extern int		g_ReverseOn;
 extern bool		g_CollideCheck;
 extern bool		g_ClearReverse;
 extern bool     g_TimeStop;
+extern bool     g_FourRender;
 
 #define		SOUND_VOL1	 1.f
 #define		SOUND_VOL2	 0.9f
@@ -34,4 +35,38 @@ extern bool     g_TimeStop;
 #define		SOUND_VOL4	 0.4f
 
 
+enum COLOR
+{
+	DEFAULT,
+	RED,
+	GREEN,
+	BLUE,
+	YELLOW,
+	MAJENTA,
+	MAJENTA1,
+	MAJENTA2,
+	MAJENTA3,
+	MAJENTA4,
+	MAJENTA5,
+	GRAY,
+	COLOR_END
+};
 
+static TCHAR* COLORKEY[COLOR_END]
+{
+	L"",
+	L"_R",
+	L"_G",
+	L"_B",
+	L"_Y",
+	L"_M",
+	L"_M1",
+	L"_M2",
+	L"_M3",
+	L"_M4",
+	L"_M5",
+	L"_M1",
+};
+
+
+extern COLOR	g_ColorOverlay;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+class CObj;
 
 class CBossStage :
     public CScene
@@ -20,6 +21,11 @@ private:
 
 public:
 	void		CheckStart();
+
+private:
+	DWORD		m_RGBTime;
+	CObj*		m_Boss;
+	bool		m_RGBTimeStart;
 
 };
 

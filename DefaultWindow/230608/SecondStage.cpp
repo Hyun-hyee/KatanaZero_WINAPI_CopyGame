@@ -31,15 +31,15 @@ void CSecondStage::Initialize()
 {
 	//배경 이미지 경로
 	//CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2_bg_render.png", L"SecondStage");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2_bg_render_gray.png", L"SecondStage_gray");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_01.bmp", L"SecondStage1");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_02.bmp", L"SecondStage2");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_03.bmp", L"SecondStage3");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_04.bmp", L"SecondStage4");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_01_slow.bmp", L"SecondStage1_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_02_slow.bmp", L"SecondStage2_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_03_slow.bmp", L"SecondStage3_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage2/stage2_bg_render_04_slow.bmp", L"SecondStage4_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2_bg_render_gray.png", L"SecondStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_01.bmp", L"SecondStage1");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_02.bmp", L"SecondStage2");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_03.bmp", L"SecondStage3");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_04.bmp", L"SecondStage4");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_01_slow.bmp", L"SecondStage1_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_02_slow.bmp", L"SecondStage2_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_03_slow.bmp", L"SecondStage3_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage2/stage2_bg_render_04_slow.bmp", L"SecondStage4_slow");
 		
 	CSceneManager::Get_Instance()->Set_BackSize({ 4288, 900 });
 	Set_BackGroundKey(L"SecondStage_gray");

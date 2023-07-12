@@ -22,7 +22,7 @@ void CStartMenu::Initialize()
 	CSoundMgr::Get_Instance()->PlayBGM(L"song_rainonbrick.ogg", SOUND_VOL1);
 
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/Texture/Title/TitleFrameAll_resize.png", L"StartMenu");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/Texture/Title/TitleFrameAll_resize.png", L"StartMenu");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1344, 784 });
 	Set_BackGroundKey(L"StartMenu");
 
@@ -63,7 +63,7 @@ void CStartMenu::Release()
 void CStartMenu::FrameRender(HDC hDC)
 {
 	// 사용할 CBitmap
-	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_BackGroundKey);
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap_Background(m_BackGroundKey);
 	Gdiplus::Bitmap* pImage = pBitMap->Get_Image();
 
 	//카메라 위치(디폴트 -> 플레이어)

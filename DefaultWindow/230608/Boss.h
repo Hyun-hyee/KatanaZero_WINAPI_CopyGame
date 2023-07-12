@@ -98,7 +98,7 @@ public:
 	int				Get_Phase() { return m_Phase; }
 
 	void			Set_Life(int _life) { m_Life = _life;}
-
+	int				Get_Life() { return m_Life; }
 	void			StateChangeEffect();
 	void			StateChangeSound();
 

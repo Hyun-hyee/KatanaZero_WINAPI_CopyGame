@@ -39,6 +39,7 @@ public:
 
 	void	BackGroundRender(HDC hDC);
 	void 	BackGroundRender(HDC hDC, int _x, int _y, TCHAR* _BackKey);
+
 	void	Set_BackGroundKey(TCHAR* _key) { m_BackGroundKey = _key; }
 
 protected:

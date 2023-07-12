@@ -94,16 +94,20 @@ protected:
 	void RatioFixByImage(const TCHAR* _tcAnimKey);
 
 	void BasicRender(HDC hDC);
-	void FrameRender(HDC hDC);
 	void FrameRender_OriginSize(HDC hDC);
 	void FrameRender_OriginSize(HDC hDC, int _y); //레이저 오브젝트용
-	void RotateRender(HDC hDC, float _angle);
 	void RotateFrameRender(HDC hDC, float _angle, float _resizeX, float _resizeY); 
-	void RotateFrameRender_Vertical(HDC hDC, float _angle, float _resizeX, float _resizeY);
 	void CollideRender(HDC hDC);
 	void CollideRender(HDC hDC, RECT _collide);
 	void FrameRenderToBlackWhite(HDC hDC);
+
+
+	void FrameRender(HDC hDC);//
+	void RotateRender(HDC hDC, float _angle); //
+	void RotateFrameRender_Vertical(HDC hDC, float _angle, float _resizeX, float _resizeY);//
 	
+	
+
 	void Move_Frame();
 
 

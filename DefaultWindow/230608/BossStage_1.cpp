@@ -47,9 +47,9 @@ void CBossStage_1::Initialize()
 	CObjMgr::Get_Instance()->Get_Player()->SetfX(230);
 
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render.png", L"BossScene_1_Default");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render_slow.png", L"BossScene_1_Default_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/stage4_bg_render_explosion.png", L"BossScene_1_Explosion");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage4_bg_render.png", L"BossScene_1_Default");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage4_bg_render_slow.png", L"BossScene_1_Default_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/stage4_bg_render_explosion.png", L"BossScene_1_Explosion");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1344, 784 });
 	Set_BackGroundKey(L"BossScene_1_Default");
 
@@ -66,7 +66,7 @@ void CBossStage_1::Initialize()
 	//적
 	CObj* BossTemp = CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72);
 	dynamic_cast<CBoss*> (BossTemp)->Set_Phase(1);
-	dynamic_cast<CBoss*> (BossTemp)->Set_Life(2); //****************라이프 임시***************//
+	dynamic_cast<CBoss*> (BossTemp)->Set_Life(3); //****************라이프 임시***************//
 	CObjMgr::Get_Instance()->Add_Object(BOSS, BossTemp);
 
 	//BGM

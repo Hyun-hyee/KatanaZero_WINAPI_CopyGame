@@ -32,9 +32,10 @@ CThirdStage::~CThirdStage()
 void CThirdStage::Initialize()
 {
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3.bmp", L"ThirdStage");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_slow.bmp", L"ThirdStage_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_gray.bmp", L"ThirdStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/Stage3/Stage3_red.bmp", L"ThirdStage");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/Stage3/Stage3_slow_red.bmp", L"ThirdStage_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/Stage3/Stage3_gray.bmp", L"ThirdStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp_Background(L"../Resource/images/Stage3/Stage3_clear.bmp", L"ThirdStage_clear");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1600, 784 });
 	Set_BackGroundKey(L"ThirdStage");
 
@@ -102,11 +103,7 @@ void CThirdStage::Initialize()
 
 void CThirdStage::Update()
 {
-	if (CheckClear())
-	{
-		if(CKeyMgr::Get_Instance()->Key_Pressing('W'))
-				CSceneManager::Get_Instance()->SetClearStage(true);
-	}
+	
 
 	if (!g_ClearReverse)
 	{
@@ -114,9 +111,18 @@ void CThirdStage::Update()
 			Set_BackGroundKey(L"ThirdStage");
 		else
 			Set_BackGroundKey(L"ThirdStage_slow");
+
+		if (CheckClear())
+		{
+			Set_BackGroundKey(L"ThirdStage_clear");
+			if (CKeyMgr::Get_Instance()->Key_Pressing('W'))
+				CSceneManager::Get_Instance()->SetClearStage(true);
+		}
 	}
 	else
 		Set_BackGroundKey(L"ThirdStage_gray");
+
+	
 
 	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();

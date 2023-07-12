@@ -340,9 +340,9 @@ void CObj::BasicRender(HDC hDC)
 
 void CObj::FrameRender(HDC hDC)
 {
-	TCHAR* temp = CBmpMgr::Get_Instance()->Add_TCHAR_wstring(m_FrameMap[m_State].AnimKey, L"_R");
+	//TCHAR* temp = CBmpMgr::Get_Instance()->Add_TCHAR_wstring(m_FrameMap[m_State].AnimKey, L"_M1");
 	// 사용할 CBitmap
-	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(temp);
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_FrameMap[m_State].AnimKey);
 	Gdiplus::Bitmap* pImage;
 	if (!g_ClearReverse)
 	{
@@ -402,8 +402,6 @@ void CObj::FrameRender(HDC hDC)
 		delete pImage;
 		pImage = nullptr;
 	}
-	delete temp;
-	temp = nullptr;
 }
 
 void CObj::FrameRender_OriginSize(HDC hDC)
@@ -638,6 +636,7 @@ void CObj::RotateFrameRender_Vertical(HDC hDC, float _angle, float _resizeX, flo
 		pImage = nullptr;
 	}
 }
+
 
 //중심 기준
 void CObj::RotateFrameRender (HDC hDC, float _angle, float _resizeX, float _resizeY)

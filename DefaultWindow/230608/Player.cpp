@@ -414,7 +414,11 @@ void CPlayer::Key_Input(void)
 	}
 
 	if (CKeyMgr::Get_Instance()->Key_Down('Z'))
+	{
+		CSceneManager::Get_Instance()->StartStopTime();
 		g_TimeStop = !g_TimeStop;
+		g_ColorOverlay = MAJENTA1;
+	}
 
 	/*******************************************************/
 

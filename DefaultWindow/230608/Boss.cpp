@@ -1340,7 +1340,7 @@ void CBoss::PatternChange()
 						m_Laser = nullptr;
 					}
 
-					if (m_Life == 2 && m_Phase == 2)
+					if (m_Life == 4 && m_Phase == 2)
 					{
 						m_PatternList.clear();
 						m_PatternIndex = 0;
@@ -1375,6 +1375,7 @@ void CBoss::PatternChange()
 						m_PatternList.push_back(&CBoss::Pattern_Dash);
 						m_PatternList.push_back(&CBoss::Pattern_Move_RightBottom);
 						m_PatternList.push_back(&CBoss::Pattern_Dash);
+
 					}
 
 				}

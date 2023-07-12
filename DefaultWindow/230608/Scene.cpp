@@ -38,6 +38,9 @@ void CScene::BackGroundRender(HDC hDC, int _x, int _y, TCHAR* _BackKey)
 	);
 }
 
+
+
+
 void CScene::ReplaySceneBGM()
 {
 	CSoundMgr::Get_Instance()->StopAll();
