@@ -41,5 +41,15 @@ private:
 	static CBmpMgr* m_pInstance;
 	map<const TCHAR*, CBitMap*>			m_mapBit;
 
+public:
+	TCHAR* Add_TCHAR_wstring(TCHAR* _tc, wstring _ws);
+
+
+	void ConvertToBlueOverlay(Gdiplus::Bitmap* bitmap);
+	Gdiplus::Bitmap* CloneBitmap(Gdiplus::Bitmap* sourceBitmap);
+	void RGBToHSV(BYTE r, BYTE g, BYTE b, float& h, float& s, float& v);
+	void HSVToRGB(float h, float s, float v, BYTE& r, BYTE& g, BYTE& b);
+
+
 };
 

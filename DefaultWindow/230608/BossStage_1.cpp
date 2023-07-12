@@ -66,7 +66,7 @@ void CBossStage_1::Initialize()
 	//적
 	CObj* BossTemp = CObjFactory<CBoss>::Create(WINCX - 300, 560, 60, 72);
 	dynamic_cast<CBoss*> (BossTemp)->Set_Phase(1);
-	dynamic_cast<CBoss*> (BossTemp)->Set_Life(3);
+	dynamic_cast<CBoss*> (BossTemp)->Set_Life(2); //****************라이프 임시***************//
 	CObjMgr::Get_Instance()->Add_Object(BOSS, BossTemp);
 
 	//BGM

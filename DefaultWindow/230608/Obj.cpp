@@ -340,8 +340,9 @@ void CObj::BasicRender(HDC hDC)
 
 void CObj::FrameRender(HDC hDC)
 {
+	TCHAR* temp = CBmpMgr::Get_Instance()->Add_TCHAR_wstring(m_FrameMap[m_State].AnimKey, L"_R");
 	// 사용할 CBitmap
-	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(m_FrameMap[m_State].AnimKey);
+	CBitMap* pBitMap = CBmpMgr::Get_Instance()->Find_CBitMap(temp);
 	Gdiplus::Bitmap* pImage;
 	if (!g_ClearReverse)
 	{
@@ -359,6 +360,7 @@ void CObj::FrameRender(HDC hDC)
 
 	// 캔버스
 	Gdiplus::Graphics g(hDC);
+	
 
 	Gdiplus::ImageAttributes attr;
 	//attr.SetColorKey(Gdiplus::Color(255, 0, 255), Gdiplus::Color(255, 0, 255),
@@ -400,6 +402,8 @@ void CObj::FrameRender(HDC hDC)
 		delete pImage;
 		pImage = nullptr;
 	}
+	delete temp;
+	temp = nullptr;
 }
 
 void CObj::FrameRender_OriginSize(HDC hDC)
@@ -824,6 +828,49 @@ void CObj::ConvertToGrayScale(Gdiplus::Bitmap* bitmap)
 	bitmap->UnlockBits(&bitmapData);
 }
 
+void CObj::ConvertToBlueOverlay(Gdiplus::Bitmap* bitmap)
+{
+	// 이미지 크기 얻기
+	int width = bitmap->GetWidth();
+	int height = bitmap->GetHeight();
+
+	// 비트맵 데이터 가져오기
+	Gdiplus::BitmapData bmpData;
+	bitmap->LockBits(&Gdiplus::Rect(0, 0, width, height), Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bmpData);
+	BYTE* pixelData = reinterpret_cast<BYTE*>(bmpData.Scan0);
+
+	// 픽셀 데이터 순회
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			BYTE* pixel = pixelData + (y * bmpData.Stride) + (x * 4);
+
+			// RGB 값을 HSV로 변환
+			float h, s, v;
+			RGBToHSV(pixel[2], pixel[1], pixel[0], h, s, v);
+
+			// 파란색에 해당하는 Hue 값으로 설정
+			//h = 240.0f;
+			h = 340.0f;
+
+			// HSV 값을 RGB로 변환하여 적용
+			BYTE r, g, b;
+			HSVToRGB(h, s, v, r, g, b);
+			pixel[0] = b;
+			pixel[1] = g;
+			pixel[2] = r;
+		}
+	}
+
+	// 비트맵 잠금 해제
+	bitmap->UnlockBits(&bmpData);
+
+
+
+
+}
+
 
 Gdiplus::Bitmap* CObj::CloneBitmap(Gdiplus::Bitmap* sourceBitmap)
 {
@@ -831,4 +878,81 @@ Gdiplus::Bitmap* CObj::CloneBitmap(Gdiplus::Bitmap* sourceBitmap)
 	Gdiplus::Bitmap* clonedBitmap = sourceBitmap->Clone(0, 0, sourceBitmap->GetWidth(), sourceBitmap->GetHeight(), sourceBitmap->GetPixelFormat());
 
 	return clonedBitmap;
+}
+
+
+void CObj::RGBToHSV(BYTE r, BYTE g, BYTE b, float& h, float& s, float& v)
+{
+	float minVal = min(min(r, g), b);
+	float maxVal = max(max(r, g), b);
+	float delta = maxVal - minVal;
+
+	// Hue 계산
+	if (delta == 0)
+		h = 0;
+	else if (maxVal == r)
+		h = 60 * ((g - b) / (int)delta % 6);
+	else if (maxVal == g)
+		h = 60 * ((b - r) / delta + 2);
+	else if (maxVal == b)
+		h = 60 * ((r - g) / delta + 4);
+
+	// Saturation 계산
+	if (maxVal == 0)
+		s = 0;
+	else
+		s = delta / maxVal;
+
+	// Value 계산
+	v = maxVal;
+}
+
+void CObj::HSVToRGB(float h, float s, float v, BYTE& r, BYTE& g, BYTE& b)
+{
+	if (s == 0)
+	{
+		r = g = b = static_cast<BYTE>(v);
+		return;
+	}
+
+	float hue = h / 60;
+	int i = static_cast<int>(hue);
+	float f = hue - i;
+	float p = v * (1 - s);
+	float q = v * (1 - s * f);
+	float t = v * (1 - s * (1 - f));
+
+	switch (i)
+	{
+	case 0:
+		r = static_cast<BYTE>(v);
+		g = static_cast<BYTE>(t);
+		b = static_cast<BYTE>(p);
+		break;
+	case 1:
+		r = static_cast<BYTE>(q);
+		g = static_cast<BYTE>(v);
+		b = static_cast<BYTE>(p);
+		break;
+	case 2:
+		r = static_cast<BYTE>(p);
+		g = static_cast<BYTE>(v);
+		b = static_cast<BYTE>(t);
+		break;
+	case 3:
+		r = static_cast<BYTE>(p);
+		g = static_cast<BYTE>(q);
+		b = static_cast<BYTE>(v);
+		break;
+	case 4:
+		r = static_cast<BYTE>(t);
+		g = static_cast<BYTE>(p);
+		b = static_cast<BYTE>(v);
+		break;
+	default:
+		r = static_cast<BYTE>(v);
+		g = static_cast<BYTE>(p);
+		b = static_cast<BYTE>(q);
+		break;
+	}
 }

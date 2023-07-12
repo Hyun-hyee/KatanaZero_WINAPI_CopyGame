@@ -32,9 +32,9 @@ CThirdStage::~CThirdStage()
 void CThirdStage::Initialize()
 {
 	//배경 이미지 경로
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3.png", L"ThirdStage");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_slow.png", L"ThirdStage_slow");
-	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_gray.png", L"ThirdStage_gray");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3.bmp", L"ThirdStage");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_slow.bmp", L"ThirdStage_slow");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/Stage3/Stage3_gray.bmp", L"ThirdStage_gray");
 	CSceneManager::Get_Instance()->Set_BackSize({ 1600, 784 });
 	Set_BackGroundKey(L"ThirdStage");
 

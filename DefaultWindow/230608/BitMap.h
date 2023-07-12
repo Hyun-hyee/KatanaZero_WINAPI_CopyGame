@@ -11,6 +11,7 @@ public:
 	HDC			Get_MemDC() { return m_hMemDC; }
 	
 	void		Load_Bmp(const TCHAR* pFilePath);
+	void		Load_Bmp(Gdiplus::Bitmap* _bitmap);
 	void		Release();
 
 private:

@@ -161,6 +161,7 @@ public:
 
 	void ConvertToBlackWhite(Gdiplus:: Bitmap* bitmap);
 	void ConvertToGrayScale(Gdiplus::Bitmap* bitmap);
+	void ConvertToBlueOverlay(Gdiplus::Bitmap* bitmap);
 	Gdiplus::Bitmap* CloneBitmap(Gdiplus::Bitmap* sourceBitmap);
 
 protected:
@@ -172,5 +173,8 @@ public :
 	void		Set_FrameStart(OBJSTATE _state, int _frame) { m_FrameMap[_state].iFrameStart = _frame; }
 
 	FRAME*		Get_StateFrame() { return &m_FrameMap[m_State]; }
+
+	void RGBToHSV(BYTE r, BYTE g, BYTE b, float& h, float& s, float& v);
+	void HSVToRGB(float h, float s, float v, BYTE& r, BYTE& g, BYTE& b);
 };
 
