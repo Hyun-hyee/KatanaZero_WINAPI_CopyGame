@@ -18,6 +18,7 @@
 #include "Fan.h"
 #include "LaserObject.h"
 #include "SoundMgr.h"
+#include "BombEffect.h"
 
 bool		g_ClearReverse = false;
 
@@ -254,6 +255,14 @@ void CMementoMgr::SaveMemento()
 				*pTempBE = *(dynamic_cast<CBloodEffect*> (iter));
 				m_pMementoList[EFFECT].push_back(pTempBE);
 			}
+			else if (typeid(*iter) == typeid(CBombEffect))
+			{
+				CBombEffect* pTempBM = new CBombEffect;
+				*pTempBM = *(dynamic_cast<CBombEffect*> (iter));
+				m_pMementoList[EFFECT].push_back(pTempBM);
+			}
+			else
+				m_pMementoList[EFFECT].push_back(nullptr);
 		}
 	}
 	
@@ -460,7 +469,8 @@ void CMementoMgr::RestoreMemento()
 					{
 						if (!m_pMementoList[EFFECT].empty())
 						{
-							m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].back()));
+							if ((m_pMementoList[EFFECT].back()) != nullptr)
+								m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].back()));
 							m_pMementoList[EFFECT].pop_back();
 						}
 					}
@@ -691,13 +701,14 @@ void CMementoMgr::ClearReverse()
 				{
 					if (!m_pMementoList[EFFECT].empty())
 					{
-						m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].front()));
+						if((m_pMementoList[EFFECT].front()) != nullptr)
+							m_pObjList[EFFECT]->push_back((m_pMementoList[EFFECT].front()));
 						m_pMementoList[EFFECT].pop_front();
-
 					}
 				}
 			}
 			m_EffectSize.pop_front();
+			
 		}
 
 		//카메라
@@ -709,8 +720,11 @@ void CMementoMgr::ClearReverse()
 
 	}
 	else
+	{
 		g_ClearReverse = false; //플레이어 모든 프레임 카운트 -> 플레이어 끝나면 다끝남
-
+		Release();
+	}
+	
 }
 
 void CMementoMgr::ChangeScene()

@@ -15,6 +15,7 @@
 #include "ArmEnemy.h"
 #include "BossHead.h"
 #include "BloodEffect.h"
+#include "PlayerShadow.h"
 
 CBoss::CBoss()
 {
@@ -76,7 +77,8 @@ void CBoss::Update(void)
 		m_SlowTime = 0;
 		m_fSpeed = 12.f;
 	}
-		
+
+	ShadowEffect();
 	Jump();
 	//RECT,Collide,FrontCollide 업데이트
 	__super::Update_Rect();
@@ -559,6 +561,46 @@ void CBoss::LaserAttack(LASERTYPE _type, float _x, float _y)
 
 }
 
+void CBoss::ShadowEffect()
+{
+	float Distance;
+
+	if (m_fFrontAngle == 0)
+		Distance = 20.f;
+	else
+		Distance = -20.f;
+
+
+	if (m_State == BOSS_WALLJUMP || m_State == BOSS_JUMP || m_State == BOSS_DASH)
+	{
+		if (m_PrevFrame2 != m_FrameMap[m_State].iFrameStart)
+		{
+			CObj* Temp = CObjFactory<CPlayerShadow>::Create();
+			Temp->Set_State(m_State);
+			Temp->SetOwner(this);
+			Temp->Set_FrontAngle(m_fFrontAngle);
+			Temp->Set_FrameStart(m_State, m_FrameMap[m_State].iFrameStart);
+			if (!g_SlowMotion)
+			{
+				Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 30.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			}
+			else
+			{
+				Temp->Set_Pos(m_tInfo.fX - cos(m_fFrontAngle) * Distance, m_tInfo.fY - 30.f);
+				CObjMgr::Get_Instance()->Add_Object(EFFECT2, Temp);
+			}
+
+			m_PrevFrame2 = m_FrameMap[m_State].iFrameStart;
+			if (m_State == BOSS_JUMP || m_State == BOSS_DASH)
+				m_PrevFrame2 = -1;
+		}
+	}
+
+}
+
+
+
 
 void CBoss::StateChangeEffect()
 {
@@ -700,6 +742,7 @@ void CBoss::StateUpdate()
 		StateChangeEffect();
 		StateChangeSound();
 		m_PrevState = m_State;
+		m_PrevFrame2 = -1;
 	}
 	
 		

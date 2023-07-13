@@ -69,6 +69,7 @@ private:
 	int						m_PatternIndex;
 	list<CObj*>*			m_EnemyList;
 
+	int						m_PrevFrame2;
 public:
 	void			InitPatternList();
 	void			PatternChange();
@@ -103,6 +104,7 @@ public:
 	void			StateChangeSound();
 
 	void			BossPlaySound(TCHAR* _name);
+	void			ShadowEffect();
 
 };
 

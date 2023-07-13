@@ -18,6 +18,7 @@
 #include "UIMgr.h"
 #include "LaserObject.h"
 #include "PlayerEffect.h"
+#include "UIObject.h"
 
 CFirstStage::CFirstStage()
 {
@@ -73,10 +74,40 @@ void CFirstStage::Initialize()
 	//플레이어 START 위치
 	CObjMgr::Get_Instance()->Get_Player()->Set_Pos(100, 1200);
 
+	//적 리스트
+	m_EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
+	m_Go = false;
+
 }
 
 void CFirstStage::Update()
 {
+	if (!m_Go)
+	{
+		bool Check = true;
+		for (auto iter : *m_EnemyList)
+		{
+			if (iter->Get_State() != HURTGROUND)
+				Check = false;
+		}
+		if (Check)
+		{
+			CObj* Temp = CObjFactory<CUIObject>::Create(1830, 425, 10, 10);
+			Temp->Set_State(UI_GO);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstX(1830);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+
+			Temp = CObjFactory<CUIObject>::Create(1833, 455, 10, 10);
+			Temp->Set_State(UI_ARROW);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstX(1833);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_Go = true;
+		}
+	}
+	
+		
+
+
 	if (!g_ClearReverse)
 	{
 		if (!g_SlowMotion && !g_TimeStop)
@@ -87,8 +118,10 @@ void CFirstStage::Update()
 	else
 		Set_BackGroundKey(L"FirstStage_gray");
 
-	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse )
+	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
+	else if (CMementoMgr::Get_Instance()->GetReverseOn())
+		m_Go = false;
 
 	CMementoMgr::Get_Instance()->Update();
 }

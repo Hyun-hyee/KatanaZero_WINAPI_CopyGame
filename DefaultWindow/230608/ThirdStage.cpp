@@ -19,6 +19,7 @@
 #include "LaserObject.h"
 #include "PlayerEffect.h"
 #include "KeyMgr.h"
+#include "UIObject.h"
 
 CThirdStage::CThirdStage()
 {
@@ -61,7 +62,7 @@ void CThirdStage::Initialize()
 	//Àû
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(260, 420, 60, 72));
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(260, 330, 60, 72));
-	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(160, 210, 60, 72));
+	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(170, 210, 60, 72));
 
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(1360, 420, 60, 72));
 	CObjMgr::Get_Instance()->Add_Object(ENEMY, CObjFactory<CGunEnemy>::Create(1360, 330, 60, 72));
@@ -99,6 +100,7 @@ void CThirdStage::Initialize()
 	CObjMgr::Get_Instance()->Get_Player()->Set_Pos(800, 90);
 
 	EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
+	m_Go = false;
 }
 
 void CThirdStage::Update()
@@ -107,10 +109,12 @@ void CThirdStage::Update()
 
 	if (!g_ClearReverse)
 	{
+		
 		if (!g_SlowMotion && !g_TimeStop)
 			Set_BackGroundKey(L"ThirdStage");
 		else
 			Set_BackGroundKey(L"ThirdStage_slow");
+
 
 		if (CheckClear())
 		{
@@ -126,6 +130,8 @@ void CThirdStage::Update()
 
 	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
+	else if (CMementoMgr::Get_Instance()->GetReverseOn())
+		m_Go = false;
 
 	CMementoMgr::Get_Instance()->Update();
 }
@@ -137,7 +143,6 @@ void CThirdStage::LateUpdate()
 
 	CMementoMgr::Get_Instance()->LateUpdate();
 	
-	CheckClear();
 	ReplayAndNext();
 }
 
@@ -176,6 +181,23 @@ bool CThirdStage::CheckClear()
 	{
 		if (iter->Get_State() != HURTGROUND)
 			Check = false;
+	}
+	
+	if (!m_Go)
+	{		
+		if (Check)
+		{
+			CObj* Temp = CObjFactory<CUIObject>::Create(757, 440, 10, 10);
+			Temp->Set_State(UI_GO);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstY(440);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+
+			Temp = CObjFactory<CUIObject>::Create(767, 480, 10, 10);
+			Temp->Set_State(UI_ARROWDOWN);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstY(480);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_Go = true;
+		}
 	}
 
 	return Check;

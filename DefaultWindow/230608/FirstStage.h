@@ -1,5 +1,8 @@
 #pragma once
 #include "Scene.h"
+
+class CObj;
+
 class CFirstStage :
     public CScene
 {
@@ -16,5 +19,8 @@ public:
 
 	void		ReplayAndNext();
 
+private:
+	list<CObj*>*		m_EnemyList;
+	bool				m_Go;
 };
 

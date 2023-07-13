@@ -24,5 +24,6 @@ public:
 
 private:
 	list<CObj*>* EnemyList;
+	bool				m_Go;
 };
 

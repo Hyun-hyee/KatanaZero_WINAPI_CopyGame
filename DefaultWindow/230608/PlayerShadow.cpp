@@ -24,7 +24,7 @@ void CPlayerShadow::Initialize()
 
 void CPlayerShadow::Update()
 {	
-	if (m_FrameMap[m_State].iFrameEnd != 0)
+	//if (m_FrameMap[m_State].iFrameEnd != 0)
 	{
 		if (m_FrameMap[m_State].iFrameStart >= m_FrameMap[m_State].iFrameEnd)
 			Set_State(DEAD);
@@ -66,6 +66,10 @@ void CPlayerShadow::InitImage()
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/shadow/player_fall_shadow_4x2.png", L"PLAER_EFFECT_FALLSHADOW");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/shadow/player_roll_shadow_7x2.png", L"PLAER_EFFECT_ROLLSHADOW");
 	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/player/shadow/player_run_shadow_10x2.png", L"PLAER_EFFECT_RUNSHADOW");
+
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_walljump_shadow_7x2.png", L"BOSS_EFFECT_WALLJUMPSHADOW");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_jump_shadow_1x2.png", L"BOSS_EFFECT_JUMPSHADOW");
+	CBmpMgr::Get_Instance()->Insert_Bmp(L"../Resource/images/boss/boss_dash_shadow_1x2.png", L"BOSS_EFFECT_DASHSHADOW");
 
 
 	FRAME TempFrame;
@@ -120,6 +124,38 @@ void CPlayerShadow::InitImage()
 	TempFrame.iFrameSizeX = 88;
 	TempFrame.iFrameSizeY = 64;
 	m_FrameMap.insert({ RUN, TempFrame });
+
+	//********************************************//
+	TempFrame.AnimKey = L"BOSS_EFFECT_WALLJUMPSHADOW";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 6;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 0;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 108;
+	TempFrame.iFrameSizeY = 124;
+	m_FrameMap.insert({ BOSS_WALLJUMP, TempFrame });
+
+	TempFrame.AnimKey = L"BOSS_EFFECT_JUMPSHADOW";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 0;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 0;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 54;
+	TempFrame.iFrameSizeY = 88;
+	m_FrameMap.insert({ BOSS_JUMP, TempFrame });
+
+	TempFrame.AnimKey = L"BOSS_EFFECT_DASHSHADOW";
+	TempFrame.iFrameStart = 0;
+	TempFrame.iFrameEnd = 0;
+	TempFrame.iMotion = 0;
+	TempFrame.dwSpeed = 0;
+	TempFrame.dwTime = GetTickCount64();
+	TempFrame.iFrameSizeX = 102;
+	TempFrame.iFrameSizeY = 50;
+	m_FrameMap.insert({ BOSS_DASH, TempFrame });
+
 }
 
 int CPlayerShadow::InCollision(CObj* _target, DIR _dir)

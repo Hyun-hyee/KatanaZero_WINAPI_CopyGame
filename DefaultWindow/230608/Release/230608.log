@@ -1,72 +1,21 @@
-﻿  Obj.cpp
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(123,25): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(124,24): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(125,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(126,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(148,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(149,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(150,28): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(151,29): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(138,36): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(139,36): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(140,37): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(141,37): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(145,32): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(146,42): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(150,33): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(151,40): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(170,18): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(169,17): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(168,15): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(167,30): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(175,20): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(174,19): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(173,17): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(172,32): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(196,27): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(195,26): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(194,24): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(193,39): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(202,27): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(201,26): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(200,24): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(199,39): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(226,19): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(225,18): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(224,16): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(223,31): warning C4244: '인수': 'float'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(326,11): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(325,11): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(506,12): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(545,21): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(544,39): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(549,22): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(548,40): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(595,21): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(594,39): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(599,22): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(598,40): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(613,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(612,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(628,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(627,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(668,21): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(667,39): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(672,22): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(671,40): warning C4244: '인수': 'int'에서 'Gdiplus::REAL'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(686,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(685,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(701,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(700,50): warning C4244: '인수': 'float'에서 'INT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(731,47): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(743,47): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(754,42): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(755,41): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(756,43): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.cpp(757,44): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+﻿  ThirdStage.cpp
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(127,25): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(128,24): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(129,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(130,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(152,27): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(153,26): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(154,28): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\Obj.h(155,29): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\SceneManager.h(97,52): warning C4244: '=': 'ULONGLONG'에서 'DWORD'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\ObjFactory.h(31,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\ObjFactory.h(28): message : 클래스 템플릿 멤버 함수 'CObj *CObjFactory<CWall>::CreateRECT(float,float,float,float)'을(를) 컴파일하는 중입니다.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\ThirdStage.cpp(54): message : 컴파일되는 함수 템플릿 인스턴스화 'CObj *CObjFactory<CWall>::CreateRECT(float,float,float,float)'에 대한 참조를 확인하세요.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\ThirdStage.cpp(54): message : 컴파일되는 클래스 템플릿 인스턴스화 'CObjFactory<CWall>'에 대한 참조를 확인하세요.
+D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\230608\ObjFactory.h(32,12): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   코드를 생성하고 있습니다.
-  39 of 2165 functions ( 1.8%) were compiled, the rest were copied from previous compilation.
-    14 functions were new in current compilation
-    27 functions had inline decision re-evaluated but remain unchanged
+  1 of 2225 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    23 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
-  230608.vcxproj -> C:\Users\Hyejin\Documents\GitHub\KatanaZero_WINAPI_Project\DefaultWindow\Release\230608.exe
+  230608.vcxproj -> D:\Git\KatanaZero_WINAPI_Project\DefaultWindow\Release\230608.exe

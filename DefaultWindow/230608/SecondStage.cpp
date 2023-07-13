@@ -16,6 +16,7 @@
 #include "MementoMgr.h"
 #include "Fan.h"
 #include "UIMgr.h"
+#include "UIObject.h"
 
 
 CSecondStage::CSecondStage()
@@ -101,12 +102,42 @@ void CSecondStage::Initialize()
 	//플레이어 START 위치
 	m_pPlayer = CObjMgr::Get_Instance()->Get_Player();
 	m_pPlayer->Set_Pos(0, 760);
+
+
+	//적 리스트
+	m_EnemyList = CObjMgr::Get_Instance()->Get_ObjList(ENEMY);
+	m_Go = false;
 }
 
 void CSecondStage::Update()
 {
+	if (!m_Go)
+	{
+		bool Check = true;
+		for (auto iter : *m_EnemyList)
+		{
+			if (iter->Get_State() != HURTGROUND)
+				Check = false;
+		}
+		if (Check)
+		{
+			CObj* Temp = CObjFactory<CUIObject>::Create(4090, 660, 10, 10);
+			Temp->Set_State(UI_GO);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstX(4090);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+
+			Temp = CObjFactory<CUIObject>::Create(4093, 690, 10, 10);
+			Temp->Set_State(UI_ARROW);
+			dynamic_cast<CUIObject*> (Temp)->Set_FirstX(4093);
+			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+			m_Go = true;
+		}
+	}
+
 	if (!CMementoMgr::Get_Instance()->GetReverseOn() && !g_ClearReverse)
 		CObjMgr::Get_Instance()->Update();
+	else if (CMementoMgr::Get_Instance()->GetReverseOn())
+		m_Go = false;
 
 	CMementoMgr::Get_Instance()->Update();
 }

@@ -21,5 +21,8 @@ public:
 private:
 	CObj*		m_pPlayer;
 
+private:
+	list<CObj*>* m_EnemyList;
+	bool				m_Go;
 };
 

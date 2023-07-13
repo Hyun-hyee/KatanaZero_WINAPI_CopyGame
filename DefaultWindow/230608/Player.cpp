@@ -1846,7 +1846,7 @@ void CPlayer::Attack()
 		{
 			if (DIR_NONE != CCollisionMgr::Get_Instance()->Collision_Enter_SS(&m_AttackCollide, iter->Get_Collide()))
 			{
-				if (iter->Get_State() != HURT && iter->Get_State() != HURTGROUND)
+				if (iter->Get_State() != HURT && iter->Get_State() != HURTGROUND && iter->Get_State() != BOSS_CLOAKING)
 				{
 					iter->Set_State(HURT);
 					iter->Set_AttackAngle(m_fAttackAngle);
@@ -1990,36 +1990,36 @@ void CPlayer::StateChangeEffect()
 		else
 			FlipFrontAngle = PI;
 
-		//BloodEffect
-		{
-			CObj* Temp = CObjFactory<CBloodEffect>::Create();
-			dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
-			Temp->Set_AttackAngle(FlipFrontAngle);
-			Temp->Set_FrontAngle(FlipFrontAngle);
-			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
-		}
+		////BloodEffect
+		//{
+		//	CObj* Temp = CObjFactory<CBloodEffect>::Create();
+		//	dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+		//	Temp->Set_AttackAngle(FlipFrontAngle);
+		//	Temp->Set_FrontAngle(FlipFrontAngle);
+		//	Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+		//	CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		//}
 
-		//BloodEffect
-		{
-			CObj* Temp = CObjFactory<CBloodEffect>::Create();
-			Temp->Set_State(BLOOD_EFFECT_ONE);
-			Temp->Set_AttackAngle(FlipFrontAngle);
-			Temp->Set_FrontAngle(FlipFrontAngle);
-			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
-		}
+		////BloodEffect
+		//{
+		//	CObj* Temp = CObjFactory<CBloodEffect>::Create();
+		//	Temp->Set_State(BLOOD_EFFECT_ONE);
+		//	Temp->Set_AttackAngle(FlipFrontAngle);
+		//	Temp->Set_FrontAngle(FlipFrontAngle);
+		//	Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+		//	CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		//}
 
-		//BloodEffect
-		{
-			CObj* Temp = CObjFactory<CBloodEffect>::Create();
-			Temp->Set_State(BLOOD_EFFECT_MOVE);
-			Temp->Set_AttackAngle(m_fAttackAngle);
-			Temp->Set_FrontAngle(m_fFrontAngle);
-			Temp->SetOwner(this);
-			Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
-		}
+		////BloodEffect
+		//{
+		//	CObj* Temp = CObjFactory<CBloodEffect>::Create();
+		//	Temp->Set_State(BLOOD_EFFECT_MOVE);
+		//	Temp->Set_AttackAngle(m_fAttackAngle);
+		//	Temp->Set_FrontAngle(m_fFrontAngle);
+		//	Temp->SetOwner(this);
+		//	Temp->Set_Pos(m_tInfo.fX + cos(m_fFrontAngle) * 5.f, m_tInfo.fY);
+		//	CObjMgr::Get_Instance()->Add_Object(BLOODMOVE, Temp);
+		//}
 	}
 }
 
@@ -2088,7 +2088,7 @@ int CPlayer::InCollision(CObj* _target, DIR _dir)
 	{
 		if (_target->GetOwner() != this && _target->Get_State() != DEAD)
 		{
-			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL) //구를때 무적
+			if (m_State != HURTFLY && m_State != HURTGROUND && m_State != ROLL && !g_TimeStop) //구를때 무적
 			{
 				m_State = HURTFLY;
 				if (_dir == LEFT)
