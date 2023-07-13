@@ -36,6 +36,7 @@ void CScene::BackGroundRender(HDC hDC, int _x, int _y, TCHAR* _BackKey)
 		_x - ((int)cameraPos.x - WINCX / 2), // 복사 받을 위치 X,Y 좌표
 		_y - ((int)cameraPos.y - WINCY / 2)
 	);
+
 }
 
 

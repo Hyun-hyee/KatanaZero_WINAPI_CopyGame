@@ -52,14 +52,14 @@ void CMementoMgr::Initialize()
 
 void CMementoMgr::Render(HDC hDC)
 {
-	/*WCHAR text[100];
+	WCHAR text[100];
 	_stprintf_s(text, L"[Memento] %d ", m_ReverseOn);
 	TextOutW(hDC, 0, 80, text, lstrlen(text));
 	if (!m_pMementoList[PLAYER].empty())
 	{
-		_stprintf_s(text, L"[Memento] %f ", m_pMementoList[PLAYER].back()->Get_Info()->fX);
+		_stprintf_s(text, L"[Camera] %f , %f ", CSceneManager::Get_Instance()->GetCameraPos().x, CSceneManager::Get_Instance()->GetCameraPos().y);
 		TextOutW(hDC, 0, 100, text, lstrlen(text));
-	}*/
+	}
 
 }
 

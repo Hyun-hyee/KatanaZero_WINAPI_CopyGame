@@ -1990,25 +1990,25 @@ void CPlayer::StateChangeEffect()
 		else
 			FlipFrontAngle = PI;
 
-		//BloodEffect
-		{
-			CObj* Temp = CObjFactory<CBloodEffect>::Create();
-			dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
-			Temp->Set_AttackAngle(FlipFrontAngle);
-			Temp->Set_FrontAngle(FlipFrontAngle);
-			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
-		}
+		////BloodEffect
+		//{
+		//	CObj* Temp = CObjFactory<CBloodEffect>::Create();
+		//	dynamic_cast<CBloodEffect*>(Temp)->Set_RandomState();
+		//	Temp->Set_AttackAngle(FlipFrontAngle);
+		//	Temp->Set_FrontAngle(FlipFrontAngle);
+		//	Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+		//	CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		//}
 
-		//BloodEffect
-		{
-			CObj* Temp = CObjFactory<CBloodEffect>::Create();
-			Temp->Set_State(BLOOD_EFFECT_ONE);
-			Temp->Set_AttackAngle(FlipFrontAngle);
-			Temp->Set_FrontAngle(FlipFrontAngle);
-			Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
-			CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
-		}
+		////BloodEffect
+		//{
+		//	CObj* Temp = CObjFactory<CBloodEffect>::Create();
+		//	Temp->Set_State(BLOOD_EFFECT_ONE);
+		//	Temp->Set_AttackAngle(FlipFrontAngle);
+		//	Temp->Set_FrontAngle(FlipFrontAngle);
+		//	Temp->Set_Pos(m_tInfo.fX + cos(FlipFrontAngle) * 10.f, m_tInfo.fY);
+		//	CObjMgr::Get_Instance()->Add_Object(EFFECT, Temp);
+		//}
 
 		//BloodEffect
 		{
